@@ -15,13 +15,13 @@
 #define PA_TAKEOFF_POSITION_ERROR 1.5
 #define PA_BASE_HEIGHT_THRESHOLD 0.2
 #define PA_SETPOINT_POSITION_ERROR 0.5
-#define PA_LANDPOINT_POSITION_ERROR 2.0
+#define PA_LANDPOINT_POSITION_ERROR 2.5
 #define PA_GRASPPER_CONTROL_TIME 6
 #define PA_GO_UP_VELOCITY 0.3
 
 #define PA_FLYING_HEIGHT 2.4
-#define PA_FLYING_HEIGHT_THRESHOLD 0.2
-#define PA_FLYING_Z_VELOCITY 0.1
+#define PA_FLYING_HEIGHT_THRESHOLD 0.07
+#define PA_FLYING_Z_VELOCITY 0.15
 
 #define PA_LAND_COUNT 1
 #define PA_TIME_MIN 1.5
@@ -76,7 +76,7 @@
 
 #define PA_T_DISPLACE 1.6
 #define PA_TARMAC_HEIGHT 0
-#define PA_PILLAR_HEIGHT 0.87
+#define PA_PILLAR_HEIGHT 0.75
 
 #include <sstream>
 #include <ros/assert.h>
@@ -208,7 +208,7 @@ private:
   int m_land_counter;                           // initial
   GRASPPER_STATE m_graspper_state= GRASPPER_CLOSE;
   int m_graspper_control_time= 0;             // initial
-  int m_current_takeoff_point_id= PA_BASE_1;  // initial
+  int m_current_takeoff_point_id= PA_PILLAR_2;  // initial
   ros::Time m_takeoff_time;
   ros::Time m_checked_time;
 

@@ -117,7 +117,7 @@ void RMChallengeFSM::resetAllState()
   m_prepare_to_land_type= PREPARE_AT_HIGH;
   m_graspper_control_time= 0;
   /*if want to test different task,change id here as well as .h*/
-  m_current_takeoff_point_id= PA_BASE_1;
+  m_current_takeoff_point_id= PA_PILLAR_2;
   /**/
   droneUpdatePosition();
 
@@ -873,8 +873,8 @@ void RMChallengeFSM::dronePrepareToLand()
   {
     /*adjust position to center of base*/
     vz= 0;
-    vx= PA_KP_BASE * m_base_position_error[0];
-    vy= PA_KP_BASE * m_base_position_error[1];
+    vx= -0.5*PA_KP_BASE * m_base_position_error[0];
+    vy= -0.5*PA_KP_BASE * m_base_position_error[1];
     ROS_INFO_STREAM("landing at base v are:" << vx << "," << vy << "," << vz);
   }
   else if(m_land_point_type == PILLAR_LAND_POINT)
@@ -1530,8 +1530,10 @@ void RMChallengeFSM::droneUpdatePosition(int POSITION_ID)
   {
     m_real_position[0]= m_takeoff_points[POSITION_ID][0];
     m_real_position[1]= m_takeoff_points[POSITION_ID][1];
+    m_guidance_bias[0]= m_raw_guidance_position[0] - m_real_position[0];
+    m_guidance_bias[1]= m_raw_guidance_position[1] - m_real_position[1];
   }
-  else if(POSITION_ID == PA_T_1)
+  /*else if(POSITION_ID == PA_T_1)
   {
     m_real_position[0]= m_takeoff_points[PA_PILLAR_2][0];
     m_real_position[1]=
@@ -1542,10 +1544,7 @@ void RMChallengeFSM::droneUpdatePosition(int POSITION_ID)
     m_real_position[0]= m_takeoff_points[PA_PILLAR_4][0];
     m_real_position[1]=
         m_takeoff_points[PA_PILLAR_4][1] - PA_T_DISPLACE;
-  }
-
-  m_guidance_bias[0]= m_raw_guidance_position[0] - m_real_position[0];
-  m_guidance_bias[1]= m_raw_guidance_position[1] - m_real_position[1];
+  }*/
 }
 
 void RMChallengeFSM::printStateInfo()
