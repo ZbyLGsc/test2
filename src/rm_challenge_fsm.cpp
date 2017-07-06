@@ -151,6 +151,7 @@ void RMChallengeFSM::run()
 }
 void RMChallengeFSM::resetAllState()
 {
+ros::Duration(1.0).sleep();
   m_state= TAKE_OFF;
   m_uav_state= UAV_LAND;
   m_current_position_from_guidance[0]= 0.0;
@@ -162,7 +163,6 @@ void RMChallengeFSM::resetAllState()
 #if CURRENT_COMPUTER == MANIFOLD
   m_drone->request_sdk_permission_control();
 #endif
-  ros::Duration(1.0).sleep();
 }
 void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
 {
