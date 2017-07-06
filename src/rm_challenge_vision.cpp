@@ -572,7 +572,7 @@ void RMChallengeVision::detectLine(Mat& src, float& distance_x,
     }
   }
 
-  if(!x.empty())  //如果有数据
+  if(x.size() > 100)  //如果有数据
   {
     LeastSquare leastsq(x, y);  //拟合曲线
     leastsq.direction(
@@ -593,6 +593,13 @@ void RMChallengeVision::detectLine(Mat& src, float& distance_x,
       merge(bgrSplit, copy);  //加入copy
       imshow("detectLine", copy);
     }
+  }
+  else 
+  {
+  	distance_x = 0;
+	distance_y = 0;
+	line_vector_x = 0;
+	line_vector_y = 0;		
   }
 }
 /**************************************************************
@@ -646,7 +653,7 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
 
   // if(if_Tri(T_img, p_max.x, p_max.y, side,
   // if_debug))//判断最大点周围是否有三条边，若有，肯定为T型
-  if(!x.empty())  //如果有数据
+  if(x.size() > 100)  //如果有数据
   {
     Mat element1= getStructuringElement(
         MORPH_ELLIPSE,
@@ -701,7 +708,7 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
              Point(src.cols / 2 + picture_vector_x,
                    src.rows / 2 + picture_vector_y),
              Scalar(255));  //以中心点为起点绘制该向量
-        cout << "maxpoint:" << p_max.x << " " << p_max.y << endl;
+        //cout << "maxpoint:" << p_max.x << " " << p_max.y << endl;
         merge(bgrSplit, copy);  //加入copy
         imshow("detectLineWithT", copy);
         waitKey(1);
@@ -804,8 +811,12 @@ bool RMChallengeVision::isTri(Mat& src, int x, int y, int r)
     if(plus_sum == 3 && minus_sum == 3)
     {
       if(m_visable)
+      {
+        cout<<"LineWithT position:"
+            <<x<<" "<<y<<endl;
         imshow("isTri point", copy);
-      waitKey(1);
+        waitKey(1);
+      }
       return true;
     }
     return false;
