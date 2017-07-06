@@ -1,4 +1,0 @@
-<launch>
-	<node pkg="test_pkg" type="test_client" name="test_client" output="screen">
-	</node>
-</launch>

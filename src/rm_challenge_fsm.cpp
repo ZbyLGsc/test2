@@ -152,7 +152,7 @@ void RMChallengeFSM::run()
 void RMChallengeFSM::resetAllState()
 {
   m_state= TAKE_OFF;
-  m_uav_state=UAV_LAND;
+  m_uav_state= UAV_LAND;
   m_current_position_from_guidance[0]= 0.0;
   m_current_position_from_guidance[1]= 0.0;
   m_prepare_to_land_type= PREPARE_AT_HIGH;

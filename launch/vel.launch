@@ -1,4 +1,0 @@
-<launch>
-	<node pkg="test2" type="vel" name="vel" output="screen">
-	</node>
-</launch>
