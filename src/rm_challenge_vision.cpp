@@ -469,33 +469,68 @@ float RMChallengeVision::angle(Point pt1, Point pt2, Point pt0)
 *                   SV三通道二值化结果
 /*              对应关系：蓝色对于H通道，绿色对应S通道，红色对应V通道
 /***************************************************************/
-void RMChallengeVision::getYellowRegion(Mat& src, Mat& dst, int h_low,
-                                        int h_high, int s_threshold,
-                                        int v_threshold)
+void RMChallengeVision::getYellowRegion(Mat& src, Mat& dst, int LowH,
+                                        int HighH, int sThreshold,
+                                        int vThreshold)
 {
-  Mat hsv, Line_h1, Line_h2, Line_h, Line_sv;
+  Mat hsv, Line_sv, hsvColorRegion;
   vector<Mat> hsvSplit;
   cvtColor(src, hsv, CV_BGR2HSV_FULL);  //转换成HSV
   split(hsv, hsvSplit);  //分离出HSV通道，用于提取黄色区域
-  threshold(hsvSplit[0], Line_h1, h_low, 255,
-            THRESH_BINARY);  //去除 H 小于 h_low 度的区域
-  threshold(hsvSplit[0], Line_h2, h_high, 255,
-            THRESH_BINARY_INV);  //去除 H 大于 h_high 度的区域
-  threshold(hsvSplit[1], hsvSplit[1], s_threshold, 255,
+  //threshold(hsvSplit[0], Line_h1, h_low, 255,
+  //          THRESH_BINARY);  //去除 H 小于 h_low 度的区域
+  //threshold(hsvSplit[0], Line_h2, h_high, 255,
+  //          THRESH_BINARY_INV);  //去除 H 大于 h_high 度的区域
+  inRange(hsvSplit[0], LowH, HighH, hsvSplit[0]);
+  threshold(hsvSplit[1], hsvSplit[1], sThreshold, 255,
             THRESH_BINARY);  //去除 S 小于 s_threshold 的区域
-  threshold(hsvSplit[2], hsvSplit[2], v_threshold, 255,
+  threshold(hsvSplit[2], hsvSplit[2], vThreshold, 255,
             THRESH_BINARY);  //去除 V 小于 v_threshold 的区域
-  bitwise_and(Line_h1, Line_h2, Line_h);
+  //bitwise_and(Line_h1, Line_h2, Line_h);
   bitwise_and(hsvSplit[1], hsvSplit[2], Line_sv);
-  bitwise_and(Line_h, Line_sv, dst);  //矩阵位与（255&255=255）
+  bitwise_and(hsvSplit[0], Line_sv, hsvColorRegion);  //矩阵位与（255&255=255）
   // Line_h = Line_h1 + Line_h2;
   // dst = Line_h + hsvSplit[1] + hsvSplit[2];
   if(m_visable)  //调试用
   {
-    hsvSplit[0]= Line_h;
     merge(hsvSplit, hsv);
     imshow("getYellowRegion hsv", hsv);
     waitKey(1);
+  }
+  
+  vector<Mat> bgrSplit;
+  Mat large, abs, 
+      region1, region2, region3,//分别为G-B>...，R-B>...,|R-G|<...区域
+      bgrColorRegion;
+  split(src, bgrSplit);
+  compare( bgrSplit[1], bgrSplit[0], large, CMP_GT );
+  absdiff( bgrSplit[1], bgrSplit[0], abs);
+  threshold( abs, abs, 27, 255, THRESH_BINARY);
+  bitwise_and( abs, large, region1);
+  compare( bgrSplit[2], bgrSplit[0], large, CMP_GT );
+  absdiff( bgrSplit[2], bgrSplit[0], abs);
+  threshold( abs, abs, 27, 255, THRESH_BINARY);
+  bitwise_and( abs, large, region2);
+  absdiff( bgrSplit[2], bgrSplit[1], abs);
+  threshold( abs, region3, 25, 255, THRESH_BINARY_INV);
+
+  bitwise_and( region1, region2, bgrColorRegion);
+  bitwise_and( bgrColorRegion, region3, bgrColorRegion);
+  if ( m_visable )
+  {
+  	imshow( "region3", region3 );
+  	waitKey( 1 );
+  	imshow( "region1 g-b", region1 );
+  	waitKey( 1 );
+  	imshow( "region2 r-b", region2 );
+  	waitKey( 1 );
+  }
+
+  bitwise_and(hsvColorRegion, bgrColorRegion, dst);
+  //dst = bgrColorRegion;
+  if( m_visable )
+  {
+  	imshow("Yellow Region", dst);
   }
 }
 /**********************************************************
