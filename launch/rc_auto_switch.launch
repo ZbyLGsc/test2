@@ -1,0 +1,4 @@
+<launch>
+	<node pkg="test2" type="rc_auto_switch" name="rc_auto_switch" output="screen">
+	</node>
+</launch>
