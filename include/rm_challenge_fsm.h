@@ -1,7 +1,7 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-#define CURRENT_COMPUTER MANIFOLD
+#define CURRENT_COMPUTER ZBY_PC
 
 #define TAKEOFF_POINT_NUMBER 7
 // parameters of uav
