@@ -19,7 +19,11 @@ int main(int argc, char **argv)
   vision.setVisability(true);
 
   /*write image to local file*/
+  
   cv::VideoWriter writer;
+  writer.open("/home/zby/ros_bags/7.7/flytime_video.avi",
+              CV_FOURCC('M', 'J', 'P', 'G'), 30, cv::Size(640, 480));
+
   ROS_INFO_STREAM("begin main loop:");
   while(ros::ok())
   {
@@ -27,16 +31,16 @@ int main(int argc, char **argv)
     if(!g_m100_image.empty())
     {
       cv::imshow("m100_image", g_m100_image);
-
+      // writer.write(g_m100_image);
       float distance_x, distance_y, line_vector_x, line_vector_y;
-      vision.detectLineWithT(g_m100_image, distance_x,
-                             distance_y, line_vector_x,
-                             line_vector_y);
+      vision.detectLineWithT(g_m100_image, distance_x, distance_y,
+                             line_vector_x, line_vector_y);
     }
     cv::waitKey(1);
   }
 
   cv::destroyAllWindows();
+  writer.release();
   return 0;
 }
 
