@@ -67,14 +67,26 @@ int main(int argc, char **argv)
   ROS_INFO_STREAM("initialize finish, start to run");
 
   /*test setter function of FSM*/
-  g_fsm.setDroneState(3);
+  // g_fsm.setDroneState(3);
   //    g_fsm.setDroneState( 3 );
   //    g_fsm.setDroneState( 4 );
-  g_fsm.setHeightFromGuidance(0);
-  g_fsm.setPositionFromGuidance(7, 0);
-  float x= 1, y= 1;
+  // g_fsm.setHeightFromGuidance(2.3);
+  // while(ros::ok())
+  // {
+  //   g_fsm.setPositionFromGuidance(0, -1);
+  //   g_fsm.droneGoToSetPoint();
+  // }
+  // g_fsm.setPositionFromGuidance(0, -2);
+  // g_fsm.droneGoToSetPoint();
+  // g_fsm.setPositionFromGuidance(1, -1);
+  // g_fsm.droneGoToSetPoint();
+  // g_fsm.setPositionFromGuidance(2, -2);
+  // g_fsm.droneGoToSetPoint();
+  // g_fsm.setPositionFromGuidance(2, -3);
+  // g_fsm.droneGoToSetPoint();
+
+  // g_fsm.setPositionFromGuidance(7, 0);
   // g_fsm.transformCoordinate(-90.0 / 180 * 3.1415926, x, y);
-  g_fsm.setPositionFromGuidance(1, 2);
   // ros::Duration(2).sleep();
   // float pos_err[2] = { 0.07, 0.3 };
   // g_fsm.setCircleVariables( true, pos_err, 1.1 );

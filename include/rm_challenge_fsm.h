@@ -1,7 +1,7 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-#define CURRENT_COMPUTER MANIFOLD
+#define CURRENT_COMPUTER ZBY_PC
 
 #define TAKEOFF_POINT_NUMBER 7
 // parameters of uav
@@ -9,7 +9,6 @@
 #define PA_COORDINATE_TRANSFORM_DEGREE (-90)
 #define PA_COORDINATE_TRANSFORM_ANGLE                                \
   PA_COORDINATE_TRANSFORM_DEGREE *PA_DEGREE_TO_RADIAN
-
 
 #define PA_TAKEOFF_TIME 8
 #define PA_TAKEOFF_HEIGHT_THRESHOLD 0.1
@@ -47,6 +46,7 @@
 #include <ros/assert.h>
 #include <ros/ros.h>
 #include <std_msgs/Float32.h>
+#include <geometry_msgs/Vector3Stamped.h>
 // C++标准库
 #include <fstream>
 #include <iostream>
@@ -157,7 +157,10 @@ private:
   int m_current_takeoff_point_id= 0;  // initial
   ros::Time m_takeoff_time;
 
-private:
+  ros::Publisher m_velocity_pub;
+  ros::Publisher m_position_pub;
+
+public:
   /**uav state checking method*/
   void transferToTask(TASK_STATE task_state);  // tested
   bool isTakeoffTimeout();                     // tested
