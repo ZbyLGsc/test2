@@ -573,7 +573,7 @@ void RMChallengeVision::detectLine(Mat& src, float& distance_x,
     }
   }
 
-  if(x.size() > 100)  //如果有数据
+  if(x.size() > 1000)  //如果有数据
   {
     LeastSquare leastsq(x, y);  //拟合曲线
     leastsq.direction(
@@ -654,7 +654,7 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
 
   // if(if_Tri(T_img, p_max.x, p_max.y, side,
   // if_debug))//判断最大点周围是否有三条边，若有，肯定为T型
-  if(x.size() > 100)  //如果有数据
+  if(x.size() > 1000)  //如果有数据
   {
     Mat element1= getStructuringElement(
         MORPH_ELLIPSE,
