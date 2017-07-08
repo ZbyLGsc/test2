@@ -6,7 +6,7 @@
 #define TAKEOFF_POINT_NUMBER 7
 // parameters of uav
 #define PA_DEGREE_TO_RADIAN (3.1415926 / 180.0)
-#define PA_COORDINATE_TRANSFORM_DEGREE (90)
+#define PA_COORDINATE_TRANSFORM_DEGREE (-90)
 #define PA_COORDINATE_TRANSFORM_ANGLE                                \
   PA_COORDINATE_TRANSFORM_DEGREE *PA_DEGREE_TO_RADIAN
 
@@ -17,7 +17,7 @@
 
 #define PA_SETPOINT_POSITION_ERROR 1
 #define PA_GRASPPER_CONTROL_TIME 6
-#define PA_GO_UP_VELOCITY 0.15
+#define PA_GO_UP_VELOCITY 0.2
 
 #define PA_FLYING_HEIGHT 2.4
 #define PA_FLYING_HEIGHT_THRESHOLD 0.2
@@ -36,8 +36,8 @@
 #define PA_KP_PILLAR_HIGH 0.3
 #define PA_KP_PILLAR_LOW 0.3
 
-#define PA_KN 0.15
-#define PA_KT 0.2
+#define PA_KN 0.08
+#define PA_KT 0.35
 
 #define PA_YAW_RATE 10
 #define PA_ANGLE_THRESHOLD 10
@@ -46,6 +46,7 @@
 #include <ros/assert.h>
 #include <ros/ros.h>
 #include <std_msgs/Float32.h>
+#include <geometry_msgs/Vector3Stamped.h>
 // C++标准库
 #include <fstream>
 #include <iostream>
@@ -156,7 +157,10 @@ private:
   int m_current_takeoff_point_id= 0;  // initial
   ros::Time m_takeoff_time;
 
-private:
+  ros::Publisher m_velocity_pub;
+  ros::Publisher m_position_pub;
+
+public:
   /**uav state checking method*/
   void transferToTask(TASK_STATE task_state);  // tested
   bool isTakeoffTimeout();                     // tested
