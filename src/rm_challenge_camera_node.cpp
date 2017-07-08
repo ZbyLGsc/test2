@@ -4,6 +4,7 @@
 ros::Publisher vision_pillar_pub;
 ros::Publisher vision_line_pub;
 ros::Publisher vision_base_pub;
+image_transport::Publisher vision_image_pub;
 
 /**global video capture and image*/
 // cv::Mat g_pillar_image;
@@ -26,6 +27,9 @@ int main(int argc, char **argv)
   vision_line_pub=
       node.advertise<std_msgs::String>("tpp/yellow_line", 1);
   vision_base_pub= node.advertise<std_msgs::String>("tpp/base", 1);
+
+  image_transport::ImageTransport image_transport(node);
+  vision_image_pub= image_transport.advertise("m100/image", 1);
 
   // ros::Timer cap_timer =
   //     node.createTimer( ros::Duration( 1.0 / 100.0 ),
@@ -58,18 +62,26 @@ int main(int argc, char **argv)
   // spinner.start();
   // ros::waitForShutdown();
 
+  Mat frame;
+  sensor_msgs::ImagePtr image_ptr;
   while(ros::ok())
   {
-    /*get new frame*/
-    if(g_cap.get(CV_CAP_PROP_POS_FRAMES) >
-       g_cap.get(CV_CAP_PROP_FRAME_COUNT) - 2)
-    {
-      g_cap.set(CV_CAP_PROP_POS_FRAMES, 0);
-    }
-    Mat frame;
-    g_cap >> frame;
     ROS_INFO_STREAM("loop :"
                     << "\n");
+    /*get new frame*/
+    // if(g_cap.get(CV_CAP_PROP_POS_FRAMES) >
+    //    g_cap.get(CV_CAP_PROP_FRAME_COUNT) - 2)
+    // {
+    //   g_cap.set(CV_CAP_PROP_POS_FRAMES, 0);
+    // }
+    g_cap >> frame;
+    if(frame.empty())
+      continue;
+
+    /* publish this frame to ROS topic*/
+    image_ptr= cv_bridge::CvImage(std_msgs::Header(), "bgr8", frame)
+                   .toImageMsg();
+    vision_image_pub.publish(image_ptr);
 
     /*test detect pillar circle and triangles*/
     ROS_INFO_STREAM("detect pillar");
