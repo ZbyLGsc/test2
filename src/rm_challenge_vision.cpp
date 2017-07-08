@@ -557,7 +557,7 @@ void RMChallengeVision::detectLine(Mat& src, float& distance_x,
   if(m_visable)
     split(src, bgrSplit);  //分离出BGR通道，为最终显示结果做准备
 
-  getYellowRegion(src, img, 30, 60, 110, 110);  //获取黄色区域
+  getYellowRegion(src, img, 30, 47, 150, 90);  //获取黄色区域
   for(int i= 0; i < src.rows; ++i)              //遍历每一行
   {
     data= img.ptr<uchar>(i);          //获取此行开头指针
@@ -573,7 +573,7 @@ void RMChallengeVision::detectLine(Mat& src, float& distance_x,
     }
   }
 
-  if(x.size() > 100)  //如果有数据
+  if(x.size() > 1000)  //如果有数据
   {
     LeastSquare leastsq(x, y);  //拟合曲线
     leastsq.direction(
@@ -630,7 +630,7 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
 
   if(m_visable)
     split(src, bgrSplit);  //分离出BGR通道，为最终显示结果做准备
-  getYellowRegion(src, img, 30, 60, 110, 110);  //获取黄色区域
+  getYellowRegion(src, img, 30, 47, 150, 90);  //获取黄色区域
   for(int i= 0; i < src.rows; ++i)              //遍历每一行
   {
     data= img.ptr<uchar>(i);          //获取此行开头指针
@@ -654,7 +654,7 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
 
   // if(if_Tri(T_img, p_max.x, p_max.y, side,
   // if_debug))//判断最大点周围是否有三条边，若有，肯定为T型
-  if(x.size() > 100)  //如果有数据
+  if(x.size() > 1000)  //如果有数据
   {
     Mat element1= getStructuringElement(
         MORPH_ELLIPSE,
@@ -673,7 +673,10 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
                  0);  //高斯滤波，计算各点黄色密度
     minMaxLoc(T_img, NULL, &val_max, NULL,
               &p_max);  //得到密度最大点位置和值
-    if(hasTri(T_img, side / 2, val_max))
+    threshold(T_img, T_img, val_max / 2, 255,
+              THRESH_BINARY );  //获取二值图，便于使用isTri函数
+    if(isTri(T_img, p_max.x, p_max.y, side/2)
+	   && isTri(T_img, p_max.x, p_max.y, side) ) //当最大点周围两圈都有三条边
     {
       if(m_visable)
       {
