@@ -558,6 +558,13 @@ void RMChallengeVision::detectLine(Mat& src, float& distance_x,
     split(src, bgrSplit);  //分离出BGR通道，为最终显示结果做准备
 
   getYellowRegion(src, img, 30, 47, 150, 90);  //获取黄色区域
+  Mat element1= getStructuringElement(
+      MORPH_ELLIPSE,
+      Size(5, 5));  //设置腐蚀的核大小,5x5的椭圆，即圆
+  Mat element2= getStructuringElement(
+      MORPH_ELLIPSE, Size(7, 7));  //设置膨胀的核大小
+  erode(img, img, element1);         //腐蚀，去除噪点
+  dilate(img, img, element2);  //膨胀，增加线粗
   for(int i= 0; i < src.rows; ++i)              //遍历每一行
   {
     data= img.ptr<uchar>(i);          //获取此行开头指针
@@ -573,7 +580,7 @@ void RMChallengeVision::detectLine(Mat& src, float& distance_x,
     }
   }
 
-  if(x.size() > 1000)  //如果有数据
+  if(x.size() > 2000)  //如果有数据
   {
     LeastSquare leastsq(x, y);  //拟合曲线
     leastsq.direction(
@@ -631,6 +638,13 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
   if(m_visable)
     split(src, bgrSplit);  //分离出BGR通道，为最终显示结果做准备
   getYellowRegion(src, img, 30, 47, 150, 90);  //获取黄色区域
+  Mat element1= getStructuringElement(
+      MORPH_ELLIPSE,
+      Size(5, 5));  //设置腐蚀的核大小,5x5的椭圆，即圆
+  Mat element2= getStructuringElement(
+      MORPH_ELLIPSE, Size(7, 7));  //设置膨胀的核大小
+  erode(img, img, element1);         //腐蚀，去除噪点
+  dilate(img, img, element2);  //膨胀，增加T型交叉点密度
   for(int i= 0; i < src.rows; ++i)              //遍历每一行
   {
     data= img.ptr<uchar>(i);          //获取此行开头指针
@@ -654,16 +668,8 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
 
   // if(if_Tri(T_img, p_max.x, p_max.y, side,
   // if_debug))//判断最大点周围是否有三条边，若有，肯定为T型
-  if(x.size() > 1000)  //如果有数据
+  if(x.size() > 2000)  //如果有数据
   {
-    Mat element1= getStructuringElement(
-        MORPH_ELLIPSE,
-        Size(5, 5));  //设置腐蚀的核大小,5x5的椭圆，即圆
-    Mat element2= getStructuringElement(
-        MORPH_ELLIPSE, Size(15, 15));  //设置膨胀的核大小
-    erode(img, img, element1);         //腐蚀，去除噪点
-    dilate(img, img, element2);  //膨胀，增加T型交叉点密度
-
     if(m_visable)
     {
       imshow("T_img pre process", img);
