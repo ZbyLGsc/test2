@@ -84,7 +84,7 @@ int main(int argc, char **argv)
     vision_image_pub.publish(image_ptr);
 
     /*test detect pillar circle and triangles*/
-    ROS_INFO_STREAM("detect pillar");
+//    ROS_INFO_STREAM("detect pillar");
     RMChallengeVision::PILLAR_RESULT pillar_result;
     float pos_err_x= 0, pos_err_y= 0, height= 0;
     vision.detectPillar(frame, pillar_result);
@@ -111,7 +111,7 @@ int main(int argc, char **argv)
 
     /*test detect yellow line*/
     // cv::imshow( "frame", frame );
-    ROS_INFO_STREAM("detect line");
+//    ROS_INFO_STREAM("detect line");
     float distance_x, distance_y, line_vector_x, line_vector_y;
     // vision.detectLine( frame, distance_x, distance_y,
     // line_vector_x,

@@ -16,14 +16,13 @@ int main(int argc, char **argv)
       image_transport.subscribe("/m100/image", 1, m100ImageCallback);
 
   cv::namedWindow("m100_image", 1);
-  vision.setVisability(false);
+  vision.setVisability(true);
 
   /*write image to local file*/
 
   cv::VideoWriter writer;
   writer.open("/home/zby/ros_bags/7.7/flytime_video.avi",
               CV_FOURCC('P','I','M','1'), 30, cv::Size(640, 480));
-
   ROS_INFO_STREAM("begin main loop:");
   while(ros::ok())
   {
@@ -35,6 +34,9 @@ int main(int argc, char **argv)
       float distance_x, distance_y, line_vector_x, line_vector_y;
       vision.detectLineWithT(g_m100_image, distance_x, distance_y,
                              line_vector_x, line_vector_y);
+      /*test find pillar*/
+      RMChallengeVision::PILLAR_RESULT pillar_result;
+      vision.detectPillar(g_m100_image,pillar_result);
     }
     cv::waitKey(1);
   }
