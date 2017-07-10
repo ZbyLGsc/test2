@@ -1,8 +1,8 @@
 #include "rm_challenge_vision.h"
 #define M100_CAMERA 1
 #define VIDEO_STREAM 2
-#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
-// #define CURRENT_IMAGE_SOURCE M100_CAMERA
+//#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
+ #define CURRENT_IMAGE_SOURCE M100_CAMERA
 
 /**global publisher*/
 ros::Publisher vision_pillar_pub;
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
     return -1;
   }
   RMChallengeVision vision;
-  vision.setVisability(true);
+  vision.setVisability(false);
 
   Mat frame;
   sensor_msgs::ImagePtr image_ptr;
