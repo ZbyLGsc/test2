@@ -108,7 +108,7 @@ public:
     ah= (t3 * x.size() - t2 * t4) / (t5 * x.size() - t4 * t4);
     // b = (t4 - a*t2) / x.size();
     bh= (t5 * t2 - t4 * t3) / (t5 * x.size() - t4 * t4);
-    is_kxb = abs( a ) < abs( ah );
+    is_kxb= abs(a) < abs(ah);
     // error = is_kxb?error1:error2;
     // error = min(error1,error2);
     // avg = error/x.size();

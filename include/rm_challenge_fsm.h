@@ -1,7 +1,8 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-#define CURRENT_COMPUTER MANIFOLD
+#define CURRENT_COMPUTER ZBY_PC
+// #define CURRENT_COMPUTER MANIFOLD
 
 #define TAKEOFF_POINT_NUMBER 7
 // parameters of uav
@@ -31,7 +32,8 @@
 #define PA_V_MIN_HIGH 0.12
 #define PA_V_MIN_LOW 0.036
 #define PA_LAND_Z_VELOCITY 0.15
-#define PA_LAND_TRIANGLE_VELOCITY 0.15
+#define PA_LAND_TRIANGLE_VELOCITY_HIGH 0.15
+#define PA_LAND_TRIANGLE_VELOCITY_LOW 0.07
 #define PA_KP_BASE 0.4
 #define PA_KP_PILLAR_HIGH 0.3
 #define PA_KP_PILLAR_LOW 0.3
@@ -40,7 +42,10 @@
 #define PA_KT 0.35
 
 #define PA_YAW_RATE 10
+#define PA_ANGLE_WITH_DIRECT_LINE_THRESHOLD 25
 #define PA_ANGLE_THRESHOLD 10
+
+#define PA_CAMERA_DISPLACE 0.15
 
 #include <sstream>
 #include <ros/assert.h>
@@ -53,6 +58,7 @@
 #include <map>
 #include <sstream>
 #include <vector>
+#include <math.h>
 // boost asio
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>

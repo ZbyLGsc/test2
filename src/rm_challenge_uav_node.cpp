@@ -21,7 +21,7 @@ void rc_channels_callback(const dji_sdk::RCChannels rc_channels);
 #endif
 
 RMChallengeFSM g_fsm;
-bool is_F_mode= false;
+bool is_F_mode= true;
 
 void uav_state_callback(const std_msgs::UInt8::ConstPtr &msg);
 void guidance_distance_callback(const sensor_msgs::LaserScan &g_oa);
@@ -67,10 +67,10 @@ int main(int argc, char **argv)
   ROS_INFO_STREAM("initialize finish, start to run");
 
   /*test setter function of FSM*/
-  // g_fsm.setDroneState(3);
+  g_fsm.setDroneState(3);
   //    g_fsm.setDroneState( 3 );
   //    g_fsm.setDroneState( 4 );
-  // g_fsm.setHeightFromGuidance(2.3);
+  g_fsm.setHeightFromGuidance(2.1);
   // while(ros::ok())
   // {
   //   g_fsm.setPositionFromGuidance(0, -1);
@@ -85,7 +85,7 @@ int main(int argc, char **argv)
   // g_fsm.setPositionFromGuidance(2, -3);
   // g_fsm.droneGoToSetPoint();
 
-  // g_fsm.setPositionFromGuidance(7, 0);
+  g_fsm.setPositionFromGuidance(7, 0);
   // g_fsm.transformCoordinate(-90.0 / 180 * 3.1415926, x, y);
   // ros::Duration(2).sleep();
   // float pos_err[2] = { 0.07, 0.3 };

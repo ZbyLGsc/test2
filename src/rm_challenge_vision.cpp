@@ -24,11 +24,12 @@ void RMChallengeVision::extractColor(Mat src, COLOR_TYPE color,
   if(src.channels() != 3)
     return;
   /*preprocessing*/
-  GaussianBlur(src, src, Size(5, 5), 0, 0);
+  Mat temp= src.clone();
+  GaussianBlur(temp, temp, Size(5, 5), 0, 0);
   /*to hsv color space*/
   Mat hsv;
   vector<Mat> hsvSplit;
-  cvtColor(src, hsv, CV_BGR2HSV);
+  cvtColor(temp, hsv, CV_BGR2HSV);
   split(hsv, hsvSplit);
   equalizeHist(hsvSplit[2], hsvSplit[2]);
   merge(hsvSplit, hsv);
@@ -367,7 +368,7 @@ void RMChallengeVision::detectPillarCircle(Mat src, Mat color_region,
         cv::drawContours(draw, contours, i, Scalar(0, 255, 255), 2);
         circle_center= center;
         circle_center.x= center.x - 320;
-        circle_center.y= 480 - center.y;
+        circle_center.y= 240 - center.y;
         circle_found= true;
         radiuses.push_back(radius);
       }
@@ -392,13 +393,16 @@ void RMChallengeVision::detectPillarCircle(Mat src, Mat color_region,
     Point pu(320, 0);
     Point pd(320, 480);
     Point cen(320, 240);
-    Point ccen(320, 240);
-    ccen= circle_center;
+    Point ccen;
+    ccen.x= circle_center.x + 320;
+    ccen.y= 240 - circle_center.y;
     line(draw, pl, pr, Scalar(0, 255, 0), 1);
     line(draw, pu, pd, Scalar(0, 255, 0), 1);
     if(circle_center.x != 0 && circle_center.y != 0)
       line(draw, ccen, cen, Scalar(0, 0, 255), 2);
     cv::imshow("pillar circle", draw);
+    ROS_INFO_STREAM("circle center is:" << circle_center.x << ", "
+                                        << circle_center.y);
   }
 }
 /**detect all possible pillar in contest field*/
@@ -559,11 +563,10 @@ void RMChallengeVision::detectLine(Mat& src, float& distance_x,
 
   getYellowRegion(src, img, 30, 47, 150, 90);  //获取黄色区域
   Mat element1= getStructuringElement(
-      MORPH_ELLIPSE,
-      Size(3, 3));  //设置腐蚀的核大小,5x5的椭圆，即圆
-  Mat element2= getStructuringElement(
-      MORPH_ELLIPSE, Size(9, 9));  //设置膨胀的核大小
-  erode(img, img, element1);         //腐蚀，去除噪点
+      MORPH_ELLIPSE, Size(3, 3));  //设置腐蚀的核大小,5x5的椭圆，即圆
+  Mat element2= getStructuringElement(MORPH_ELLIPSE,
+                                      Size(9, 9));  //设置膨胀的核大小
+  erode(img, img, element1);   //腐蚀，去除噪点
   dilate(img, img, element2);  //膨胀，增加线粗
   //去除面积较小的连通域
   vector<vector<Point> > contours;
@@ -571,19 +574,19 @@ void RMChallengeVision::detectLine(Mat& src, float& distance_x,
   img.copyTo(temp);
   cv::findContours(temp, contours, CV_RETR_LIST,
                    CV_CHAIN_APPROX_SIMPLE);
-  for(int i= 0; i <(int) contours.size(); i++)
+  for(int i= 0; i < (int)contours.size(); i++)
   {
-	int area= contourArea(contours[i], false);
-	if( area < 1500) 
-	  drawContours(img, contours, i, Scalar( 0 ), CV_FILLED);
+    int area= contourArea(contours[i], false);
+    if(area < 1500)
+      drawContours(img, contours, i, Scalar(0), CV_FILLED);
   }
   if(m_visable)
   {
-      imshow("img pre process", img);
-      waitKey(1);
+    imshow("img pre process", img);
+    waitKey(1);
   }
-  
-  for(int i= 0; i < src.rows; ++i)              //遍历每一行
+
+  for(int i= 0; i < src.rows; ++i)  //遍历每一行
   {
     data= img.ptr<uchar>(i);          //获取此行开头指针
     for(int j= 0; j < src.cols; ++j)  //遍历此行每个元素
@@ -657,11 +660,10 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
     split(src, bgrSplit);  //分离出BGR通道，为最终显示结果做准备
   getYellowRegion(src, img, 30, 47, 150, 90);  //获取黄色区域
   Mat element1= getStructuringElement(
-      MORPH_ELLIPSE,
-      Size(3, 3));  //设置腐蚀的核大小,5x5的椭圆，即圆
-  Mat element2= getStructuringElement(
-      MORPH_ELLIPSE, Size(9, 9));  //设置膨胀的核大小
-  erode(img, img, element1);         //腐蚀，去除噪点
+      MORPH_ELLIPSE, Size(3, 3));  //设置腐蚀的核大小,5x5的椭圆，即圆
+  Mat element2= getStructuringElement(MORPH_ELLIPSE,
+                                      Size(9, 9));  //设置膨胀的核大小
+  erode(img, img, element1);   //腐蚀，去除噪点
   dilate(img, img, element2);  //膨胀，增加T型交叉点密度
   //去除面积较小的连通域
   vector<vector<Point> > contours;
@@ -669,20 +671,19 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
   img.copyTo(temp);
   cv::findContours(temp, contours, CV_RETR_LIST,
                    CV_CHAIN_APPROX_SIMPLE);
-  for(int i= 0; i <(int) contours.size(); i++)
+  for(int i= 0; i < (int)contours.size(); i++)
   {
-	int area= contourArea(contours[i], false);
-	if( area < 1500) 
-	  drawContours(img, contours, i, Scalar( 0 ), CV_FILLED);
+    int area= contourArea(contours[i], false);
+    if(area < 1500)
+      drawContours(img, contours, i, Scalar(0), CV_FILLED);
   }
   if(m_visable)
   {
-      imshow("img pre process", img);
-      waitKey(1);
+    imshow("img pre process", img);
+    waitKey(1);
   }
 
-  
-  for(int i= 0; i < src.rows; ++i)              //遍历每一行
+  for(int i= 0; i < src.rows; ++i)  //遍历每一行
   {
     data= img.ptr<uchar>(i);          //获取此行开头指针
     for(int j= 0; j < src.cols; ++j)  //遍历此行每个元素
@@ -712,9 +713,10 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
     minMaxLoc(T_img, NULL, &val_max, NULL,
               &p_max);  //得到密度最大点位置和值
     threshold(T_img, T_img, val_max / 2, 255,
-              THRESH_BINARY );  //获取二值图，便于使用isTri函数
-    if(isTri(T_img, p_max.x, p_max.y, side/2)
-	   && isTri(T_img, p_max.x, p_max.y, side) ) //当最大点周围两圈都有三条边
+              THRESH_BINARY);  //获取二值图，便于使用isTri函数
+    if(isTri(T_img, p_max.x, p_max.y, side / 2) &&
+       isTri(T_img, p_max.x, p_max.y,
+             side))  //当最大点周围两圈都有三条边
     {
       if(m_visable)
       {
