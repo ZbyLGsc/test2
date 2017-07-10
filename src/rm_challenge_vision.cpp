@@ -560,11 +560,29 @@ void RMChallengeVision::detectLine(Mat& src, float& distance_x,
   getYellowRegion(src, img, 30, 47, 150, 90);  //获取黄色区域
   Mat element1= getStructuringElement(
       MORPH_ELLIPSE,
-      Size(5, 5));  //设置腐蚀的核大小,5x5的椭圆，即圆
+      Size(3, 3));  //设置腐蚀的核大小,5x5的椭圆，即圆
   Mat element2= getStructuringElement(
-      MORPH_ELLIPSE, Size(7, 7));  //设置膨胀的核大小
+      MORPH_ELLIPSE, Size(9, 9));  //设置膨胀的核大小
   erode(img, img, element1);         //腐蚀，去除噪点
   dilate(img, img, element2);  //膨胀，增加线粗
+  //去除面积较小的连通域
+  vector<vector<Point> > contours;
+  Mat temp;
+  img.copyTo(temp);
+  cv::findContours(temp, contours, CV_RETR_LIST,
+                   CV_CHAIN_APPROX_SIMPLE);
+  for(int i= 0; i <(int) contours.size(); i++)
+  {
+	int area= contourArea(contours[i], false);
+	if( area < 1500) 
+	  drawContours(img, contours, i, Scalar( 0 ), CV_FILLED);
+  }
+  if(m_visable)
+  {
+      imshow("img pre process", img);
+      waitKey(1);
+  }
+  
   for(int i= 0; i < src.rows; ++i)              //遍历每一行
   {
     data= img.ptr<uchar>(i);          //获取此行开头指针
@@ -580,7 +598,7 @@ void RMChallengeVision::detectLine(Mat& src, float& distance_x,
     }
   }
 
-  if(x.size() > 2000)  //如果有数据
+  if(x.size() > 1500)  //如果有数据
   {
     LeastSquare leastsq(x, y);  //拟合曲线
     leastsq.direction(
@@ -640,11 +658,30 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
   getYellowRegion(src, img, 30, 47, 150, 90);  //获取黄色区域
   Mat element1= getStructuringElement(
       MORPH_ELLIPSE,
-      Size(5, 5));  //设置腐蚀的核大小,5x5的椭圆，即圆
+      Size(3, 3));  //设置腐蚀的核大小,5x5的椭圆，即圆
   Mat element2= getStructuringElement(
-      MORPH_ELLIPSE, Size(7, 7));  //设置膨胀的核大小
+      MORPH_ELLIPSE, Size(9, 9));  //设置膨胀的核大小
   erode(img, img, element1);         //腐蚀，去除噪点
   dilate(img, img, element2);  //膨胀，增加T型交叉点密度
+  //去除面积较小的连通域
+  vector<vector<Point> > contours;
+  Mat temp;
+  img.copyTo(temp);
+  cv::findContours(temp, contours, CV_RETR_LIST,
+                   CV_CHAIN_APPROX_SIMPLE);
+  for(int i= 0; i <(int) contours.size(); i++)
+  {
+	int area= contourArea(contours[i], false);
+	if( area < 1500) 
+	  drawContours(img, contours, i, Scalar( 0 ), CV_FILLED);
+  }
+  if(m_visable)
+  {
+      imshow("img pre process", img);
+      waitKey(1);
+  }
+
+  
   for(int i= 0; i < src.rows; ++i)              //遍历每一行
   {
     data= img.ptr<uchar>(i);          //获取此行开头指针
@@ -668,13 +705,8 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
 
   // if(if_Tri(T_img, p_max.x, p_max.y, side,
   // if_debug))//判断最大点周围是否有三条边，若有，肯定为T型
-  if(x.size() > 2000)  //如果有数据
+  if(x.size() > 1500)  //如果有数据
   {
-    if(m_visable)
-    {
-      imshow("T_img pre process", img);
-      waitKey(1);
-    }
     GaussianBlur(img, T_img, Size(side, side),
                  0);  //高斯滤波，计算各点黄色密度
     minMaxLoc(T_img, NULL, &val_max, NULL,
