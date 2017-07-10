@@ -108,8 +108,7 @@ public:
     ah= (t3 * x.size() - t2 * t4) / (t5 * x.size() - t4 * t4);
     // b = (t4 - a*t2) / x.size();
     bh= (t5 * t2 - t4 * t3) / (t5 * x.size() - t4 * t4);
-    float error1= error_plan1(x, y), error2= error_plan2(x, y);
-    is_kxb= error1 < error2;  //比较误差，选择较小的方程
+    is_kxb = abs( a ) < abs( ah );
     // error = is_kxb?error1:error2;
     // error = min(error1,error2);
     // avg = error/x.size();
