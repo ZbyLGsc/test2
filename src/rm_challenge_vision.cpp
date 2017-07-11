@@ -100,7 +100,7 @@ void RMChallengeVision::extractColor(Mat src, COLOR_TYPE color,
   inRange(hsv, Scalar(iLowH, iLowS, iLowV),
           Scalar(iHighH, iHighS, iHighV), hsv);
   vector<Mat> bgrSplit;
-  split(src, bgrSplit);
+  split(temp, bgrSplit);
   Mat bgr1, bgr2, bgr3;
   if(color == RED)
   {

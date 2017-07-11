@@ -1,8 +1,8 @@
 #include "rm_challenge_vision.h"
 #define M100_CAMERA 1
 #define VIDEO_STREAM 2
-//#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
- #define CURRENT_IMAGE_SOURCE M100_CAMERA
+#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
+// #define CURRENT_IMAGE_SOURCE M100_CAMERA
 
 /**global publisher*/
 ros::Publisher vision_pillar_pub;
@@ -52,7 +52,7 @@ int main(int argc, char **argv)
   // );
   cv::VideoCapture g_cap;
 #if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
-  g_cap.open("/home/zby/ros_bags/7.10/flytime_video3.avi");
+  g_cap.open("/home/zby/ros_bags/7.10/arc5.avi");
 #else
   g_cap.open(0);
 #endif
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
     return -1;
   }
   RMChallengeVision vision;
-  vision.setVisability(false);
+  vision.setVisability(true);
 
   Mat frame;
   sensor_msgs::ImagePtr image_ptr;
@@ -75,7 +75,7 @@ int main(int argc, char **argv)
 #if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
     /*get new frame*/
     if(g_cap.get(CV_CAP_PROP_POS_FRAMES) >
-       g_cap.get(CV_CAP_PROP_FRAME_COUNT) - 2)
+       g_cap.get(CV_CAP_PROP_FRAME_COUNT)/5)
     {
       g_cap.set(CV_CAP_PROP_POS_FRAMES, 0);
     }
