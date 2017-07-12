@@ -49,6 +49,8 @@ public:
   void detectPillarCircle(Mat src, Mat color_region,
                           bool& circle_found, Point2f& circle_center,
                           float& rad);
+  void detectPillarArc(Mat src, Mat color_region, bool& circle_found,
+                       Point2f& circle_center, float& radius);
   void extractColor(Mat src, COLOR_TYPE color, Mat& colorRegion);
   float imageToRealDistance(float imageLength, float imageDistance,
                             float realLength);

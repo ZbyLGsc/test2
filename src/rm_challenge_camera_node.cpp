@@ -1,9 +1,9 @@
 #include "rm_challenge_vision.h"
 #define M100_CAMERA 1
 #define VIDEO_STREAM 2
-// #define CURRENT_IMAGE_SOURCE VIDEO_STREAM
-#define CURRENT_IMAGE_SOURCE M100_CAMERA
-#define VISABILITY false
+#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
+// #define CURRENT_IMAGE_SOURCE M100_CAMERA
+#define VISABILITY true
 
 /**global publisher*/
 ros::Publisher vision_pillar_pub;
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
   // );
   cv::VideoCapture g_cap;
 #if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
-  g_cap.open("/home/zby/ros_bags/7.10/arc5.avi");
+  g_cap.open("/home/zby/ros_bags/7.12/arc1.avi");
 #else
   g_cap.open(0);
 #endif
@@ -76,9 +76,10 @@ int main(int argc, char **argv)
 #if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
     /*get new frame*/
     if(g_cap.get(CV_CAP_PROP_POS_FRAMES) >
-       g_cap.get(CV_CAP_PROP_FRAME_COUNT)/5)
+       g_cap.get(CV_CAP_PROP_FRAME_COUNT) - 1)
     {
-      g_cap.set(CV_CAP_PROP_POS_FRAMES, 0);
+      g_cap.set(CV_CAP_PROP_POS_FRAMES,
+                g_cap.get(CV_CAP_PROP_FRAME_COUNT) / 2);
     }
 #endif
 
@@ -121,24 +122,24 @@ int main(int argc, char **argv)
 
     /*test detect yellow line*/
     //    ROS_INFO_STREAM("detect line");
-    float distance_x, distance_y, line_vector_x, line_vector_y;
-    if(vision.detectLineWithT(frame, distance_x, distance_y,
-                              line_vector_x, line_vector_y))
-      ROS_INFO_STREAM("T");
-    else
-    {
-      ROS_INFO_STREAM("distance:" << distance_x << " " <<
-      distance_y);
-      ROS_INFO_STREAM("line direction:" << line_vector_x << " "
-                                        << line_vector_y);
-    }
-    // publish result
-    ss.str("");
-    std_msgs::String line_msg;
-    ss << distance_x << " " << distance_y << " " << line_vector_x
-       << " " << line_vector_y;
-    line_msg.data= ss.str();
-    vision_line_pub.publish(line_msg);
+    // float distance_x, distance_y, line_vector_x, line_vector_y;
+    // if(vision.detectLineWithT(frame, distance_x, distance_y,
+    //                           line_vector_x, line_vector_y))
+    //   ROS_INFO_STREAM("T");
+    // else
+    // {
+    //   ROS_INFO_STREAM("distance:" << distance_x << " " <<
+    //   distance_y);
+    //   ROS_INFO_STREAM("line direction:" << line_vector_x << " "
+    //                                     << line_vector_y);
+    // }
+    // // publish result
+    // ss.str("");
+    // std_msgs::String line_msg;
+    // ss << distance_x << " " << distance_y << " " << line_vector_x
+    //    << " " << line_vector_y;
+    // line_msg.data= ss.str();
+    // vision_line_pub.publish(line_msg);
     cv::waitKey(1);
   }
 
