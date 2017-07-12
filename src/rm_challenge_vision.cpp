@@ -183,7 +183,7 @@ Others:             只有当已知物体实际尺寸时可用
 float RMChallengeVision::imageToHeight(float imageLength,
                                        float realLength)
 {
-  static float f= 933.0; /*camera parameter*/
+  static float f= 507.8; /*camera parameter*/
   float realHeight= (realLength / (imageLength + 0.00001)) * f;
   return realHeight / 1000;
 }
