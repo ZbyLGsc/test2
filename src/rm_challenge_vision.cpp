@@ -460,8 +460,8 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
     /// 霍夫半径
     hough_radius= circles[0][2];
     /// 返回值
-    circle_center.x= hough_center.x - src.cols / 2;
-    circle_center.y= src.rows / 2 - hough_center.y;
+    circle_center.x= hough_center.x - src.cols / 2 - left;
+    circle_center.y= src.rows / 2 - hough_center.y + top;
     last_center= circle_center;
     circle_found= true;
     cout << "hough found"
