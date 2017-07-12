@@ -37,6 +37,7 @@
 		<Unit filename="src/rm_challenge_fsm.cpp" />
 		<Unit filename="src/rm_challenge_uav_node.cpp" />
 		<Unit filename="src/rm_challenge_vision.cpp" />
+		<Unit filename="src/rm_test_vision.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

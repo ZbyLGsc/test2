@@ -24,11 +24,12 @@ void RMChallengeVision::extractColor(Mat src, COLOR_TYPE color,
   if(src.channels() != 3)
     return;
   /*preprocessing*/
-  GaussianBlur(src, src, Size(5, 5), 0, 0);
+  Mat temp= src.clone();
+  GaussianBlur(temp, temp, Size(5, 5), 0, 0);
   /*to hsv color space*/
   Mat hsv;
   vector<Mat> hsvSplit;
-  cvtColor(src, hsv, CV_BGR2HSV);
+  cvtColor(temp, hsv, CV_BGR2HSV);
   split(hsv, hsvSplit);
   equalizeHist(hsvSplit[2], hsvSplit[2]);
   merge(hsvSplit, hsv);
@@ -99,7 +100,7 @@ void RMChallengeVision::extractColor(Mat src, COLOR_TYPE color,
   inRange(hsv, Scalar(iLowH, iLowS, iLowV),
           Scalar(iHighH, iHighS, iHighV), hsv);
   vector<Mat> bgrSplit;
-  split(src, bgrSplit);
+  split(temp, bgrSplit);
   Mat bgr1, bgr2, bgr3;
   if(color == RED)
   {
@@ -182,7 +183,7 @@ Others:             只有当已知物体实际尺寸时可用
 float RMChallengeVision::imageToHeight(float imageLength,
                                        float realLength)
 {
-  static float f= 933.0; /*camera parameter*/
+  static float f= 507.8; /*camera parameter*/
   float realHeight= (realLength / (imageLength + 0.00001)) * f;
   return realHeight / 1000;
 }
@@ -367,7 +368,7 @@ void RMChallengeVision::detectPillarCircle(Mat src, Mat color_region,
         cv::drawContours(draw, contours, i, Scalar(0, 255, 255), 2);
         circle_center= center;
         circle_center.x= center.x - 320;
-        circle_center.y= 480 - center.y;
+        circle_center.y= 240 - center.y;
         circle_found= true;
         radiuses.push_back(radius);
       }
@@ -392,15 +393,125 @@ void RMChallengeVision::detectPillarCircle(Mat src, Mat color_region,
     Point pu(320, 0);
     Point pd(320, 480);
     Point cen(320, 240);
-    Point ccen(320, 240);
-    ccen= circle_center;
+    Point ccen;
+    ccen.x= circle_center.x + 320;
+    ccen.y= 240 - circle_center.y;
     line(draw, pl, pr, Scalar(0, 255, 0), 1);
     line(draw, pu, pd, Scalar(0, 255, 0), 1);
     if(circle_center.x != 0 && circle_center.y != 0)
       line(draw, ccen, cen, Scalar(0, 0, 255), 2);
     cv::imshow("pillar circle", draw);
+    // ROS_INFO_STREAM("circle center is:" << circle_center.x << ", "
+    //                                     << circle_center.y);
   }
 }
+
+void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
+                                        bool& circle_found,
+                                        Point2f& circle_center,
+                                        float& radius)
+{
+  static float last_radius= 150;
+  static Point2f last_center;
+
+  radius= last_radius;
+  circle_center= last_center;
+  circle_found= false;
+
+  /// 扩展边缘
+  int top= last_center.y + last_radius > src.rows / 2 ?
+               (int)last_center.y + last_radius - src.rows / 2 :
+               0,
+      bottom= last_center.y - last_radius < -src.rows / 2 ?
+                  (int)-last_center.y + last_radius - src.rows / 2 :
+                  0,
+      left= last_center.x - last_radius < -src.cols / 2 ?
+                (int)-last_center.x + last_radius - src.cols / 2 :
+                0,
+      right= last_center.x + last_radius > src.cols / 2 ?
+                 (int)last_center.x + last_radius - src.cols / 2 :
+                 0;
+  copyMakeBorder(src, src, top, bottom, left, right, BORDER_CONSTANT);
+  copyMakeBorder(color_region, color_region, top, bottom, left, right,
+                 BORDER_CONSTANT);
+  /// 原图像转换为灰度图像
+  Mat src_gray;
+  cvtColor(src, src_gray, CV_BGR2GRAY);
+  /// 模糊
+  blur(src_gray, src_gray, Size(3, 3));
+  /// 霍夫找圆
+  vector<Vec3f> circles;
+  double dp= 2, min_dist= 200, canny_thresh= 200,
+         accumulator= last_radius / 2;
+  int min_radius= (int)last_radius - 50,
+      max_radius= (int)last_radius + 100;
+  //    min_radius=100;
+  //    max_radius=400;
+  HoughCircles(src_gray, circles, CV_HOUGH_GRADIENT, dp, min_dist,
+               canny_thresh, accumulator, min_radius, max_radius);
+
+  float hough_radius;
+  Point2f hough_center;
+  if(circles.size() > 0)
+  {
+    /// 霍夫圆心
+    hough_center.x= circles[0][0];
+    hough_center.y= circles[0][1];
+    /// 霍夫半径
+    hough_radius= circles[0][2];
+    /// 返回值
+    circle_center.x= hough_center.x - src.cols / 2;
+    circle_center.y= src.rows / 2 - hough_center.y;
+    last_center= circle_center;
+    circle_found= true;
+    cout << "hough found"
+         << " ";
+  }
+  /// 已知圆心找最小圆
+  Mat mask(src.rows, src.cols, CV_8U, Scalar(0));
+  int tmp_r;
+  for(tmp_r= last_radius - 20; tmp_r < last_radius + 20; tmp_r++)
+  {
+    circle(mask, hough_center, tmp_r + 3, Scalar(1), -1);
+    circle(mask, hough_center, tmp_r, Scalar(0), -1);
+    Mat ROI= mask & color_region;
+    int count_point= countNonZero(ROI);
+    if(count_point > 6 * tmp_r)
+      break;
+  }
+  if(tmp_r < last_radius + 20)
+  {
+    last_radius= tmp_r;
+  }
+  else
+  {
+    circle_found= false;
+  }
+  if(m_visable)
+  {
+    // if (circle_found)
+    {
+      Point pl(0, 240);
+      Point pr(640, 240);
+      Point pu(320, 0);
+      Point pd(320, 480);
+      Point cen(320, 240);
+      line(src, pl, pr, Scalar(0, 255, 0), 1);
+      line(src, pu, pd, Scalar(0, 255, 0), 1);
+      if(hough_center.x != 0 && hough_center.y != 0)
+      {
+        line(src, hough_center, cen, Scalar(0, 0, 255), 2);
+        //绘制圆心
+        circle(src, hough_center, 3, Scalar(0, 255, 0), -1, 8, 0);
+        //绘制圆轮廓
+        circle(src, hough_center, last_radius, Scalar(155, 50, 255),
+               3, 8, 0);
+      }
+      imshow("Arc", src);
+    }
+  }
+}
+
 /**detect all possible pillar in contest field*/
 int RMChallengeVision::detectPillar(Mat src,
                                     PILLAR_RESULT& pillar_result)
@@ -412,6 +523,10 @@ int RMChallengeVision::detectPillar(Mat src,
   detectPillarCircle(src, red_region, pillar_result.circle_found,
                      pillar_result.circle_center,
                      pillar_result.radius);
+  detectPillarArc(src, red_region, pillar_result.circle_found,
+                  pillar_result.circle_center, pillar_result.radius);
+
+  ROS_INFO_STREAM("circle center is:" << pillar_result.circle_center);
   return 1;
   int triangle_sum=
       pillar_result.triangle[0] + pillar_result.triangle[1] +
@@ -559,11 +674,10 @@ void RMChallengeVision::detectLine(Mat& src, float& distance_x,
 
   getYellowRegion(src, img, 30, 47, 150, 90);  //获取黄色区域
   Mat element1= getStructuringElement(
-      MORPH_ELLIPSE,
-      Size(3, 3));  //设置腐蚀的核大小,5x5的椭圆，即圆
-  Mat element2= getStructuringElement(
-      MORPH_ELLIPSE, Size(9, 9));  //设置膨胀的核大小
-  erode(img, img, element1);         //腐蚀，去除噪点
+      MORPH_ELLIPSE, Size(3, 3));  //设置腐蚀的核大小,5x5的椭圆，即圆
+  Mat element2= getStructuringElement(MORPH_ELLIPSE,
+                                      Size(9, 9));  //设置膨胀的核大小
+  erode(img, img, element1);   //腐蚀，去除噪点
   dilate(img, img, element2);  //膨胀，增加线粗
   //去除面积较小的连通域
   vector<vector<Point> > contours;
@@ -571,19 +685,19 @@ void RMChallengeVision::detectLine(Mat& src, float& distance_x,
   img.copyTo(temp);
   cv::findContours(temp, contours, CV_RETR_LIST,
                    CV_CHAIN_APPROX_SIMPLE);
-  for(int i= 0; i <(int) contours.size(); i++)
+  for(int i= 0; i < (int)contours.size(); i++)
   {
-	int area= contourArea(contours[i], false);
-	if( area < 1500) 
-	  drawContours(img, contours, i, Scalar( 0 ), CV_FILLED);
+    int area= contourArea(contours[i], false);
+    if(area < 1500)
+      drawContours(img, contours, i, Scalar(0), CV_FILLED);
   }
   if(m_visable)
   {
-      imshow("img pre process", img);
-      waitKey(1);
+    imshow("img pre process", img);
+    waitKey(1);
   }
-  
-  for(int i= 0; i < src.rows; ++i)              //遍历每一行
+
+  for(int i= 0; i < src.rows; ++i)  //遍历每一行
   {
     data= img.ptr<uchar>(i);          //获取此行开头指针
     for(int j= 0; j < src.cols; ++j)  //遍历此行每个元素
@@ -657,11 +771,10 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
     split(src, bgrSplit);  //分离出BGR通道，为最终显示结果做准备
   getYellowRegion(src, img, 30, 47, 150, 90);  //获取黄色区域
   Mat element1= getStructuringElement(
-      MORPH_ELLIPSE,
-      Size(3, 3));  //设置腐蚀的核大小,5x5的椭圆，即圆
-  Mat element2= getStructuringElement(
-      MORPH_ELLIPSE, Size(9, 9));  //设置膨胀的核大小
-  erode(img, img, element1);         //腐蚀，去除噪点
+      MORPH_ELLIPSE, Size(3, 3));  //设置腐蚀的核大小,5x5的椭圆，即圆
+  Mat element2= getStructuringElement(MORPH_ELLIPSE,
+                                      Size(9, 9));  //设置膨胀的核大小
+  erode(img, img, element1);   //腐蚀，去除噪点
   dilate(img, img, element2);  //膨胀，增加T型交叉点密度
   //去除面积较小的连通域
   vector<vector<Point> > contours;
@@ -669,20 +782,19 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
   img.copyTo(temp);
   cv::findContours(temp, contours, CV_RETR_LIST,
                    CV_CHAIN_APPROX_SIMPLE);
-  for(int i= 0; i <(int) contours.size(); i++)
+  for(int i= 0; i < (int)contours.size(); i++)
   {
-	int area= contourArea(contours[i], false);
-	if( area < 1500) 
-	  drawContours(img, contours, i, Scalar( 0 ), CV_FILLED);
+    int area= contourArea(contours[i], false);
+    if(area < 1500)
+      drawContours(img, contours, i, Scalar(0), CV_FILLED);
   }
   if(m_visable)
   {
-      imshow("img pre process", img);
-      waitKey(1);
+    imshow("img pre process", img);
+    waitKey(1);
   }
 
-  
-  for(int i= 0; i < src.rows; ++i)              //遍历每一行
+  for(int i= 0; i < src.rows; ++i)  //遍历每一行
   {
     data= img.ptr<uchar>(i);          //获取此行开头指针
     for(int j= 0; j < src.cols; ++j)  //遍历此行每个元素
@@ -712,9 +824,10 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
     minMaxLoc(T_img, NULL, &val_max, NULL,
               &p_max);  //得到密度最大点位置和值
     threshold(T_img, T_img, val_max / 2, 255,
-              THRESH_BINARY );  //获取二值图，便于使用isTri函数
-    if(isTri(T_img, p_max.x, p_max.y, side/2)
-	   && isTri(T_img, p_max.x, p_max.y, side) ) //当最大点周围两圈都有三条边
+              THRESH_BINARY);  //获取二值图，便于使用isTri函数
+    if(isTri(T_img, p_max.x, p_max.y, side / 2) &&
+       isTri(T_img, p_max.x, p_max.y,
+             side))  //当最大点周围两圈都有三条边
     {
       if(m_visable)
       {
