@@ -523,8 +523,9 @@ int RMChallengeVision::detectPillar(Mat src,
   detectPillarCircle(src, red_region, pillar_result.circle_found,
                      pillar_result.circle_center,
                      pillar_result.radius);
-  detectPillarArc(src, red_region, pillar_result.circle_found,
-                  pillar_result.circle_center, pillar_result.radius);
+
+  detectPillarArc(src, red_region, pillar_result.arc_found,
+                  pillar_result.arc_center, pillar_result.arc_radius);
 
   ROS_INFO_STREAM("circle center is:" << pillar_result.circle_center);
   return 1;

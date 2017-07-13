@@ -24,13 +24,17 @@
 #define PA_FLYING_HEIGHT_THRESHOLD 0.2
 #define PA_FLYING_Z_VELOCITY 0.15
 
-#define PA_LAND_COUNT 3
+#define PA_LAND_COUNT 1
 #define PA_LAND_HEIGHT 1.05
+#define PA_LAND_HEIGHT_FINAL 0.5
 #define PA_LAND_HEIGHT_THRESHOLD 0.05
-#define PA_LAND_POSITION_THRESHOLD_LOW 0.03
+#define PA_LAND_HEIGHT_THRESHOLD_FINAL 0.1
 #define PA_LAND_POSITION_THRESHOLD_HIGH 0.3
+#define PA_LAND_POSITION_THRESHOLD_LOW 0.1
+#define PA_LAND_POSITION_THRESHOLD_SUPER_LOW 0.03
 #define PA_V_MIN_HIGH 0.12
 #define PA_V_MIN_LOW 0.036
+#define PA_LAND_Z_VELOCITY_FINAL 0.1
 #define PA_LAND_Z_VELOCITY 0.15
 #define PA_LAND_TRIANGLE_VELOCITY_HIGH 0.15
 #define PA_LAND_TRIANGLE_VELOCITY_LOW 0.07
@@ -103,6 +107,7 @@ public:
   {
     PREPARE_AT_HIGH,
     PREPARE_AT_LOW,
+    PREPARE_AT_SUPER_LOW,
   };
   enum LINE_TYPE
   {
@@ -143,10 +148,14 @@ private:
   float m_current_position_from_guidance[2];  // initial
   float m_guidance_bias[2];
 
-  /**subscribe from vision node about circle and triangle*/
+  /**subscribe from vision node about circle,arc and triangle*/
   bool m_discover_pillar_circle;
-  float m_landpoint_position_error[2];
-  float m_current_height_from_vision;
+  float m_circle_position_error[2];
+  float m_current_height_from_circle;
+
+  float m_arc_position_error[2];
+  float m_current_height_from_arc;
+
   int m_pillar_triangle[4];
 
   /**subscribe from  vision node about base*/
@@ -205,6 +214,7 @@ public:
   void unitifyVector(float &x, float &y);                 // tested
   void navigateByTriangle(float &x, float &y, float &z);  // tested
   void navigateByCircle(float &x, float &y, float &z);    // tested
+  void navigateByArc(float &x, float &y, float &z);
 
 public:
   /**update from dji's nodes*/
@@ -215,6 +225,7 @@ public:
   void setCircleVariables(bool is_circle_found,
                           float position_error[2], float height);
   void setTriangleVariables(int pillar_triangle[4]);
+  void setArcVariables(float position_error[2], float height);
   /**update from topic about base */
   void setBaseVariables(bool is_base_found, float position_error[2]);
   /**update from topic about detectLine*/

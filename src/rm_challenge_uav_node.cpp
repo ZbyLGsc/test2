@@ -161,14 +161,17 @@ void guidance_position_callback(
 void vision_pillar_callback(const std_msgs::String::ConstPtr &msg)
 {
   float h;
-  float pos[2];
+  float circle_pos[2];
+  float arc_pos[2];
   int tri[4];
   bool circle_found;
   std::stringstream ss(msg->data.c_str());
   ss >> tri[0] >> tri[1] >> tri[2] >> tri[3] >> circle_found >>
-      pos[1] >> pos[0] >> h;
-  g_fsm.setCircleVariables(circle_found, pos, h);
+      circle_pos[1] >> circle_pos[0] >> h >> arc_pos[1] >> arc_pos[0];
+  g_fsm.setCircleVariables(circle_found, circle_pos, h);
   g_fsm.setTriangleVariables(tri);
+  // height not used,set to 0
+  g_fsm.setArcVariables(arc_pos, 0);
 }
 
 void vision_base_callback(const std_msgs::String::ConstPtr &msg)

@@ -1,8 +1,8 @@
 #include "rm_challenge_vision.h"
 #define M100_CAMERA 1
 #define VIDEO_STREAM 2
-#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
-// #define CURRENT_IMAGE_SOURCE M100_CAMERA
+// #define CURRENT_IMAGE_SOURCE VIDEO_STREAM
+#define CURRENT_IMAGE_SOURCE M100_CAMERA
 #define VISABILITY true
 
 /**global publisher*/
@@ -55,7 +55,7 @@ int main(int argc, char **argv)
 #if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
   g_cap.open("/home/zby/ros_bags/7.12/arc1.avi");
 #else
-  g_cap.open(0);
+  g_cap.open(1);
 #endif
 
   if(!g_cap.isOpened())
@@ -99,6 +99,7 @@ int main(int argc, char **argv)
     //    ROS_INFO_STREAM("detect pillar");
     RMChallengeVision::PILLAR_RESULT pillar_result;
     float pos_err_x= 0, pos_err_y= 0, height= 0;
+    float arc_err_x= 1, arc_err_y= 1, arc_height= 2;
     vision.detectPillar(frame, pillar_result);
     if(pillar_result.circle_found)
     {
@@ -109,6 +110,18 @@ int main(int argc, char **argv)
       pos_err_y= vision.imageToRealDistance(
           pillar_result.radius, pillar_result.circle_center.y, 250.0);
     }
+    if(pillar_result.arc_found)
+    {
+      // calculate height and pos_error
+      arc_height=
+          vision.imageToHeight(pillar_result.arc_radius, 200.0);
+      arc_err_x= vision.imageToRealDistance(
+          pillar_result.arc_radius, pillar_result.arc_center.x,
+          200.0);
+      arc_err_y= vision.imageToRealDistance(
+          pillar_result.arc_radius, pillar_result.arc_center.y,
+          200.0);
+    }
     // publish result to uav
     std_msgs::String pillar_msg;
     ss << pillar_result.triangle[0] << " "
@@ -116,7 +129,8 @@ int main(int argc, char **argv)
        << pillar_result.triangle[2] << " "
        << pillar_result.triangle[3] << " "
        << pillar_result.circle_found << " " << pos_err_x << " "
-       << pos_err_y << " " << height;
+       << pos_err_y << " " << height << " " << arc_err_x << " "
+       << arc_err_y;
     pillar_msg.data= ss.str();
     vision_pillar_pub.publish(pillar_msg);
 

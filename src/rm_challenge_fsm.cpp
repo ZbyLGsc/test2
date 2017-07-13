@@ -339,12 +339,12 @@ bool RMChallengeFSM::discoverTriangle()
                     m_pillar_triangle[2] + m_pillar_triangle[3];
   if(triangle_num != 0)
   {
-    ROS_INFO_STREAM("discover triangle" << triangle_num);
+    // ROS_INFO_STREAM("discover triangle" << triangle_num);
     return true;
   }
   else
   {
-    ROS_INFO_STREAM("no triangle");
+    // ROS_INFO_STREAM("no triangle");
     return false;
   }
 }
@@ -558,8 +558,8 @@ void RMChallengeFSM::droneDropDown()
 
 bool RMChallengeFSM::readyToLand()
 {
-  float land_err= sqrt(pow(m_landpoint_position_error[0], 2) +
-                       pow(m_landpoint_position_error[1], 2));
+  float land_err= sqrt(pow(m_circle_position_error[0], 2) +
+                       pow(m_circle_position_error[1], 2));
   float height_error;
   if(m_land_point_type == BASE_LAND_POINT)
   {
@@ -581,17 +581,22 @@ bool RMChallengeFSM::readyToLand()
   }
   else if(m_land_point_type == PILLAR_LAND_POINT)
   {
-    height_error= fabs(PA_LAND_HEIGHT - m_current_height_from_vision);
-    if(m_prepare_to_land_type == PREPARE_AT_LOW &&
-       land_err < PA_LAND_POSITION_THRESHOLD_LOW)
+    height_error=
+        fabs(PA_LAND_HEIGHT_FINAL - m_current_height_from_guidance);
+    float pos_error= sqrt(pow(m_arc_position_error[0], 2) +
+                          pow(m_arc_position_error[1], 2));
+    // need output
+    if(m_prepare_to_land_type == PREPARE_AT_SUPER_LOW &&
+       pos_error < PA_LAND_POSITION_THRESHOLD_SUPER_LOW &&
+       height_error < PA_LAND_HEIGHT_THRESHOLD_FINAL)
     {
       m_land_counter++;
       if(m_land_counter >= PA_LAND_COUNT)
       {
         m_prepare_to_land_type= PREPARE_AT_HIGH;
         m_land_counter= 0;
-        ROS_INFO_STREAM("ready to land at pillar ," << land_err << ","
-                                                    << height_error);
+        ROS_INFO_STREAM("ready to land at pillar ,"
+                        << pos_error << "," << height_error);
         return true;
       }
       else
@@ -612,7 +617,7 @@ bool RMChallengeFSM::readyToLand()
 }
 void RMChallengeFSM::dronePrepareToLand()
 {
-  float vx, vy, vz;
+  float vx= 0, vy= 0, vz= 0;
   if(m_land_point_type == BASE_LAND_POINT)
   {
     if(fabs(m_current_height_from_guidance - PA_LAND_HEIGHT) >
@@ -626,23 +631,32 @@ void RMChallengeFSM::dronePrepareToLand()
     {
       vz= 0;
     }
-    vx= PA_KP_BASE * m_landpoint_position_error[0];
-    vy= PA_KP_BASE * m_landpoint_position_error[1];
+    vx= PA_KP_BASE * m_circle_position_error[0];
+    vy= PA_KP_BASE * m_circle_position_error[1];
     ROS_INFO_STREAM("landing at base v are:" << vx << "," << vy << ","
                                              << vz);
   }
   else if(m_land_point_type == PILLAR_LAND_POINT)
   {
-    if(m_discover_pillar_circle)
+    if(m_prepare_to_land_type == PREPARE_AT_SUPER_LOW)
+    {
+      navigateByArc(vx, vy, vz);
+    }
+    else if(m_discover_pillar_circle)
     {
       navigateByCircle(vx, vy, vz);
     }
     else if(discoverTriangle())
     {
       navigateByTriangle(vx, vy, vz);
+      ROS_INFO_STREAM("navigate by triangle");
     }
-    // ROS_INFO_STREAM("landing v at pillar are:" << vx << "," << vy
-    //                                            << "," << vz);
+    else
+    {
+      ROS_INFO_STREAM("Miss pillar!!!");
+    }
+    ROS_INFO_STREAM("landing v at pillar are:" << vx << "," << vy
+                                               << "," << vz);
   }
   controlDroneVelocity(vx, vy, vz, 0.0);
 
@@ -657,15 +671,16 @@ void RMChallengeFSM::dronePrepareToLand()
 }
 void RMChallengeFSM::navigateByCircle(float &vx, float &vy, float &vz)
 {
+  ROS_INFO_STREAM("navigate by circle");
   if(m_prepare_to_land_type == PREPARE_AT_HIGH)
   {
-    // ROS_INFO_STREAM("navigate high");
-    float land_err= sqrt(pow(m_landpoint_position_error[0], 2) +
-                         pow(m_landpoint_position_error[1], 2));
+    ROS_INFO_STREAM("navigate high");
+    float land_err= sqrt(pow(m_circle_position_error[0], 2) +
+                         pow(m_circle_position_error[1], 2));
     if(land_err > PA_LAND_POSITION_THRESHOLD_HIGH)
     {
-      vx= PA_KP_PILLAR_HIGH * m_landpoint_position_error[0];
-      vy= PA_KP_PILLAR_HIGH * m_landpoint_position_error[1];
+      vx= PA_KP_PILLAR_HIGH * m_circle_position_error[0];
+      vy= PA_KP_PILLAR_HIGH * m_circle_position_error[1];
       vz= 0;
       if(fabs(vx) < PA_V_MIN_HIGH)
         vx= fabs(vx) / (vx + 0.0001) * PA_V_MIN_HIGH;
@@ -676,7 +691,7 @@ void RMChallengeFSM::navigateByCircle(float &vx, float &vy, float &vz)
     {
       vx= vy= 0.0;
       float height_error=
-          PA_LAND_HEIGHT - m_current_height_from_vision;
+          PA_LAND_HEIGHT - m_current_height_from_circle;
       if(fabs(height_error) > PA_LAND_HEIGHT_THRESHOLD)
       {
         vz= fabs(height_error) / (height_error + 0.0000000001) *
@@ -684,6 +699,8 @@ void RMChallengeFSM::navigateByCircle(float &vx, float &vy, float &vz)
       }
       else
       {
+        /*shift to PREPARE_AT_LOW when height and position
+        error are small enough*/
         vz= 0.0;
         droneHover();
         m_prepare_to_land_type= PREPARE_AT_LOW;
@@ -692,16 +709,49 @@ void RMChallengeFSM::navigateByCircle(float &vx, float &vy, float &vz)
   }
   else if(m_prepare_to_land_type == PREPARE_AT_LOW)
   {
-    ROS_INFO_STREAM("navigate ai low");
-    vx= PA_KP_PILLAR_LOW * m_landpoint_position_error[0];
-    vy= PA_KP_PILLAR_LOW * m_landpoint_position_error[1];
+    /*only use circle position error to adjust position*/
+    ROS_INFO_STREAM("navigate at low");
+    vx= PA_KP_PILLAR_LOW * m_circle_position_error[0];
+    vy= PA_KP_PILLAR_LOW * m_circle_position_error[1];
     vz= 0;
     if(fabs(vx) < PA_V_MIN_LOW)
       vx= fabs(vx) / (vx + 0.0001) * PA_V_MIN_LOW;
     if(fabs(vy) < PA_V_MIN_LOW)
       vy= fabs(vy) / (vy + 0.0001) * PA_V_MIN_LOW;
+
+    /*shift to PREPARE_AT_SUPER_LOW when position error
+    is small enough */
+    float land_err= sqrt(pow(m_circle_position_error[0], 2) +
+                         pow(m_circle_position_error[1], 2));
+    if(land_err < PA_LAND_POSITION_THRESHOLD_LOW)
+    {
+      m_prepare_to_land_type= PREPARE_AT_SUPER_LOW;
+    }
   }
 }
+
+void RMChallengeFSM::navigateByArc(float &vx, float &vy, float &vz)
+{
+  ROS_INFO_STREAM("navigate at super low");
+  float height_error=
+      PA_LAND_HEIGHT_FINAL - m_current_height_from_guidance;
+  if(fabs(height_error) > PA_LAND_HEIGHT_THRESHOLD_FINAL)
+  {
+    /*height error too big, use height from guidance to navigate*/
+    vz= fabs(height_error) / (height_error + 0.0000000001) *
+        PA_LAND_Z_VELOCITY_FINAL;
+    vx= vy= 0;
+  }
+  else
+  {
+    /*height error small enough, now use arc position error to
+     navigate*/
+    vx= PA_KP_PILLAR_LOW * m_arc_position_error[0];
+    vy= PA_KP_PILLAR_LOW * m_arc_position_error[1];
+    vz= 0;
+  }
+}
+
 void RMChallengeFSM::navigateByTriangle(float &x, float &y, float &z)
 {
   int triangle_sum= m_pillar_triangle[0] + m_pillar_triangle[1] +
@@ -949,6 +999,7 @@ void RMChallengeFSM::setPositionFromGuidance(float x, float y)
     m_position_pub.publish(pos);
   }
 }
+
 void RMChallengeFSM::setCircleVariables(bool is_circle_found,
                                         float position_error[2],
                                         float height)
@@ -956,22 +1007,23 @@ void RMChallengeFSM::setCircleVariables(bool is_circle_found,
   m_discover_pillar_circle= is_circle_found;
   if(is_circle_found)
   {
-    m_landpoint_position_error[0]=
+    m_circle_position_error[0]=
         position_error[0] - PA_CAMERA_DISPLACE;
-    m_landpoint_position_error[1]= position_error[1];
-    m_current_height_from_vision= height;
+    m_circle_position_error[1]= position_error[1];
+    m_current_height_from_circle= height;
   }
   else
   {
-    m_landpoint_position_error[0]= m_landpoint_position_error[1]=
-        m_current_height_from_vision= 0;
+    m_circle_position_error[0]= m_circle_position_error[1]=
+        m_current_height_from_circle= 0;
   }
   // ROS_INFO_STREAM("circle var is:"
   //                 << m_discover_pillar_circle << ","
-  //                 << m_landpoint_position_error[0] << ","
-  //                 << m_landpoint_position_error[1] << ","
-  //                 << m_current_height_from_vision);
+  //                 << m_circle_position_error[0] << ","
+  //                 << m_circle_position_error[1] << ","
+  //                 << m_current_height_from_circle);
 }
+
 void RMChallengeFSM::setTriangleVariables(int pillar_triangle[4])
 {
   for(int i= 0; i < 4; ++i)
@@ -983,24 +1035,32 @@ void RMChallengeFSM::setTriangleVariables(int pillar_triangle[4])
   //                                << pillar_triangle[2] << ","
   //                                << pillar_triangle[3]);
 }
+
+void RMChallengeFSM::setArcVariables(float position_error[2],
+                                     float height)
+{
+  m_arc_position_error[0]= position_error[0] - PA_CAMERA_DISPLACE;
+  m_arc_position_error[1]= position_error[1];
+  m_current_height_from_arc= height;
+}
+
 void RMChallengeFSM::setBaseVariables(bool is_base_found,
                                       float position_error[2])
 {
   m_discover_base= is_base_found;
   if(is_base_found)
   {
-    m_landpoint_position_error[0]= position_error[0];
-    m_landpoint_position_error[1]= position_error[1];
+    m_circle_position_error[0]= position_error[0];
+    m_circle_position_error[1]= position_error[1];
   }
   else
   {
-    m_landpoint_position_error[0]= 0;
-    m_landpoint_position_error[1]= 0;
+    m_circle_position_error[0]= 0;
+    m_circle_position_error[1]= 0;
   }
   ROS_INFO_STREAM("base var is:" << m_discover_base << ","
-                                 << m_landpoint_position_error[0]
-                                 << ","
-                                 << m_landpoint_position_error[1]);
+                                 << m_circle_position_error[0] << ","
+                                 << m_circle_position_error[1]);
 }
 void RMChallengeFSM::setLineVariables(float distance_to_line[2],
                                       float line_normal[2])

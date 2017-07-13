@@ -40,7 +40,10 @@ public:
     int triangle[4];
     bool circle_found;
     Point2f circle_center;
+    bool arc_found;
+    Point2f arc_center;
     float radius;
+    float arc_radius;
   };
   /**p0 angle point,return the cosine of angle*/
   int detectPillar(Mat src, PILLAR_RESULT& pillar_result);
