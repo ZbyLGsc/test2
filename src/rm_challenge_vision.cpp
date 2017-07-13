@@ -411,7 +411,8 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
                                         Point2f& circle_center,
                                         float& radius)
 {
-  static float last_radius= 150;
+  const static MIN_RADIUS = 100 , MAX_RADIUS = 500 ;
+  static float last_radius= MIN_RADIUS + 50;
   static Point2f last_center;
 
   radius= last_radius;
@@ -443,10 +444,10 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
   vector<Vec3f> circles;
   double dp= 2, min_dist= 200, canny_thresh= 200,
          accumulator= last_radius / 2;
-  int min_radius= (int)last_radius - 50,
-      max_radius= (int)last_radius + 100;
-  //    min_radius=100;
-  //    max_radius=400;
+  int min_radius= (int)last_radius - 50 > MIN_RADIUS ? (int)last_radius - 50 : MIN_RADIUS,
+      max_radius= (int)last_radius + 100 < MAX_RADIUS ? (int)last_radius + 100 : MAX_RADIUS;
+      min_radius= MIN_RADIUS ;
+      max_radius= MAX_RADIUS ;
   HoughCircles(src_gray, circles, CV_HOUGH_GRADIENT, dp, min_dist,
                canny_thresh, accumulator, min_radius, max_radius);
 
@@ -463,30 +464,34 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
     circle_center.x= hough_center.x - src.cols / 2 - left;
     circle_center.y= src.rows / 2 - hough_center.y + top;
     last_center= circle_center;
-    circle_found= true;
-    cout << "hough found"
-         << " ";
+
+  }
+  else
+  {
+    return;
   }
   /// 已知圆心找最小圆
   Mat mask(src.rows, src.cols, CV_8U, Scalar(0));
   int tmp_r;
-  for(tmp_r= last_radius - 20; tmp_r < last_radius + 20; tmp_r++)
+//  for(tmp_r= last_radius - 20; tmp_r < last_radius + 20; tmp_r++)
+  for(tmp_r= min_radius; tmp_r < max_radius; tmp_r++)
   {
-    circle(mask, hough_center, tmp_r + 3, Scalar(1), -1);
-    circle(mask, hough_center, tmp_r, Scalar(0), -1);
+    circle(mask, hough_center, tmp_r , Scalar(1), 3);
+//    circle(mask, hough_center, tmp_r, Scalar(0), -1);
     Mat ROI= mask & color_region;
     int count_point= countNonZero(ROI);
     if(count_point > 6 * tmp_r)
+    {
+      circle_found= true;
       break;
+    }
   }
-  if(tmp_r < last_radius + 20)
+  if(circle_found)
   {
     last_radius= tmp_r;
+    radius= tmp_r;
   }
-  else
-  {
-    circle_found= false;
-  }
+
   if(m_visable)
   {
     // if (circle_found)
