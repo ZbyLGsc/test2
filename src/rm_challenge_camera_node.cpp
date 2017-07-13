@@ -148,7 +148,7 @@ int main(int argc, char **argv)
     //                                     << line_vector_y);
     // }
     // // publish result
-    // ss.str("");
+    ss.str("");
     // std_msgs::String line_msg;
     // ss << distance_x << " " << distance_y << " " << line_vector_x
     //    << " " << line_vector_y;
