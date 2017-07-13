@@ -411,87 +411,89 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
                                         Point2f& circle_center,
                                         float& radius)
 {
-    const static int MIN_RADIUS = 100, MAX_RADIUS = 300 ;
-    static float last_radius= MIN_RADIUS + 50;
-    static Point2f last_center;
+  const static int MIN_RADIUS = 100, MAX_RADIUS = 300 ;
+  static float last_radius= MIN_RADIUS ;
+  static Point2f last_center;
 
-    radius= last_radius;
-    circle_center= last_center;
-    circle_found= false;
+  radius= last_radius;
+  circle_center= last_center;
+  circle_found= false;
 
-    /// 扩展边缘
-    int top= last_center.y + last_radius > src.rows / 2 ?
-             (int)last_center.y + last_radius - src.rows / 2 :
-             0,
-             bottom= last_center.y - last_radius < -src.rows / 2 ?
-                     (int)-last_center.y + last_radius - src.rows / 2 :
-                     0,
-                     left= last_center.x - last_radius < -src.cols / 2 ?
-                           (int)-last_center.x + last_radius - src.cols / 2 :
-                           0,
-                           right= last_center.x + last_radius > src.cols / 2 ?
-                                  (int)last_center.x + last_radius - src.cols / 2 :
-                                  0;
-    copyMakeBorder(src, src, top, bottom, left, right, BORDER_CONSTANT);
-    copyMakeBorder(color_region, color_region, top, bottom, left, right,
-                   BORDER_CONSTANT);
-    cout<<top<<' ';
-    /// 原图像转换为灰度图像
-    Mat src_gray;
-    cvtColor(src, src_gray, CV_BGR2GRAY);
-    /// 模糊
-    blur(src_gray, src_gray, Size(3, 3));
-    /// 霍夫找圆
-    vector<Vec3f> circles;
-    double dp= 2, min_dist= 200, canny_thresh= 200,
-           accumulator= last_radius / 2;
-    int min_radius= (int)last_radius - 50 > MIN_RADIUS ? (int)last_radius - 50 : MIN_RADIUS,
-        max_radius= (int)last_radius + 100 < MAX_RADIUS ? (int)last_radius + 100 : MAX_RADIUS;
-    min_radius= MIN_RADIUS ;
-    max_radius= MAX_RADIUS ;
-    HoughCircles(src_gray, circles, CV_HOUGH_GRADIENT, dp, min_dist,
-                 canny_thresh, accumulator, min_radius, max_radius);
+  /// 扩展边缘
+  int top= last_center.y + last_radius > src.rows / 2 ?
+           (int)last_center.y + last_radius - src.rows / 2 :
+           0,
+           bottom= last_center.y - last_radius < -src.rows / 2 ?
+                   (int)-last_center.y + last_radius - src.rows / 2 :
+                   0,
+                   left= last_center.x - last_radius < -src.cols / 2 ?
+                         (int)-last_center.x + last_radius - src.cols / 2 :
+                         0,
+                         right= last_center.x + last_radius > src.cols / 2 ?
+                                (int)last_center.x + last_radius - src.cols / 2 :
+                                0;
+  copyMakeBorder(src, src, top, bottom, left, right, BORDER_CONSTANT);
+  copyMakeBorder(color_region, color_region, top, bottom, left, right,
+                 BORDER_CONSTANT);
+//  cout<<top<<' ';
+  /// 原图像转换为灰度图像
+  Mat src_gray;
+  cvtColor(src, src_gray, CV_BGR2GRAY);
+  /// 模糊
+  blur(src_gray, src_gray, Size(3, 3));
+  /// 霍夫找圆
+  vector<Vec3f> circles;
+  double dp= 2, min_dist= 200, canny_thresh= 200,
+         accumulator= last_radius / 2;
+  int min_radius= (int)last_radius - 50 > MIN_RADIUS ? (int)last_radius - 50 : MIN_RADIUS,
+      max_radius= (int)last_radius + 100 < MAX_RADIUS ? (int)last_radius + 100 : MAX_RADIUS;
+  min_radius= MIN_RADIUS ;
+  max_radius= MAX_RADIUS ;
+  HoughCircles(src_gray, circles, CV_HOUGH_GRADIENT, dp, min_dist,
+               canny_thresh, accumulator, min_radius, max_radius);
 
-    float hough_radius;
-    Point2f hough_center;
-    if(circles.size() > 0)
-    {
-        /// 霍夫圆心
-        hough_center.x= circles[0][0];
-        hough_center.y= circles[0][1];
-        /// 霍夫半径
-        hough_radius= circles[0][2];
-        /// 返回值
-        circle_center.x= hough_center.x - (src.cols-left-right) / 2 - left;
-        circle_center.y= (src.rows-top-bottom) / 2 - hough_center.y + top;
-        last_center= circle_center;
+  float hough_radius;
+  Point2f hough_center;
+  if(circles.size() > 0)
+  {
+    /// 霍夫圆心
+    hough_center.x= circles[0][0];
+    hough_center.y= circles[0][1];
+    /// 霍夫半径
+    hough_radius= circles[0][2];
+    /// 返回值
+    circle_center.x= hough_center.x - (src.cols - left - right) / 2 - left;
+    circle_center.y= (src.rows - top- bottom) / 2 - hough_center.y + top;
+    circle_found= true;
+    last_center= circle_center;
+    last_radius= hough_radius;
 
-    }
-    else
-    {
-        return;
-    }
-    /// 已知圆心找最小圆
-    Mat mask(src.rows, src.cols, CV_8U, Scalar(0));
-    int tmp_r;
+  }
+  else
+  {
+    return;
+  }
+//  /// 已知圆心找最小圆
+//  Mat mask(src.rows, src.cols, CV_8U, Scalar(0));
+//  int tmp_r;
 //  for(tmp_r= last_radius - 20; tmp_r < last_radius + 20; tmp_r++)
-    for(tmp_r= min_radius; tmp_r < max_radius; tmp_r++)
-    {
-        circle(mask, hough_center, tmp_r + 3, Scalar(1), -1);
-        circle(mask, hough_center, tmp_r, Scalar(0), -1);
-        Mat ROI= mask & color_region;
-        int count_point= countNonZero(ROI);
-        if(count_point > 6 * tmp_r)
-        {
-            circle_found= true;
-            break;
-        }
-    }
-    if(circle_found)
-    {
-        last_radius= tmp_r;
-        radius= tmp_r;
-    }
+////  for(tmp_r= min_radius; tmp_r < max_radius; tmp_r++)
+//  {
+//    circle(mask, hough_center, tmp_r + 3, Scalar(1), -1);
+//    circle(mask, hough_center, tmp_r, Scalar(0), -1);
+//    Mat ROI= mask & color_region;
+//    int count_point= countNonZero(ROI);
+//    if(count_point > 6 * tmp_r)
+//    {
+//      circle_found= true;
+//      break;
+//    }
+//  }
+//  if(circle_found)
+//  {
+//    last_radius= tmp_r;
+//    radius= tmp_r;
+//  }
 
   if(m_visable)
   {
