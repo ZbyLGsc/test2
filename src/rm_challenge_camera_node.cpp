@@ -3,7 +3,7 @@
 #define VIDEO_STREAM 2
 // #define CURRENT_IMAGE_SOURCE VIDEO_STREAM
 #define CURRENT_IMAGE_SOURCE M100_CAMERA
-#define VISABILITY true
+#define VISABILITY false
 
 /**global publisher*/
 ros::Publisher vision_pillar_pub;
@@ -113,14 +113,18 @@ int main(int argc, char **argv)
     if(pillar_result.arc_found)
     {
       // calculate height and pos_error
-      arc_height=
-          vision.imageToHeight(pillar_result.arc_radius, 200.0);
-      arc_err_x= vision.imageToRealDistance(
-          pillar_result.arc_radius, pillar_result.arc_center.x,
-          200.0);
-      arc_err_y= vision.imageToRealDistance(
-          pillar_result.arc_radius, pillar_result.arc_center.y,
-          200.0);
+      // arc_height=
+      //     vision.imageToHeight(pillar_result.arc_radius, 200.0);
+      // arc_err_x= vision.imageToRealDistance(
+      //     pillar_result.arc_radius, pillar_result.arc_center.x,
+      //     200.0);
+      // arc_err_y= vision.imageToRealDistance(
+      //     pillar_result.arc_radius, pillar_result.arc_center.y,
+      //     200.0);
+
+      /*send image pixel error to uav*/
+      arc_err_x= pillar_result.arc_center.x;
+      arc_err_y= pillar_result.arc_center.y;
     }
     // publish result to uav
     std_msgs::String pillar_msg;

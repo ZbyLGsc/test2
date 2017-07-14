@@ -198,7 +198,7 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
   for(int i= 0; i < TAKEOFF_POINT_NUMBER; ++i)
   {
     /* only set for one time */
-    m_goal_height[i]= 2.0;
+    m_goal_height[i]= PA_FLYING_HEIGHT;
     m_takeoff_points[i][0]= 0.0;
     m_takeoff_points[i][1]= 0.0;
     m_setpoints[i][0]= 8.0;
@@ -1039,9 +1039,22 @@ void RMChallengeFSM::setTriangleVariables(int pillar_triangle[4])
 void RMChallengeFSM::setArcVariables(float position_error[2],
                                      float height)
 {
+  /*transform pixel position error to metric error*/
+  calculateRealPositionError(position_error);
+
   m_arc_position_error[0]= position_error[0] - PA_CAMERA_DISPLACE;
   m_arc_position_error[1]= position_error[1];
   m_current_height_from_arc= height;
+}
+
+void RMChallengeFSM::calculateRealPositionError(float error[2])
+{
+  float z= m_current_height_from_guidance;
+  float x= error[0], y= error[1];
+
+  /*pin hole camera model*/
+  error[0]=z*x/PA_CAMERA_F;
+  error[1]=z*y/PA_CAMERA_F;
 }
 
 void RMChallengeFSM::setBaseVariables(bool is_base_found,

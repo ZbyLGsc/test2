@@ -1,8 +1,8 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-#define CURRENT_COMPUTER ZBY_PC
-// #define CURRENT_COMPUTER MANIFOLD
+// #define CURRENT_COMPUTER ZBY_PC
+#define CURRENT_COMPUTER MANIFOLD
 
 #define TAKEOFF_POINT_NUMBER 7
 // parameters of uav
@@ -20,13 +20,13 @@
 #define PA_GRASPPER_CONTROL_TIME 6
 #define PA_GO_UP_VELOCITY 0.2
 
-#define PA_FLYING_HEIGHT 2.0
+#define PA_FLYING_HEIGHT 2.4
 #define PA_FLYING_HEIGHT_THRESHOLD 0.2
 #define PA_FLYING_Z_VELOCITY 0.15
 
 #define PA_LAND_COUNT 1
 #define PA_LAND_HEIGHT 1.05
-#define PA_LAND_HEIGHT_FINAL 2.1
+#define PA_LAND_HEIGHT_FINAL 0.5
 #define PA_LAND_HEIGHT_THRESHOLD 0.05
 #define PA_LAND_HEIGHT_THRESHOLD_FINAL 0.1
 #define PA_LAND_POSITION_THRESHOLD_HIGH 0.3
@@ -50,6 +50,7 @@
 #define PA_ANGLE_THRESHOLD 10
 
 #define PA_CAMERA_DISPLACE 0.15
+#define PA_CAMERA_F 507.75
 
 #include <sstream>
 #include <ros/assert.h>
@@ -211,7 +212,8 @@ public:
   void calculateYawRate(float &yaw);  // tested,confirm yaw
                                       // direction
   void transformCoordinate(float phi, float &x, float &y);
-  void unitifyVector(float &x, float &y);                 // tested
+  void unitifyVector(float &x, float &y);  // tested
+  void calculateRealPositionError(float error[2]);
   void navigateByTriangle(float &x, float &y, float &z);  // tested
   void navigateByCircle(float &x, float &y, float &z);    // tested
   void navigateByArc(float &x, float &y, float &z);
