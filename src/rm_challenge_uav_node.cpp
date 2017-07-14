@@ -70,7 +70,7 @@ int main(int argc, char **argv)
   g_fsm.setDroneState(3);
   //    g_fsm.setDroneState( 3 );
   //    g_fsm.setDroneState( 4 );
-  g_fsm.setHeightFromGuidance(2.1);
+  g_fsm.setHeightFromGuidance(2.35);
   // while(ros::ok())
   // {
   //   g_fsm.setPositionFromGuidance(0, -1);

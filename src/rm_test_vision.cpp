@@ -21,7 +21,7 @@ int main(int argc, char **argv)
   /*write image to local file*/
 
   cv::VideoWriter writer;
-  writer.open("/home/ubuntu/ros_bags/arc1.avi",
+  writer.open("/home/ubuntu/ros_bags/arc2.avi",
               CV_FOURCC('P', 'I', 'M', '1'), 30, cv::Size(640, 480));
   ROS_INFO_STREAM("begin main loop:");
   while(ros::ok())
@@ -38,6 +38,8 @@ int main(int argc, char **argv)
       /*test find pillar*/
       RMChallengeVision::PILLAR_RESULT pillar_result;
       vision.detectPillar(g_m100_image, pillar_result);
+      float x,y,x1,y1;
+      vision.detectLineWithT(g_m100_image,x,y,x1,y1);
     }
     cv::waitKey(1);
   }
