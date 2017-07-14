@@ -38,8 +38,8 @@ int main(int argc, char **argv)
       /*test find pillar*/
       RMChallengeVision::PILLAR_RESULT pillar_result;
       vision.detectPillar(g_m100_image, pillar_result);
-      float x,y,x1,y1;
-      vision.detectLineWithT(g_m100_image,x,y,x1,y1);
+      float x, y, x1, y1;
+      vision.detectLineWithT(g_m100_image, x, y, x1, y1);
     }
     cv::waitKey(1);
   }

@@ -1,8 +1,8 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-// #define CURRENT_COMPUTER ZBY_PC
-#define CURRENT_COMPUTER MANIFOLD
+#define CURRENT_COMPUTER ZBY_PC
+// #define CURRENT_COMPUTER MANIFOLD
 
 #define TAKEOFF_POINT_NUMBER 7
 // parameters of uav
@@ -176,7 +176,7 @@ private:
   ros::Publisher m_velocity_pub;
   ros::Publisher m_position_pub;
 
-public:
+private:
   /**uav state checking method*/
   void transferToTask(TASK_STATE task_state);  // tested
   bool isTakeoffTimeout();                     // tested
@@ -217,6 +217,7 @@ public:
   void navigateByTriangle(float &x, float &y, float &z);  // tested
   void navigateByCircle(float &x, float &y, float &z);    // tested
   void navigateByArc(float &x, float &y, float &z);
+  void publishVelocity(std::string id, float x, float y, float z);
 
 public:
   /**update from dji's nodes*/

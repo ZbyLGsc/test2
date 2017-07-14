@@ -618,6 +618,7 @@ bool RMChallengeFSM::readyToLand()
 void RMChallengeFSM::dronePrepareToLand()
 {
   float vx= 0, vy= 0, vz= 0;
+  std::string velocity_id;
   if(m_land_point_type == BASE_LAND_POINT)
   {
     if(fabs(m_current_height_from_guidance - PA_LAND_HEIGHT) >
@@ -641,19 +642,23 @@ void RMChallengeFSM::dronePrepareToLand()
     if(m_prepare_to_land_type == PREPARE_AT_SUPER_LOW)
     {
       navigateByArc(vx, vy, vz);
+      velocity_id= "by arc";
     }
     else if(m_discover_pillar_circle)
     {
       navigateByCircle(vx, vy, vz);
+      velocity_id= "by circle";
     }
     else if(discoverTriangle())
     {
       navigateByTriangle(vx, vy, vz);
+      velocity_id= "by triangle";
       ROS_INFO_STREAM("navigate by triangle");
     }
     else
     {
       ROS_INFO_STREAM("Miss pillar!!!");
+      velocity_id= "miss pillar";
     }
     ROS_INFO_STREAM("landing v at pillar are:" << vx << "," << vy
                                                << "," << vz);
@@ -661,14 +666,36 @@ void RMChallengeFSM::dronePrepareToLand()
   controlDroneVelocity(vx, vy, vz, 0.0);
 
   /*publish velocity*/
-  geometry_msgs::Vector3Stamped velocity;
-  velocity.header.frame_id= "landing_velocity";
-  velocity.header.stamp= ros::Time::now();
-  velocity.vector.x= vx;
-  velocity.vector.y= vy;
-  velocity.vector.z= vz;
-  m_velocity_pub.publish(velocity);
+  publishVelocity(velocity_id, vx, vy, vz);
+  if(velocity_id == "by arc")
+  {
+    /*publish position and height error to compare*/
+    publishVelocity("arc error", m_arc_position_error[0],
+                    m_arc_position_error[1],
+                    m_current_height_from_guidance);
+  }
+
+  // geometry_msgs::Vector3Stamped velocity;
+  // velocity.header.frame_id= "landing_velocity";
+  // velocity.header.stamp= ros::Time::now();
+  // velocity.vector.x= vx;
+  // velocity.vector.y= vy;
+  // velocity.vector.z= vz;
+  // m_velocity_pub.publish(velocity);
 }
+
+void RMChallengeFSM::publishVelocity(std::string id, float x, float y,
+                                     float z)
+{
+  geometry_msgs::Vector3Stamped vector3;
+  vector3.header.frame_id= id;
+  vector3.header.stamp= ros::Time::now();
+  vector3.vector.x= x;
+  vector3.vector.y= y;
+  vector3.vector.z= z;
+  m_velocity_pub.publish(vector3);
+}
+
 void RMChallengeFSM::navigateByCircle(float &vx, float &vy, float &vz)
 {
   ROS_INFO_STREAM("navigate by circle");
@@ -1053,8 +1080,8 @@ void RMChallengeFSM::calculateRealPositionError(float error[2])
   float x= error[0], y= error[1];
 
   /*pin hole camera model*/
-  error[0]=z*x/PA_CAMERA_F;
-  error[1]=z*y/PA_CAMERA_F;
+  error[0]= z * x / PA_CAMERA_F;
+  error[1]= z * y / PA_CAMERA_F;
 }
 
 void RMChallengeFSM::setBaseVariables(bool is_base_found,

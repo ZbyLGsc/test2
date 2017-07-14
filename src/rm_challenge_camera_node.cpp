@@ -140,24 +140,23 @@ int main(int argc, char **argv)
 
     /*test detect yellow line*/
     //    ROS_INFO_STREAM("detect line");
-     float distance_x, distance_y, line_vector_x, line_vector_y;
-     if(vision.detectLineWithT(frame, distance_x, distance_y,
-                               line_vector_x, line_vector_y))
-       ROS_INFO_STREAM("T");
-     else
-     {
-       ROS_INFO_STREAM("distance:" << distance_x << " " <<
-       distance_y);
-       ROS_INFO_STREAM("line direction:" << line_vector_x << " "
-                                         << line_vector_y);
-     }
+    float distance_x, distance_y, line_vector_x, line_vector_y;
+    if(vision.detectLineWithT(frame, distance_x, distance_y,
+                              line_vector_x, line_vector_y))
+      ROS_INFO_STREAM("T");
+    else
+    {
+      ROS_INFO_STREAM("distance:" << distance_x << " " << distance_y);
+      ROS_INFO_STREAM("line direction:" << line_vector_x << " "
+                                        << line_vector_y);
+    }
     // publish result
     ss.str("");
-     std_msgs::String line_msg;
+    std_msgs::String line_msg;
     ss << distance_x << " " << distance_y << " " << line_vector_x
-        << " " << line_vector_y;
-     line_msg.data= ss.str();
-     vision_line_pub.publish(line_msg);
+       << " " << line_vector_y;
+    line_msg.data= ss.str();
+    vision_line_pub.publish(line_msg);
     cv::waitKey(1);
   }
 
