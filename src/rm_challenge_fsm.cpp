@@ -767,16 +767,13 @@ void RMChallengeFSM::navigateByArc(float &vx, float &vy, float &vz)
     /*height error too big, use height from guidance to navigate*/
     vz= fabs(height_error) / (height_error + 0.0000000001) *
         PA_LAND_Z_VELOCITY_FINAL;
-    vx= vy= 0;
   }
   else
   {
-    /*height error small enough, now use arc position error to
-     navigate*/
-    vx= PA_KP_PILLAR_LOW * m_arc_position_error[0];
-    vy= PA_KP_PILLAR_LOW * m_arc_position_error[1];
-    vz= 0;
+    vz=0;
   }
+  vx= PA_KP_PILLAR_LOW * m_arc_position_error[0];
+  vy= PA_KP_PILLAR_LOW * m_arc_position_error[1];
 }
 
 void RMChallengeFSM::navigateByTriangle(float &x, float &y, float &z)
@@ -922,13 +919,13 @@ void RMChallengeFSM::calculateTangentialVelocity(float &x, float &y,
     if(m_current_takeoff_point_id == 3 ||
        m_current_takeoff_point_id == 4)
     {
-      x= -PA_KT * m_line_normal[0];
-      y= -PA_KT * m_line_normal[1];
+      x= -PA_KT_RATIO*PA_KT * m_line_normal[0];
+      y= -PA_KT_RATIO*PA_KT * m_line_normal[1];
     }
     else  // 0,1,2,5
     {
-      x= PA_KT * m_line_normal[0];
-      y= PA_KT * m_line_normal[1];
+      x= PA_KT_RATIO*PA_KT * m_line_normal[0];
+      y= PA_KT_RATIO*PA_KT * m_line_normal[1];
     }
   }
 }
@@ -951,6 +948,10 @@ void RMChallengeFSM::calculateYawRate(float &yaw)
     {
       yaw= 0;
     }
+  }
+  else
+  {
+    yaw=0;
   }
 
   // ROS_INFO_STREAM("angle 1 and 2 are :" << angle_to_line_1 << ","
