@@ -411,7 +411,7 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
                                         Point2f& circle_center,
                                         float& radius)
 {
-  const static int MIN_RADIUS= 100, MAX_RADIUS= 300;
+  const static int MIN_RADIUS= 100, MAX_RADIUS= 450;
   static float last_radius= MIN_RADIUS;
   static Point2f last_center;
 

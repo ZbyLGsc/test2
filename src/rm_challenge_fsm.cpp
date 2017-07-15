@@ -98,7 +98,7 @@ void RMChallengeFSM::run()
     {
       /* land*/
       droneHover();
-      droneDropDown();
+     // droneDropDown();
       transferToTask(LAND);
     }
   }
@@ -591,6 +591,7 @@ bool RMChallengeFSM::readyToLand()
        height_error < PA_LAND_HEIGHT_THRESHOLD_FINAL)
     {
       m_land_counter++;
+      droneHover();
       if(m_land_counter >= PA_LAND_COUNT)
       {
         m_prepare_to_land_type= PREPARE_AT_HIGH;
@@ -762,18 +763,27 @@ void RMChallengeFSM::navigateByArc(float &vx, float &vy, float &vz)
   ROS_INFO_STREAM("navigate at super low");
   float height_error=
       PA_LAND_HEIGHT_FINAL - m_current_height_from_guidance;
-  if(fabs(height_error) > PA_LAND_HEIGHT_THRESHOLD_FINAL)
+  float pos_error=sqrt(pow(m_arc_position_error[0],2)+pow(m_arc_position_error[1],2));
+  if(fabs(pos_error)>PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG)
+  {
+    vz=0;
+    vx= PA_KP_PILLAR_LOW * m_arc_position_error[0];
+    vy= PA_KP_PILLAR_LOW * m_arc_position_error[1];
+  }
+  else if(fabs(height_error) > PA_LAND_HEIGHT_THRESHOLD_FINAL)
   {
     /*height error too big, use height from guidance to navigate*/
     vz= fabs(height_error) / (height_error + 0.0000000001) *
         PA_LAND_Z_VELOCITY_FINAL;
+    vx= PA_KP_PILLAR_LOW * m_arc_position_error[0];
+    vy= PA_KP_PILLAR_LOW * m_arc_position_error[1];
   }
   else
   {
     vz=0;
+    vx= PA_KP_PILLAR_LOW * m_arc_position_error[0];
+    vy= PA_KP_PILLAR_LOW * m_arc_position_error[1];
   }
-  vx= PA_KP_PILLAR_LOW * m_arc_position_error[0];
-  vy= PA_KP_PILLAR_LOW * m_arc_position_error[1];
 }
 
 void RMChallengeFSM::navigateByTriangle(float &x, float &y, float &z)
