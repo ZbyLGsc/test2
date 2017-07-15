@@ -1,9 +1,9 @@
 #include "rm_challenge_vision.h"
 #define M100_CAMERA 1
 #define VIDEO_STREAM 2
-#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
-// #define CURRENT_IMAGE_SOURCE M100_CAMERA
-#define VISABILITY true
+// #define CURRENT_IMAGE_SOURCE VIDEO_STREAM
+#define CURRENT_IMAGE_SOURCE M100_CAMERA
+#define VISABILITY false
 
 /**global publisher*/
 ros::Publisher vision_pillar_pub;
@@ -99,6 +99,7 @@ int main(int argc, char **argv)
     //    ROS_INFO_STREAM("detect pillar");
     RMChallengeVision::PILLAR_RESULT pillar_result;
     float pos_err_x= 0, pos_err_y= 0, height= 0;
+    float arc_err_x= 1, arc_err_y= 1, arc_height= 2;
     vision.detectPillar(frame, pillar_result);
     if(pillar_result.circle_found)
     {
@@ -109,6 +110,22 @@ int main(int argc, char **argv)
       pos_err_y= vision.imageToRealDistance(
           pillar_result.radius, pillar_result.circle_center.y, 250.0);
     }
+    if(pillar_result.arc_found)
+    {
+      // calculate height and pos_error
+      // arc_height=
+      //     vision.imageToHeight(pillar_result.arc_radius, 200.0);
+      // arc_err_x= vision.imageToRealDistance(
+      //     pillar_result.arc_radius, pillar_result.arc_center.x,
+      //     200.0);
+      // arc_err_y= vision.imageToRealDistance(
+      //     pillar_result.arc_radius, pillar_result.arc_center.y,
+      //     200.0);
+
+      /*send image pixel error to uav*/
+      arc_err_x= pillar_result.arc_center.x;
+      arc_err_y= pillar_result.arc_center.y;
+    }
     // publish result to uav
     std_msgs::String pillar_msg;
     ss << pillar_result.triangle[0] << " "
@@ -116,30 +133,30 @@ int main(int argc, char **argv)
        << pillar_result.triangle[2] << " "
        << pillar_result.triangle[3] << " "
        << pillar_result.circle_found << " " << pos_err_x << " "
-       << pos_err_y << " " << height;
+       << pos_err_y << " " << height << " " << arc_err_x << " "
+       << arc_err_y;
     pillar_msg.data= ss.str();
     vision_pillar_pub.publish(pillar_msg);
 
     /*test detect yellow line*/
     //    ROS_INFO_STREAM("detect line");
-    // float distance_x, distance_y, line_vector_x, line_vector_y;
-    // if(vision.detectLineWithT(frame, distance_x, distance_y,
-    //                           line_vector_x, line_vector_y))
-    //   ROS_INFO_STREAM("T");
-    // else
-    // {
-    //   ROS_INFO_STREAM("distance:" << distance_x << " " <<
-    //   distance_y);
-    //   ROS_INFO_STREAM("line direction:" << line_vector_x << " "
-    //                                     << line_vector_y);
-    // }
-    // // publish result
-    // ss.str("");
-    // std_msgs::String line_msg;
-    // ss << distance_x << " " << distance_y << " " << line_vector_x
-    //    << " " << line_vector_y;
-    // line_msg.data= ss.str();
-    // vision_line_pub.publish(line_msg);
+    float distance_x, distance_y, line_vector_x, line_vector_y;
+    if(vision.detectLineWithT(frame, distance_x, distance_y,
+                              line_vector_x, line_vector_y))
+      ROS_INFO_STREAM("T");
+    else
+    {
+      ROS_INFO_STREAM("distance:" << distance_x << " " << distance_y);
+      ROS_INFO_STREAM("line direction:" << line_vector_x << " "
+                                        << line_vector_y);
+    }
+    // publish result
+    ss.str("");
+    std_msgs::String line_msg;
+    ss << distance_x << " " << distance_y << " " << line_vector_x
+       << " " << line_vector_y;
+    line_msg.data= ss.str();
+    vision_line_pub.publish(line_msg);
     cv::waitKey(1);
   }
 
