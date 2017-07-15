@@ -192,8 +192,15 @@ void RMChallengeVision::detectTriangle(Mat src, Mat color_region,
                                        int triangle[4])
 {
   vector<vector<Point> > contours;
-  Mat temp;
+  Mat temp, draw;
+  if ( m_visable )
+    draw = src.clone();
   color_region.copyTo(temp);
+  //erode to make triangle sharp
+  Mat element = getStructuringElement(MORPH_ELLIPSE,
+                                      Size(3, 3));  
+  erode(temp,temp, element);  
+                                
   cv::findContours(temp, contours, CV_RETR_LIST,
                    CV_CHAIN_APPROX_SIMPLE);
   vector<vector<Point> > triangles;
@@ -202,14 +209,25 @@ void RMChallengeVision::detectTriangle(Mat src, Mat color_region,
   for(int i= 0; i < contours.size(); i++)
   {
     int area= contourArea(contours.at(i));
-    if(area < 80)
+    if(area < 70)
       continue;
     vector<Point> approx;
     cv::approxPolyDP(Mat(contours[i]), approx,
-                     arcLength(Mat(contours[i]), true) * 0.045, true);
+                     arcLength(Mat(contours[i]), true) * 0.08, true);
     if(approx.size() != 3)
       continue;
     if(!isContourConvex(Mat(approx)))
+      continue;
+    //calculate the error of approx
+    double approxError=0;
+    for( int j=0; j<(int)contours[i].size(); j++)
+    {
+      approxError += abs( pointPolygonTest( approx,
+                                            contours[i][j],
+                                            true));
+    }
+    if(approxError > arcLength( Mat( contours[i] ),
+                                true ) * 0.55 )
       continue;
     // fitting 45 45 90 degree of triangle
     float angle1=
@@ -284,7 +302,6 @@ void RMChallengeVision::detectTriangle(Mat src, Mat color_region,
     // direction vector
     if(m_visable)
     {
-      Mat draw= src.clone();
       cv::drawContours(draw, contours, i, Scalar(0, 0, 255), 2);
       Point dirVec;
       Point end(approx.at(verPointId).x, approx.at(verPointId).y);
