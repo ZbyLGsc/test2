@@ -1,8 +1,8 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-// #define CURRENT_COMPUTER ZBY_PC
-#define CURRENT_COMPUTER MANIFOLD
+//#define CURRENT_COMPUTER ZBY_PC
+ #define CURRENT_COMPUTER MANIFOLD
 
 #define TAKEOFF_POINT_NUMBER 7
 // parameters of uav
@@ -14,26 +14,18 @@
 #define PA_TAKEOFF_TIME 7
 #define PA_TAKEOFF_HEIGHT_THRESHOLD 0.1
 #define PA_TAKEOFF_POSITION_ERROR 2
-#define PA_BASE_HEIGHT_THRESHOLD 0.2
-
-#define PA_SETPOINT_POSITION_ERROR 1
-#define PA_GRASPPER_CONTROL_TIME 6
-#define PA_GO_UP_VELOCITY 0.3
-
 #define PA_FLYING_HEIGHT 2.4
 #define PA_FLYING_HEIGHT_THRESHOLD 0.2
 #define PA_FLYING_Z_VELOCITY 0.1
 
 #define PA_LAND_COUNT 1
-#define PA_TIME_MIN 0.5
-#define PA_TIME_MAX 2.0
 #define PA_LAND_HEIGHT 1.05
-#define PA_LAND_HEIGHT_FINAL 0.6
+#define PA_LAND_HEIGHT_FINAL 0.55
 #define PA_LAND_HEIGHT_THRESHOLD 0.2
 #define PA_LAND_HEIGHT_THRESHOLD_FINAL 0.2
 #define PA_LAND_POSITION_THRESHOLD_HIGH 0.3
 #define PA_LAND_POSITION_THRESHOLD_LOW 0.1
-#define PA_LAND_POSITION_THRESHOLD_SUPER_LOW 0.06
+#define PA_LAND_POSITION_THRESHOLD_SUPER_LOW 0.05
 #define PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG 0.1
 #define PA_V_MIN_HIGH 0.15
 #define PA_V_MIN_LOW 0.04
@@ -53,7 +45,7 @@
 #define PA_ANGLE_WITH_DIRECT_LINE_THRESHOLD 25
 #define PA_ANGLE_THRESHOLD 10
 
-#define PA_CAMERA_DISPLACE 0.145
+#define PA_CAMERA_DISPLACE 0.16
 #define PA_CAMERA_F 507.75
 
 #include <sstream>
@@ -176,7 +168,6 @@ private:
   int m_graspper_control_time= 0;     // initial
   int m_current_takeoff_point_id= 0;  // initial
   ros::Time m_takeoff_time;
-  ros::Time m_checked_time;
 
   ros::Publisher m_velocity_pub;
   ros::Publisher m_position_pub;
@@ -195,8 +186,6 @@ private:
   bool closeToSetPoint();                      // tested
   bool readyToLand();                          // tested
   bool finishGraspperTask();                   // tested
-  bool isCheckedTimeSuitable();
-  void updateCheckedTime();
 
   /**uav control method*/
   void droneTakeoff();

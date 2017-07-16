@@ -590,27 +590,36 @@ bool RMChallengeFSM::readyToLand()
        pos_error < PA_LAND_POSITION_THRESHOLD_SUPER_LOW &&
        height_error < PA_LAND_HEIGHT_THRESHOLD_FINAL)
     {
-      if(m_land_counter==0)
+      droneHover();
+      if(isCheckedTimeSuitable())
       {
-        updateCheckedTime();
-        m_land_counter++;
-        droneHover();
+	return true;	  
       }
-      else if(m_land_counter==1)
+      else
       {
-        m_land_counter=0;
-        if(isCheckedTimeSuitable())
-        {
-          m_prepare_to_land_type= PREPARE_AT_HIGH;
-          ROS_INFO_STREAM("ready to land at pillar ,"
-                        << pos_error << "," << height_error);
-          return true; 
-        }
-        else
-        {
-          return false;
-        }
+	return false;
       }
+      //if(m_land_counter==0)
+      //{
+       // updateCheckedTime();
+       // m_land_counter++;
+       // droneHover();
+      //}
+     // else if(m_land_counter==1)
+     // {
+       // m_land_counter=0;
+       // if(isCheckedTimeSuitable())
+       // {
+         // m_prepare_to_land_type= PREPARE_AT_HIGH;
+         // ROS_INFO_STREAM("ready to land at pillar ,"
+                    //    << pos_error << "," << height_error);
+        //  return true; 
+       // }
+       // else
+       // {
+        //  return false;
+       // }
+      //}
       // if(m_land_counter >= PA_LAND_COUNT)
       // {
       //   m_prepare_to_land_type= PREPARE_AT_HIGH;
@@ -631,6 +640,7 @@ bool RMChallengeFSM::readyToLand()
     {
       // ROS_INFO_STREAM("error too big," << land_err << ","
       //                                  << height_error);
+      updateCheckedTime();
       return false;
     }
   }
