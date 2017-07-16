@@ -1,8 +1,8 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-//#define CURRENT_COMPUTER ZBY_PC
- #define CURRENT_COMPUTER MANIFOLD
+// #define CURRENT_COMPUTER ZBY_PC
+#define CURRENT_COMPUTER MANIFOLD
 
 #define TAKEOFF_POINT_NUMBER 7
 // parameters of uav
@@ -25,6 +25,8 @@
 #define PA_FLYING_Z_VELOCITY 0.1
 
 #define PA_LAND_COUNT 1
+#define PA_TIME_MIN 0.5
+#define PA_TIME_MAX 2.0
 #define PA_LAND_HEIGHT 1.05
 #define PA_LAND_HEIGHT_FINAL 0.6
 #define PA_LAND_HEIGHT_THRESHOLD 0.2
@@ -174,6 +176,7 @@ private:
   int m_graspper_control_time= 0;     // initial
   int m_current_takeoff_point_id= 0;  // initial
   ros::Time m_takeoff_time;
+  ros::Time m_checked_time;
 
   ros::Publisher m_velocity_pub;
   ros::Publisher m_position_pub;
@@ -192,6 +195,8 @@ private:
   bool closeToSetPoint();                      // tested
   bool readyToLand();                          // tested
   bool finishGraspperTask();                   // tested
+  bool isCheckedTimeSuitable();
+  void updateCheckedTime();
 
   /**uav control method*/
   void droneTakeoff();

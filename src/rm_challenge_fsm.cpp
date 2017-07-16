@@ -98,7 +98,7 @@ void RMChallengeFSM::run()
     {
       /* land*/
       droneHover();
-     // droneDropDown();
+      // droneDropDown();
       transferToTask(LAND);
     }
   }
@@ -590,23 +590,42 @@ bool RMChallengeFSM::readyToLand()
        pos_error < PA_LAND_POSITION_THRESHOLD_SUPER_LOW &&
        height_error < PA_LAND_HEIGHT_THRESHOLD_FINAL)
     {
-      m_land_counter++;
-      droneHover();
-      if(m_land_counter >= PA_LAND_COUNT)
+      if(m_land_counter==0)
       {
-        m_prepare_to_land_type= PREPARE_AT_HIGH;
-        m_land_counter= 0;
-        ROS_INFO_STREAM("ready to land at pillar ,"
+        updateCheckedTime();
+        m_land_counter++;
+        droneHover();
+      }
+      else if(m_land_counter==1)
+      {
+        m_land_counter=0;
+        if(isCheckedTimeSuitable())
+        {
+          m_prepare_to_land_type= PREPARE_AT_HIGH;
+          ROS_INFO_STREAM("ready to land at pillar ,"
                         << pos_error << "," << height_error);
-        return true;
+          return true; 
+        }
+        else
+        {
+          return false;
+        }
       }
-      else
-      {
-        ROS_INFO_STREAM("counter not enough," << land_err << ","
-                                              << height_error << ","
-                                              << m_land_counter);
-        return false;
-      }
+      // if(m_land_counter >= PA_LAND_COUNT)
+      // {
+      //   m_prepare_to_land_type= PREPARE_AT_HIGH;
+      //   m_land_counter= 0;
+      //   ROS_INFO_STREAM("ready to land at pillar ,"
+      //                   << pos_error << "," << height_error);
+      //   return true;
+      // }
+      // else
+      // {
+      //   ROS_INFO_STREAM("counter not enough," << land_err << ","
+      //                                         << height_error << ","
+      //                                         << m_land_counter);
+      //   return false;
+      // }
     }
     else
     {
@@ -616,6 +635,26 @@ bool RMChallengeFSM::readyToLand()
     }
   }
 }
+
+bool RMChallengeFSM::isCheckedTimeSuitable()
+{
+  ros::Time now=ros::Time::now();
+  double d=now.toSec()-m_checked_time.toSec();
+  if(d<PA_TIME_MAX&&d>PA_TIME_MIN)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+void RMChallengeFSM::updateCheckedTime()
+{
+  m_checked_time=ros::Time::now();
+}
+
 void RMChallengeFSM::dronePrepareToLand()
 {
   float vx= 0, vy= 0, vz= 0;
@@ -763,10 +802,11 @@ void RMChallengeFSM::navigateByArc(float &vx, float &vy, float &vz)
   ROS_INFO_STREAM("navigate at super low");
   float height_error=
       PA_LAND_HEIGHT_FINAL - m_current_height_from_guidance;
-  float pos_error=sqrt(pow(m_arc_position_error[0],2)+pow(m_arc_position_error[1],2));
-  if(fabs(pos_error)>PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG)
+  float pos_error= sqrt(pow(m_arc_position_error[0], 2) +
+                        pow(m_arc_position_error[1], 2));
+  if(fabs(pos_error) > PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG)
   {
-    vz=0;
+    vz= 0;
     vx= PA_KP_PILLAR_LOW * m_arc_position_error[0];
     vy= PA_KP_PILLAR_LOW * m_arc_position_error[1];
   }
@@ -780,7 +820,7 @@ void RMChallengeFSM::navigateByArc(float &vx, float &vy, float &vz)
   }
   else
   {
-    vz=0;
+    vz= 0;
     vx= PA_KP_PILLAR_LOW * m_arc_position_error[0];
     vy= PA_KP_PILLAR_LOW * m_arc_position_error[1];
   }
@@ -929,13 +969,13 @@ void RMChallengeFSM::calculateTangentialVelocity(float &x, float &y,
     if(m_current_takeoff_point_id == 3 ||
        m_current_takeoff_point_id == 4)
     {
-      x= -PA_KT_RATIO*PA_KT * m_line_normal[0];
-      y= -PA_KT_RATIO*PA_KT * m_line_normal[1];
+      x= -PA_KT_RATIO * PA_KT * m_line_normal[0];
+      y= -PA_KT_RATIO * PA_KT * m_line_normal[1];
     }
     else  // 0,1,2,5
     {
-      x= PA_KT_RATIO*PA_KT * m_line_normal[0];
-      y= PA_KT_RATIO*PA_KT * m_line_normal[1];
+      x= PA_KT_RATIO * PA_KT * m_line_normal[0];
+      y= PA_KT_RATIO * PA_KT * m_line_normal[1];
     }
   }
 }
@@ -961,7 +1001,7 @@ void RMChallengeFSM::calculateYawRate(float &yaw)
   }
   else
   {
-    yaw=0;
+    yaw= 0;
   }
 
   // ROS_INFO_STREAM("angle 1 and 2 are :" << angle_to_line_1 << ","
