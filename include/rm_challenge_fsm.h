@@ -1,8 +1,8 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-//#define CURRENT_COMPUTER ZBY_PC
-#define CURRENT_COMPUTER MANIFOLD
+#define CURRENT_COMPUTER ZBY_PC
+// #define CURRENT_COMPUTER MANIFOLD
 
 #define TAKEOFF_POINT_NUMBER 7
 // parameters of uav
@@ -157,6 +157,7 @@ private:
 
   /**subscribe from vision node about circle,arc and triangle*/
   bool m_discover_pillar_circle;
+  bool m_discover_pillar_arc;
   float m_circle_position_error[2];
   float m_current_height_from_circle;
 
@@ -204,6 +205,7 @@ private:
   bool discoverT();
   bool nextTargetIsClosePillar();
   bool nextTargetIsFarPillar();
+  bool stillFindLandPoint();
 
   /**uav control method*/
   void droneTakeoff();
@@ -243,7 +245,7 @@ public:
   void setCircleVariables(bool is_circle_found,
                           float position_error[2], float height);
   void setTriangleVariables(int pillar_triangle[4]);
-  void setArcVariables(float position_error[2], float height);
+  void setArcVariables(bool is_arc_found, float position_error[2]);
   /**update from topic about base */
   void setBaseVariables(bool is_base_found, float position_error[2]);
   /**update from topic about detectLine*/

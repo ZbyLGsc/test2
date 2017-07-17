@@ -121,7 +121,7 @@ void RMChallengeFSM::run()
 
     case GO_TO_LAND_POINT:
     {
-      if(discoverLandPoint())
+      if(stillFindLandPoint())
       {
         if(!readyToLand())
         {
@@ -427,6 +427,7 @@ bool RMChallengeFSM::discoverTriangle()
     return false;
   }
 }
+
 bool RMChallengeFSM::discoverLandPoint()
 {
   if(m_current_takeoff_point_id == 2 ||
@@ -459,6 +460,38 @@ bool RMChallengeFSM::discoverLandPoint()
     }
   }
 }
+
+bool RMChallengeFSM::stillFindLandPoint()
+{
+  if(m_current_takeoff_point_id == 2 ||
+     m_current_takeoff_point_id == 5)
+  {
+    if(m_discover_base)
+    {
+      m_land_point_type= BASE_LAND_POINT;
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+  else
+  {
+    if(m_discover_pillar_circle || discoverTriangle() ||
+       m_discover_pillar_arc ||
+       m_prepare_to_land_type != PREPARE_AT_HIGH)
+    {
+      m_land_point_type= PILLAR_LAND_POINT;
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+}
+
 bool RMChallengeFSM::discoverYellowLine()
 {
   if(fabs(m_distance_to_line[0]) > 0.0001 ||
@@ -1165,15 +1198,15 @@ void RMChallengeFSM::setTriangleVariables(int pillar_triangle[4])
   //                                << pillar_triangle[3]);
 }
 
-void RMChallengeFSM::setArcVariables(float position_error[2],
-                                     float height)
+void RMChallengeFSM::setArcVariables(bool is_arc_found,
+                                     float position_error[2])
 {
   /*transform pixel position error to metric error*/
   calculateRealPositionError(position_error);
 
   m_arc_position_error[0]= position_error[0] - PA_CAMERA_DISPLACE;
   m_arc_position_error[1]= position_error[1];
-  m_current_height_from_arc= height;
+  m_discover_pillar_arc= is_arc_found;
 }
 
 void RMChallengeFSM::calculateRealPositionError(float error[2])
