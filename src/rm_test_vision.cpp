@@ -19,7 +19,6 @@ int main(int argc, char **argv)
   vision.setVisability(true);
 
   /*write image to local file*/
-
   cv::VideoWriter writer;
   writer.open("/home/ubuntu/ros_bags/arc2.avi",
               CV_FOURCC('P', 'I', 'M', '1'), 30, cv::Size(640, 480));

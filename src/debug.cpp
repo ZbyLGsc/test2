@@ -58,10 +58,10 @@ void velocityCallback2(const geometry_msgs::Vector3Stamped vel)
     float h_error= fabs(vel.vector.z - PA_LAND_HEIGHT_FINAL);
     // ROS_INFO_STREAM("error:" << error<<" height:"<<h_error);
     //&&h_error < PA_LAND_HEIGHT_THRESHOLD_FINAL
-    if(error > 0.0005 &&
-       error < 0.1)
+    if(error > 0.0005 && error < 0.1)
     {
-      ROS_INFO_STREAM("!!!!!!!!!error:" << error<<" height:"<<h_error);
+      ROS_INFO_STREAM("!!!!!!!!!error:" << error
+                                        << " height:" << h_error);
     }
   }
 }
