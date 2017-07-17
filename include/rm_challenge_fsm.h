@@ -11,32 +11,34 @@
 #define PA_COORDINATE_TRANSFORM_ANGLE                                \
   PA_COORDINATE_TRANSFORM_DEGREE *PA_DEGREE_TO_RADIAN
 
-#define PA_TAKEOFF_TIME 8
+#define PA_TAKEOFF_TIME 7
 #define PA_TAKEOFF_HEIGHT_THRESHOLD 0.1
 #define PA_TAKEOFF_POSITION_ERROR 2
 #define PA_BASE_HEIGHT_THRESHOLD 0.2
-
 #define PA_SETPOINT_POSITION_ERROR 1
 #define PA_GRASPPER_CONTROL_TIME 6
-#define PA_GO_UP_VELOCITY 0.2
+#define PA_GO_UP_VELOCITY 0.3
 
 #define PA_FLYING_HEIGHT 2.4
 #define PA_FLYING_HEIGHT_THRESHOLD 0.2
-#define PA_FLYING_Z_VELOCITY 0.15
+#define PA_FLYING_Z_VELOCITY 0.1
 
 #define PA_LAND_COUNT 1
+#define PA_TIME_MIN 1.5
+#define PA_TIME_MAX 5.0
 #define PA_LAND_HEIGHT 1.05
-#define PA_LAND_HEIGHT_FINAL 0.5
-#define PA_LAND_HEIGHT_THRESHOLD 0.05
-#define PA_LAND_HEIGHT_THRESHOLD_FINAL 0.1
+#define PA_LAND_HEIGHT_FINAL 0.7
+#define PA_LAND_HEIGHT_THRESHOLD 0.15
+#define PA_LAND_HEIGHT_THRESHOLD_FINAL 0.2
 #define PA_LAND_POSITION_THRESHOLD_HIGH 0.3
-#define PA_LAND_POSITION_THRESHOLD_LOW 0.1
-#define PA_LAND_POSITION_THRESHOLD_SUPER_LOW 0.03
-#define PA_V_MIN_HIGH 0.12
-#define PA_V_MIN_LOW 0.036
-#define PA_LAND_Z_VELOCITY_FINAL 0.1
+#define PA_LAND_POSITION_THRESHOLD_LOW 0.15
+#define PA_LAND_POSITION_THRESHOLD_SUPER_LOW 0.055
+#define PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG 0.15
+#define PA_V_MIN_HIGH 0.15
+#define PA_V_MIN_LOW 0.04
+#define PA_LAND_Z_VELOCITY_FINAL 0.15
 #define PA_LAND_Z_VELOCITY 0.15
-#define PA_LAND_TRIANGLE_VELOCITY_HIGH 0.15
+#define PA_LAND_TRIANGLE_VELOCITY_HIGH 0.2
 #define PA_LAND_TRIANGLE_VELOCITY_LOW 0.07
 #define PA_KP_BASE 0.4
 #define PA_KP_PILLAR_HIGH 0.3
@@ -44,12 +46,13 @@
 
 #define PA_KN 0.08
 #define PA_KT 0.35
+#define PA_KT_RATIO 0.85
 
 #define PA_YAW_RATE 10
 #define PA_ANGLE_WITH_DIRECT_LINE_THRESHOLD 25
 #define PA_ANGLE_THRESHOLD 10
 
-#define PA_CAMERA_DISPLACE 0.15
+#define PA_CAMERA_DISPLACE 0.153
 #define PA_CAMERA_F 507.75
 
 #include <sstream>
@@ -88,6 +91,9 @@ public:
     LAND,
     CONTROL_GRASPPER,
     GO_TO_LAND_POINT,
+    GO_TO_PILLAR,
+    RELEASE_BALL,
+    CROSS_ARENA,
   };
   enum GRASPPER_STATE
   {
@@ -151,6 +157,7 @@ private:
 
   /**subscribe from vision node about circle,arc and triangle*/
   bool m_discover_pillar_circle;
+  bool m_discover_pillar_arc;
   float m_circle_position_error[2];
   float m_current_height_from_circle;
 
@@ -172,6 +179,7 @@ private:
   int m_graspper_control_time= 0;     // initial
   int m_current_takeoff_point_id= 0;  // initial
   ros::Time m_takeoff_time;
+  ros::Time m_checked_time;
 
   ros::Publisher m_velocity_pub;
   ros::Publisher m_position_pub;
@@ -190,6 +198,14 @@ private:
   bool closeToSetPoint();                      // tested
   bool readyToLand();                          // tested
   bool finishGraspperTask();                   // tested
+  bool isCheckedTimeSuitable();
+  bool landPointIsPillar();
+  bool landPointIsBase();
+  bool isTheLastTravel();
+  bool discoverT();
+  bool nextTargetIsClosePillar();
+  bool nextTargetIsFarPillar();
+  bool stillFindLandPoint();
 
   /**uav control method*/
   void droneTakeoff();
@@ -199,6 +215,7 @@ private:
   void openGraspper();       // tested
   void closeGraspper();      // tested
   void updateTakeoffTime();  // tested
+  void updateCheckedTime();
   void droneGoUp();          // tested
   void droneGoToSetPoint();  // tested
   void droneTrackLine();     // tested
@@ -228,7 +245,7 @@ public:
   void setCircleVariables(bool is_circle_found,
                           float position_error[2], float height);
   void setTriangleVariables(int pillar_triangle[4]);
-  void setArcVariables(float position_error[2], float height);
+  void setArcVariables(bool is_arc_found, float position_error[2]);
   /**update from topic about base */
   void setBaseVariables(bool is_base_found, float position_error[2]);
   /**update from topic about detectLine*/

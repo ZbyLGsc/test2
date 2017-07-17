@@ -134,7 +134,7 @@ int main(int argc, char **argv)
        << pillar_result.triangle[3] << " "
        << pillar_result.circle_found << " " << pos_err_x << " "
        << pos_err_y << " " << height << " " << arc_err_x << " "
-       << arc_err_y;
+       << arc_err_y<<" "<<pillar_result.arc_found;
     pillar_msg.data= ss.str();
     vision_pillar_pub.publish(pillar_msg);
 
