@@ -164,15 +164,16 @@ void vision_pillar_callback(const std_msgs::String::ConstPtr &msg)
   float circle_pos[2];
   float arc_pos[2];
   int tri[4];
-  bool circle_found;
+  bool circle_found,arc_found;
   std::stringstream ss(msg->data.c_str());
   ss >> tri[0] >> tri[1] >> tri[2] >> tri[3] >> circle_found >>
-      circle_pos[1] >> circle_pos[0] >> h >> arc_pos[1] >> arc_pos[0];
+      circle_pos[1] >> circle_pos[0] >> h >> arc_pos[1] >> arc_pos[0]>>arc_found;
   g_fsm.setCircleVariables(circle_found, circle_pos, h);
   g_fsm.setTriangleVariables(tri);
   // height not used,set to 0
-  g_fsm.setArcVariables(arc_pos, 0);
+  g_fsm.setArcVariables(arc_found, arc_pos);
 }
+
 
 void vision_base_callback(const std_msgs::String::ConstPtr &msg)
 {
