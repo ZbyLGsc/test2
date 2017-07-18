@@ -164,7 +164,6 @@ class QRCode {
 
     void setup();
 
-	void setVisability(bool v);
     //void setupVideo();
 
     void print_detection(AprilTags::TagDetection& detection) const ;

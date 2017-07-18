@@ -1,8 +1,8 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-// #define CURRENT_COMPUTER ZBY_PC
- #define CURRENT_COMPUTER MANIFOLD
+//#define CURRENT_COMPUTER ZBY_PC
+#define CURRENT_COMPUTER MANIFOLD
 
 #define TAKEOFF_POINT_NUMBER 7
 // parameters of uav
@@ -13,9 +13,9 @@
 
 #define PA_TAKEOFF_TIME 7
 #define PA_TAKEOFF_HEIGHT_THRESHOLD 0.1
-#define PA_TAKEOFF_POSITION_ERROR 3.5
+#define PA_TAKEOFF_POSITION_ERROR 2
 #define PA_BASE_HEIGHT_THRESHOLD 0.2
-#define PA_SETPOINT_POSITION_ERROR 0.5
+#define PA_SETPOINT_POSITION_ERROR 1
 #define PA_GRASPPER_CONTROL_TIME 6
 #define PA_GO_UP_VELOCITY 0.3
 
@@ -98,16 +98,16 @@ class RMChallengeFSM
 public:
   enum TASK_STATE
   {
-    TAKE_OFF,//0
+    TAKE_OFF,
     GO_UP,
     GO_TO_SETPOINT,
-    IDLE,//3
+    IDLE,
     TRACK_LINE,
     LAND,
-    GRAB_BALL,//6
+    GRAB_BALL,
     GO_TO_LAND_POINT,
     GO_TO_PILLAR,
-    RELEASE_BALL,//6
+    RELEASE_BALL,
     CROSS_ARENA,
   };
   enum GRASPPER_STATE
@@ -193,7 +193,7 @@ private:
   int m_land_counter;                           // initial
   GRASPPER_STATE m_graspper_state= GRASPPER_CLOSE;
   int m_graspper_control_time= 0;     // initial
-  int m_current_takeoff_point_id= 1;  // initial
+  int m_current_takeoff_point_id= 0;  // initial
   ros::Time m_takeoff_time;
   ros::Time m_checked_time;
 
