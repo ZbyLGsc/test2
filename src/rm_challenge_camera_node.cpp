@@ -1,8 +1,9 @@
 #include "rm_challenge_vision.h"
+#include "AprilTags/QRCode.h"
 #define M100_CAMERA 1
 #define VIDEO_STREAM 2
-// #define CURRENT_IMAGE_SOURCE VIDEO_STREAM
-#define CURRENT_IMAGE_SOURCE M100_CAMERA
+ #define CURRENT_IMAGE_SOURCE VIDEO_STREAM
+//#define CURRENT_IMAGE_SOURCE M100_CAMERA
 #define VISABILITY false
 
 /**global publisher*/
@@ -53,7 +54,7 @@ int main(int argc, char **argv)
   // );
   cv::VideoCapture g_cap;
 #if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
-  g_cap.open("/home/zby/ros_bags/7.12/arc1.avi");
+  g_cap.open("/home/jachinshen/视频/arc2.avi");
 #else
   g_cap.open(0);
 #endif
@@ -66,8 +67,11 @@ int main(int argc, char **argv)
   RMChallengeVision vision;
   vision.setVisability(VISABILITY);
 
-  Mat frame;
+  Mat frame, image_gray;
   sensor_msgs::ImagePtr image_ptr;
+  
+  QRCode QRcode;
+  QRcode.setup();
   while(ros::ok())
   {
     ROS_INFO_STREAM("loop :"
@@ -157,7 +161,27 @@ int main(int argc, char **argv)
        << " " << line_vector_y;
     line_msg.data= ss.str();
     vision_line_pub.publish(line_msg);
-    cv::waitKey(1);
+
+    //QRCode
+    if(QRcode.getBasePosition(frame, 2.5))
+    {
+        ROS_INFO_STREAM("base position :"<<QRcode.getBaseX()
+                        <<" "<<QRcode.getBaseY());
+    }
+    else
+    {
+        ROS_INFO_STREAM("can't find base");
+        ROS_INFO_STREAM("base position :"<<QRcode.getBaseX()
+                        <<" "<<QRcode.getBaseY());
+    }
+    ss.str("");
+    std_msgs::String base_msg;
+    ss << QRcode.getBaseX() << " " << QRcode.getBaseY();
+        
+    base_msg.data= ss.str();
+    vision_base_pub.publish(base_msg);
+
+    cv::waitKey(0);
   }
 
   return 1;
