@@ -129,7 +129,8 @@ void RMChallengeFSM::run()
         }
         else
         {
-          droneHover();
+          droneDropDown();
+//          droneHover();
           transferToTask(LAND);
           /*
           //This part should be added later
@@ -665,7 +666,7 @@ void RMChallengeFSM::droneHover()
 void RMChallengeFSM::droneDropDown()
 {
   for(int i= 0; i < 200; i++)
-    controlDroneVelocity(0.0, 0.0, -1.2, 0.0);
+    controlDroneVelocity(0.0, 0.0, -0.9, 0.0);
 }
 
 bool RMChallengeFSM::readyToLand()
@@ -697,9 +698,12 @@ bool RMChallengeFSM::readyToLand()
         fabs(PA_LAND_HEIGHT_FINAL - m_current_height_from_guidance);
     float pos_error= sqrt(pow(m_arc_position_error[0], 2) +
                           pow(m_arc_position_error[1], 2));
+    float pos_error_x=fabs(m_arc_position_error[0]);
+    float pos_error_y=fabs(m_arc_position_error[1]);
     // need output
     if(m_prepare_to_land_type == PREPARE_AT_SUPER_LOW &&
-       pos_error < PA_LAND_POSITION_THRESHOLD_SUPER_LOW &&
+       pos_error_x < PA_LAND_POSITION_THRESHOLD_SUPER_LOW &&
+       pos_error_y < PA_LAND_POSITION_THRESHOLD_SUPER_LOW&&
        height_error < PA_LAND_HEIGHT_THRESHOLD_FINAL)
     {
       droneHover();
@@ -888,25 +892,32 @@ void RMChallengeFSM::navigateByArc(float &vx, float &vy, float &vz)
       PA_LAND_HEIGHT_FINAL - m_current_height_from_guidance;
   float pos_error= sqrt(pow(m_arc_position_error[0], 2) +
                         pow(m_arc_position_error[1], 2));
-  if(fabs(pos_error) > PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG)
+  float pos_error_x=m_arc_position_error[0];
+  float pos_error_y=m_arc_position_error[1];
+  if(fabs(pos_error_x) > PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG||
+  fabs(pos_error_y) > PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG)
   {
     vz= 0;
-    vx= PA_KP_PILLAR_LOW * m_arc_position_error[0];
-    vy= PA_KP_PILLAR_LOW * m_arc_position_error[1];
+    vx= fabs(pos_error_x) > PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG?
+        PA_KP_PILLAR_LOW * m_arc_position_error[0]:0;
+    vy= fabs(pos_error_y) > PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG?
+        PA_KP_PILLAR_LOW * m_arc_position_error[1]:0;
   }
   else if(fabs(height_error) > PA_LAND_HEIGHT_THRESHOLD_FINAL)
   {
     /*height error too big, use height from guidance to navigate*/
     vz= fabs(height_error) / (height_error + 0.0000000001) *
         PA_LAND_Z_VELOCITY_FINAL;
-    vx= PA_KP_PILLAR_LOW * m_arc_position_error[0];
-    vy= PA_KP_PILLAR_LOW * m_arc_position_error[1];
+    vx= fabs(pos_error_x) > PA_LAND_POSITION_THRESHOLD_SUPER_LOW?
+        PA_KP_PILLAR_LOW * m_arc_position_error[0]:0;
+    vy= fabs(pos_error_y) > PA_LAND_POSITION_THRESHOLD_SUPER_LOW?
+        PA_KP_PILLAR_LOW * m_arc_position_error[1]:0;
   }
   else
   {
     vz= 0;
-    vx= PA_KP_PILLAR_LOW * m_arc_position_error[0];
-    vy= PA_KP_PILLAR_LOW * m_arc_position_error[1];
+    vx= PA_V_MIN_FINAL * fabs(m_arc_position_error[0])/(m_arc_position_error[0]+0.00000001);
+    vy= PA_V_MIN_FINAL * fabs(m_arc_position_error[1])/(m_arc_position_error[1]+0.00000001);
   }
 }
 
