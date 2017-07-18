@@ -56,7 +56,7 @@ int main(int argc, char **argv)
 #if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
   g_cap.open("/home/jachinshen/视频/arc2.avi");
 #else
-  g_cap.open(0);
+  g_cap.open(1);
 #endif
 
   if(!g_cap.isOpened())
@@ -71,8 +71,8 @@ int main(int argc, char **argv)
   sensor_msgs::ImagePtr image_ptr;
 
   QRCode qr_code;
+  qr_code.setVisability(false);
   qr_code.setup();
-  qr_code.setVisability(true);
 
   while(ros::ok())
   {

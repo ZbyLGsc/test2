@@ -85,7 +85,7 @@ int main(int argc, char **argv)
   // g_fsm.setPositionFromGuidance(2, -3);
   // g_fsm.droneGoToSetPoint();
 
-  g_fsm.setPositionFromGuidance(7, 0);
+  g_fsm.setPositionFromGuidance(2.5, 2.5);
   // g_fsm.transformCoordinate(-90.0 / 180 * 3.1415926, x, y);
   // ros::Duration(2).sleep();
   // float pos_err[2] = { 0.07, 0.3 };

@@ -40,7 +40,8 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
           "/m100/velocity", 1);
 
   /*initialize setpoint, takeoffpoint and takeoff height,
-   only set for one time, all positions are absolute position*/
+   only set for one time, takeoff positions are absolute position,
+   while setpoint are relative position*/
   for(int i= 0; i < TAKEOFF_POINT_NUMBER; ++i)
   {
     m_goal_height[i]= PA_FLYING_HEIGHT;
@@ -101,7 +102,7 @@ void RMChallengeFSM::resetAllState()
   m_prepare_to_land_type= PREPARE_AT_HIGH;
   m_graspper_control_time= 0;
   /*if want to test different task,change id here*/
-  m_current_takeoff_point_id= 0;
+  m_current_takeoff_point_id= PA_PILLAR_1;
   m_land_counter= 0;
 #if CURRENT_COMPUTER == MANIFOLD
   m_drone->request_sdk_permission_control();
@@ -110,7 +111,7 @@ void RMChallengeFSM::resetAllState()
 
 void RMChallengeFSM::run()
 {
-  // ROS_INFO_STREAM("running: state is:" << m_state);
+  ROS_INFO_STREAM("running: state is:" << m_state);
   switch(m_state)
   {
     case TAKE_OFF:
@@ -486,8 +487,10 @@ bool RMChallengeFSM::discoverTriangle()
 
 bool RMChallengeFSM::discoverLandPoint()
 {
-  if(m_current_takeoff_point_id == 2 ||
-     m_current_takeoff_point_id == 5)
+  if(m_current_takeoff_point_id == PA_PILLAR_1 ||
+     m_current_takeoff_point_id == PA_PILLAR_2||
+     m_current_takeoff_point_id == PA_PILLAR_3||
+     m_current_takeoff_point_id == PA_PILLAR_4)
   {
     if(m_discover_base)
     {
@@ -519,8 +522,10 @@ bool RMChallengeFSM::discoverLandPoint()
 
 bool RMChallengeFSM::stillFindLandPoint()
 {
-  if(m_current_takeoff_point_id == 2 ||
-     m_current_takeoff_point_id == 5)
+  if(m_current_takeoff_point_id == PA_PILLAR_1 ||
+     m_current_takeoff_point_id == PA_PILLAR_2||
+     m_current_takeoff_point_id == PA_PILLAR_3||
+     m_current_takeoff_point_id == PA_PILLAR_4)
   {
     if(m_discover_base)
     {
@@ -734,7 +739,7 @@ bool RMChallengeFSM::readyToLand()
     /*only calculate position error*/
     float pos_error= sqrt(pow(m_base_position_error[0], 2) +
                           pow(m_base_position_error[1], 2));
-    if(pos_error < PA_BASE_POSITION_THRESHOLD)
+    if(pos_error < PA_BASE_POSITION_THRESHOLD&&m_discover_base)
     {
       // ROS_INFO_STREAM("ready to land at base," << land_err << ","
       //                                          << height_error);
@@ -808,9 +813,9 @@ void RMChallengeFSM::dronePrepareToLand()
     vz= 0;
     vx= PA_KP_BASE * m_base_position_error[0];
     vy= PA_KP_BASE * m_base_position_error[1];
-    // ROS_INFO_STREAM("landing at base v are:" << vx << "," << vy <<
-    // ","
-    //                                          << vz);
+    ROS_INFO_STREAM("landing at base v are:" << vx << "," << vy <<
+    ","
+                                             << vz);
   }
   else if(m_land_point_type == PILLAR_LAND_POINT)
   {
@@ -828,15 +833,15 @@ void RMChallengeFSM::dronePrepareToLand()
     {
       navigateByTriangle(vx, vy, vz);
       velocity_id= "by triangle";
-      ROS_INFO_STREAM("navigate by triangle");
+      // ROS_INFO_STREAM("navigate by triangle");
     }
     else
     {
-      ROS_INFO_STREAM("Miss pillar!!!");
+      // ROS_INFO_STREAM("Miss pillar!!!");
       velocity_id= "miss pillar";
     }
-    ROS_INFO_STREAM("landing v at pillar are:" << vx << "," << vy
-                                               << "," << vz);
+    // ROS_INFO_STREAM("landing v at pillar are:" << vx << "," << vy
+    //                                            << "," << vz);
   }
   controlDroneVelocity(vx, vy, vz, 0.0);
 
@@ -1289,9 +1294,9 @@ void RMChallengeFSM::setBaseVariables(bool is_base_found,
     m_base_position_error[0]= 0;
     m_base_position_error[1]= 0;
   }
-  ROS_INFO_STREAM("base var is:" << m_discover_base << ","
-                                 << m_circle_position_error[0] << ","
-                                 << m_circle_position_error[1]);
+  // ROS_INFO_STREAM("base var is:" << m_discover_base << ","
+  //                                << m_base_position_error[0] << ","
+  //                                << m_base_position_error[1]);
 }
 void RMChallengeFSM::setLineVariables(float distance_to_line[2],
                                       float line_normal[2])
@@ -1300,10 +1305,10 @@ void RMChallengeFSM::setLineVariables(float distance_to_line[2],
   m_distance_to_line[1]= distance_to_line[1];
   m_line_normal[0]= line_normal[0];
   m_line_normal[1]= line_normal[1];
-  ROS_INFO_STREAM("distance to line is:"
-                  << m_distance_to_line[0] << ","
-                  << m_distance_to_line[1] << ",line vector is"
-                  << m_line_normal[0] << "," << m_line_normal[1]);
+  // ROS_INFO_STREAM("distance to line is:"
+  //                 << m_distance_to_line[0] << ","
+  //                 << m_distance_to_line[1] << ",line vector is"
+  //                 << m_line_normal[0] << "," << m_line_normal[1]);
 }
 
 bool RMChallengeFSM::landPointIsPillar()
