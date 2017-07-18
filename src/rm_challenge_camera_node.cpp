@@ -2,8 +2,8 @@
 #include "AprilTags/QRCode.h"
 #define M100_CAMERA 1
 #define VIDEO_STREAM 2
- #define CURRENT_IMAGE_SOURCE VIDEO_STREAM
-//#define CURRENT_IMAGE_SOURCE M100_CAMERA
+//  #define CURRENT_IMAGE_SOURCE VIDEO_STREAM
+#define CURRENT_IMAGE_SOURCE M100_CAMERA
 #define VISABILITY false
 
 /**global publisher*/
@@ -69,9 +69,11 @@ int main(int argc, char **argv)
 
   Mat frame, image_gray;
   sensor_msgs::ImagePtr image_ptr;
-  
-  QRCode QRcode;
-  QRcode.setup();
+
+  QRCode qr_code;
+  qr_code.setup();
+  qr_code.setVisability(true);
+
   while(ros::ok())
   {
     ROS_INFO_STREAM("loop :"
@@ -138,7 +140,7 @@ int main(int argc, char **argv)
        << pillar_result.triangle[3] << " "
        << pillar_result.circle_found << " " << pos_err_x << " "
        << pos_err_y << " " << height << " " << arc_err_x << " "
-       << arc_err_y<<" "<<pillar_result.arc_found;
+       << arc_err_y << " " << pillar_result.arc_found;
     pillar_msg.data= ss.str();
     vision_pillar_pub.publish(pillar_msg);
 
@@ -162,26 +164,29 @@ int main(int argc, char **argv)
     line_msg.data= ss.str();
     vision_line_pub.publish(line_msg);
 
-    //QRCode
-    if(QRcode.getBasePosition(frame, 2.5))
+    /*detect QRCode*/
+    bool base_found;
+    if(qr_code.getBasePosition(frame, 2.4))
     {
-        ROS_INFO_STREAM("base position :"<<QRcode.getBaseX()
-                        <<" "<<QRcode.getBaseY());
+      ROS_INFO_STREAM("base position :" << qr_code.getBaseX() << " "
+                                        << qr_code.getBaseY());
+      base_found= true;
     }
     else
     {
-        ROS_INFO_STREAM("can't find base");
-        ROS_INFO_STREAM("base position :"<<QRcode.getBaseX()
-                        <<" "<<QRcode.getBaseY());
+      ROS_INFO_STREAM("can't find base");
+      ROS_INFO_STREAM("base position :" << qr_code.getBaseX() << " "
+                                        << qr_code.getBaseY());
+      base_found= false;
     }
     ss.str("");
     std_msgs::String base_msg;
-    ss << QRcode.getBaseX() << " " << QRcode.getBaseY();
-        
+    ss << base_found << " " << qr_code.getBaseX() << " "
+       << qr_code.getBaseY();
     base_msg.data= ss.str();
     vision_base_pub.publish(base_msg);
 
-    cv::waitKey(0);
+    cv::waitKey(1);
   }
 
   return 1;

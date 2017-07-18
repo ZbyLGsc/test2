@@ -8,6 +8,106 @@ RMChallengeFSM::~RMChallengeFSM()
   delete m_drone;
 #endif
 }
+
+void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
+{
+  /*initialize serial port*/
+  m_serial_port= new boost::asio::serial_port(m_io_service);
+  m_serial_port->open("/dev/ttyTHS0", m_err_code);
+  m_serial_port->set_option(serial_port::baud_rate(9600), m_err_code);
+  m_serial_port->set_option(
+      serial_port::flow_control(serial_port::flow_control::none),
+      m_err_code);
+  m_serial_port->set_option(
+      serial_port::parity(serial_port::parity::none), m_err_code);
+  m_serial_port->set_option(
+      serial_port::stop_bits(serial_port::stop_bits::one),
+      m_err_code);
+  m_serial_port->set_option(serial_port::character_size(8),
+                            m_err_code);
+
+/*initialize dji sdk*/
+#if CURRENT_COMPUTER == MANIFOLD
+  m_drone= new DJIDrone(node_handle);
+#endif
+
+  /*initialize publisher*/
+  m_position_pub=
+      node_handle.advertise<geometry_msgs::Vector3Stamped>(
+          "/m100/position", 1);
+  m_velocity_pub=
+      node_handle.advertise<geometry_msgs::Vector3Stamped>(
+          "/m100/velocity", 1);
+
+  /*initialize setpoint, takeoffpoint and takeoff height,
+   only set for one time, all positions are absolute position*/
+  for(int i= 0; i < TAKEOFF_POINT_NUMBER; ++i)
+  {
+    m_goal_height[i]= PA_FLYING_HEIGHT;
+    m_takeoff_points[i][0]= 0.0;
+    m_takeoff_points[i][1]= 0.0;
+    m_setpoints[i][0]= 0.0;
+    m_setpoints[i][1]= 0.0;
+  }
+  m_takeoff_points[PA_START][0]= 0.0;
+  m_takeoff_points[PA_START][1]= 0.0;
+  m_takeoff_points[PA_PILLAR_1][0]= 0.0;
+  m_takeoff_points[PA_PILLAR_1][1]= 0.0;
+  m_takeoff_points[PA_BASE_1][0]= 0.0;
+  m_takeoff_points[PA_BASE_1][1]= 0.0;
+  m_takeoff_points[PA_PILLAR_2][0]= 0.0;
+  m_takeoff_points[PA_PILLAR_2][1]= 0.0;
+  m_takeoff_points[PA_BASE_2][0]= 0.0;
+  m_takeoff_points[PA_BASE_2][1]= 0.0;
+  m_takeoff_points[PA_PILLAR_3][0]= 0.0;
+  m_takeoff_points[PA_PILLAR_3][1]= 0.0;
+  m_takeoff_points[PA_BASE_3][0]= 0.0;
+  m_takeoff_points[PA_BASE_3][1]= 0.0;
+  m_takeoff_points[PA_PILLAR_4][0]= 0.0;
+  m_takeoff_points[PA_PILLAR_4][1]= 0.0;
+  m_takeoff_points[PA_BASE_4][0]= 0.0;
+  m_takeoff_points[PA_BASE_4][1]= 0.0;
+
+  m_setpoints[PA_START][0]= 8.0;
+  m_setpoints[PA_START][1]= 0.7;
+  m_setpoints[PA_PILLAR_1][0]= -2.5;
+  m_setpoints[PA_PILLAR_1][1]= 2.5;
+  m_setpoints[PA_BASE_1][0]= 0.0;
+  m_setpoints[PA_BASE_1][1]= 0.0;
+  m_setpoints[PA_PILLAR_2][0]= 0.0;
+  m_setpoints[PA_PILLAR_2][1]= 0.0;
+  m_setpoints[PA_BASE_2][0]= 0.0;
+  m_setpoints[PA_BASE_2][1]= 0.0;
+  m_setpoints[PA_PILLAR_3][0]= 0.0;
+  m_setpoints[PA_PILLAR_3][1]= 0.0;
+  m_setpoints[PA_BASE_3][0]= 0.0;
+  m_setpoints[PA_BASE_3][1]= 0.0;
+  m_setpoints[PA_PILLAR_4][0]= 0.0;
+  m_setpoints[PA_PILLAR_4][1]= 0.0;
+  m_setpoints[PA_BASE_4][0]= 0.0;
+  m_setpoints[PA_BASE_4][1]= 0.0;
+
+  /*initialize  state*/
+  resetAllState();
+}
+
+void RMChallengeFSM::resetAllState()
+{
+  ros::Duration(1.0).sleep();
+  m_state= TAKE_OFF;
+  m_uav_state= UAV_LAND;
+  m_current_position_from_guidance[0]= 0.0;
+  m_current_position_from_guidance[1]= 0.0;
+  m_prepare_to_land_type= PREPARE_AT_HIGH;
+  m_graspper_control_time= 0;
+  /*if want to test different task,change id here*/
+  m_current_takeoff_point_id= 0;
+  m_land_counter= 0;
+#if CURRENT_COMPUTER == MANIFOLD
+  m_drone->request_sdk_permission_control();
+#endif
+}
+
 void RMChallengeFSM::run()
 {
   // ROS_INFO_STREAM("running: state is:" << m_state);
@@ -86,7 +186,7 @@ void RMChallengeFSM::run()
         {
           droneTrackLine();
           /*
-          //This part should be added later
+          //This part should be added later,T
           if(discoverT())
           {
             if(nextTargetIsClosePillar())
@@ -129,13 +229,9 @@ void RMChallengeFSM::run()
         }
         else
         {
-          droneDropDown();
-//          droneHover();
-          transferToTask(LAND);
-          /*
-          //This part should be added later
           if(landPointIsPillar())
           {
+            droneDropDown();
             transferToTask(LAND);
           }
           else if(landPointIsBase())
@@ -149,7 +245,6 @@ void RMChallengeFSM::run()
               transferToTask(LAND);
             }
           }
-          */
         }
       }
       else
@@ -176,21 +271,22 @@ void RMChallengeFSM::run()
       }
       else if(isOnLand())
       {
-        transferToTask(CONTROL_GRASPPER);
+        transferToTask(GRAB_BALL);
       }
       break;
     }
 
-    case CONTROL_GRASPPER:
+    case GRAB_BALL:
     {
-      if(!finishGraspperTask())
+      if(!finishGrabBallTask())
       {
         /* continue graspper control */
-        controlGraspper();
+        grabBall();
       }
       else
       {
         closeGraspper();
+        updateTakeoffPointId();
         transferToTask(TAKE_OFF);
       }
       break;
@@ -214,67 +310,26 @@ void RMChallengeFSM::run()
       }
       break;
     }
+
+    case RELEASE_BALL:
+    {
+      /*go down to lower height*/
+      if(lowEnoughToReleaseBall())
+      {
+        droneHover();
+        droneReleaseBall();
+        updateTakeoffPointId();
+        transferToTask(GO_UP);
+      }
+      else
+      {
+        droneGoDownToBase();
+      }
+      break;
+    }
   }
 }
-void RMChallengeFSM::resetAllState()
-{
-  ros::Duration(1.0).sleep();
-  m_state= TAKE_OFF;
-  m_uav_state= UAV_LAND;
-  m_current_position_from_guidance[0]= 0.0;
-  m_current_position_from_guidance[1]= 0.0;
-  m_prepare_to_land_type= PREPARE_AT_HIGH;
-  m_graspper_control_time= 0;
-  m_current_takeoff_point_id= 0;
-  m_land_counter= 0;
-#if CURRENT_COMPUTER == MANIFOLD
-  m_drone->request_sdk_permission_control();
-#endif
-}
-void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
-{
-  /*initialize serial port*/
-  m_serial_port= new boost::asio::serial_port(m_io_service);
-  m_serial_port->open("/dev/ttyTHS0", m_err_code);
-  m_serial_port->set_option(serial_port::baud_rate(9600), m_err_code);
-  m_serial_port->set_option(
-      serial_port::flow_control(serial_port::flow_control::none),
-      m_err_code);
-  m_serial_port->set_option(
-      serial_port::parity(serial_port::parity::none), m_err_code);
-  m_serial_port->set_option(
-      serial_port::stop_bits(serial_port::stop_bits::one),
-      m_err_code);
-  m_serial_port->set_option(serial_port::character_size(8),
-                            m_err_code);
 
-/*initialize dji sdk*/
-#if CURRENT_COMPUTER == MANIFOLD
-  m_drone= new DJIDrone(node_handle);
-#endif
-
-  /*initialize publisher*/
-  m_position_pub=
-      node_handle.advertise<geometry_msgs::Vector3Stamped>(
-          "/m100/position", 1);
-  m_velocity_pub=
-      node_handle.advertise<geometry_msgs::Vector3Stamped>(
-          "/m100/velocity", 1);
-
-  /*initialize parameter*/
-  for(int i= 0; i < TAKEOFF_POINT_NUMBER; ++i)
-  {
-    /* only set for one time */
-    m_goal_height[i]= PA_FLYING_HEIGHT;
-    m_takeoff_points[i][0]= 0.0;
-    m_takeoff_points[i][1]= 0.0;
-    m_setpoints[i][0]= 8.0;
-    m_setpoints[i][1]= 0.7;
-  }
-
-  /*initialize  state*/
-  resetAllState();
-}
 void RMChallengeFSM::transferToTask(TASK_STATE task_state)
 {
   if(task_state == TAKE_OFF)
@@ -301,9 +356,9 @@ void RMChallengeFSM::transferToTask(TASK_STATE task_state)
   {
     m_state= LAND;
   }
-  else if(task_state == CONTROL_GRASPPER)
+  else if(task_state == GRAB_BALL)
   {
-    m_state= CONTROL_GRASPPER;
+    m_state= GRAB_BALL;
   }
   else if(task_state == GO_TO_LAND_POINT)
   {
@@ -529,7 +584,7 @@ bool RMChallengeFSM::closeToSetPoint()
     return false;
   }
 }
-bool RMChallengeFSM::finishGraspperTask()
+bool RMChallengeFSM::finishGrabBallTask()
 {
   if(m_graspper_control_time >= PA_GRASPPER_CONTROL_TIME)
   {
@@ -567,7 +622,7 @@ void RMChallengeFSM::closeGraspper()
                      m_err_code);  // close graspper
   m_graspper_state= GRASPPER_CLOSE;
 }
-void RMChallengeFSM::controlGraspper()
+void RMChallengeFSM::grabBall()
 {
   m_graspper_control_time++;
   if(m_graspper_state == GRASPPER_CLOSE)
@@ -676,13 +731,13 @@ bool RMChallengeFSM::readyToLand()
   float height_error;
   if(m_land_point_type == BASE_LAND_POINT)
   {
-    height_error=
-        fabs(PA_LAND_HEIGHT - m_current_height_from_guidance);
-    if(height_error < PA_LAND_HEIGHT_THRESHOLD &&
-       land_err < PA_LAND_POSITION_THRESHOLD_LOW)
+    /*only calculate position error*/
+    float pos_error= sqrt(pow(m_base_position_error[0], 2) +
+                          pow(m_base_position_error[1], 2));
+    if(pos_error < PA_BASE_POSITION_THRESHOLD)
     {
-      ROS_INFO_STREAM("ready to land at base," << land_err << ","
-                                               << height_error);
+      // ROS_INFO_STREAM("ready to land at base," << land_err << ","
+      //                                          << height_error);
       return true;
     }
     else
@@ -696,14 +751,14 @@ bool RMChallengeFSM::readyToLand()
   {
     height_error=
         fabs(PA_LAND_HEIGHT_FINAL - m_current_height_from_guidance);
-    float pos_error= sqrt(pow(m_arc_position_error[0], 2) +
-                          pow(m_arc_position_error[1], 2));
-    float pos_error_x=fabs(m_arc_position_error[0]);
-    float pos_error_y=fabs(m_arc_position_error[1]);
+    float oror= sqrt(pow(m_arc_position_error[0], 2) +
+                     pow(m_arc_position_error[1], 2));
+    float pos_error_x= fabs(m_arc_position_error[0]);
+    float pos_error_y= fabs(m_arc_position_error[1]);
     // need output
     if(m_prepare_to_land_type == PREPARE_AT_SUPER_LOW &&
        pos_error_x < PA_LAND_POSITION_THRESHOLD_SUPER_LOW &&
-       pos_error_y < PA_LAND_POSITION_THRESHOLD_SUPER_LOW&&
+       pos_error_y < PA_LAND_POSITION_THRESHOLD_SUPER_LOW &&
        height_error < PA_LAND_HEIGHT_THRESHOLD_FINAL)
     {
       droneHover();
@@ -749,21 +804,13 @@ void RMChallengeFSM::dronePrepareToLand()
   std::string velocity_id;
   if(m_land_point_type == BASE_LAND_POINT)
   {
-    if(fabs(m_current_height_from_guidance - PA_LAND_HEIGHT) >
-       PA_BASE_HEIGHT_THRESHOLD)
-    {
-      vz= PA_LAND_HEIGHT > m_current_height_from_guidance ?
-              PA_LAND_Z_VELOCITY :
-              -PA_LAND_Z_VELOCITY;
-    }
-    else
-    {
-      vz= 0;
-    }
-    vx= PA_KP_BASE * m_circle_position_error[0];
-    vy= PA_KP_BASE * m_circle_position_error[1];
-    ROS_INFO_STREAM("landing at base v are:" << vx << "," << vy << ","
-                                             << vz);
+    /*adjust position to center of base*/
+    vz= 0;
+    vx= PA_KP_BASE * m_base_position_error[0];
+    vy= PA_KP_BASE * m_base_position_error[1];
+    // ROS_INFO_STREAM("landing at base v are:" << vx << "," << vy <<
+    // ","
+    //                                          << vz);
   }
   else if(m_land_point_type == PILLAR_LAND_POINT)
   {
@@ -802,14 +849,6 @@ void RMChallengeFSM::dronePrepareToLand()
                     m_arc_position_error[1],
                     m_current_height_from_guidance);
   }
-
-  // geometry_msgs::Vector3Stamped velocity;
-  // velocity.header.frame_id= "landing_velocity";
-  // velocity.header.stamp= ros::Time::now();
-  // velocity.vector.x= vx;
-  // velocity.vector.y= vy;
-  // velocity.vector.z= vz;
-  // m_velocity_pub.publish(velocity);
 }
 
 void RMChallengeFSM::publishVelocity(std::string id, float x, float y,
@@ -892,32 +931,38 @@ void RMChallengeFSM::navigateByArc(float &vx, float &vy, float &vz)
       PA_LAND_HEIGHT_FINAL - m_current_height_from_guidance;
   float pos_error= sqrt(pow(m_arc_position_error[0], 2) +
                         pow(m_arc_position_error[1], 2));
-  float pos_error_x=m_arc_position_error[0];
-  float pos_error_y=m_arc_position_error[1];
-  if(fabs(pos_error_x) > PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG||
-  fabs(pos_error_y) > PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG)
+  float pos_error_x= m_arc_position_error[0];
+  float pos_error_y= m_arc_position_error[1];
+  if(fabs(pos_error_x) > PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG ||
+     fabs(pos_error_y) > PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG)
   {
     vz= 0;
-    vx= fabs(pos_error_x) > PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG?
-        PA_KP_PILLAR_LOW * m_arc_position_error[0]:0;
-    vy= fabs(pos_error_y) > PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG?
-        PA_KP_PILLAR_LOW * m_arc_position_error[1]:0;
+    vx= fabs(pos_error_x) > PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG ?
+            PA_KP_PILLAR_LOW * m_arc_position_error[0] :
+            0;
+    vy= fabs(pos_error_y) > PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG ?
+            PA_KP_PILLAR_LOW * m_arc_position_error[1] :
+            0;
   }
   else if(fabs(height_error) > PA_LAND_HEIGHT_THRESHOLD_FINAL)
   {
     /*height error too big, use height from guidance to navigate*/
     vz= fabs(height_error) / (height_error + 0.0000000001) *
         PA_LAND_Z_VELOCITY_FINAL;
-    vx= fabs(pos_error_x) > PA_LAND_POSITION_THRESHOLD_SUPER_LOW?
-        PA_KP_PILLAR_LOW * m_arc_position_error[0]:0;
-    vy= fabs(pos_error_y) > PA_LAND_POSITION_THRESHOLD_SUPER_LOW?
-        PA_KP_PILLAR_LOW * m_arc_position_error[1]:0;
+    vx= fabs(pos_error_x) > PA_LAND_POSITION_THRESHOLD_SUPER_LOW ?
+            PA_KP_PILLAR_LOW * m_arc_position_error[0] :
+            0;
+    vy= fabs(pos_error_y) > PA_LAND_POSITION_THRESHOLD_SUPER_LOW ?
+            PA_KP_PILLAR_LOW * m_arc_position_error[1] :
+            0;
   }
   else
   {
     vz= 0;
-    vx= PA_V_MIN_FINAL * fabs(m_arc_position_error[0])/(m_arc_position_error[0]+0.00000001);
-    vy= PA_V_MIN_FINAL * fabs(m_arc_position_error[1])/(m_arc_position_error[1]+0.00000001);
+    vx= PA_V_MIN_FINAL * fabs(m_arc_position_error[0]) /
+        (m_arc_position_error[0] + 0.00000001);
+    vy= PA_V_MIN_FINAL * fabs(m_arc_position_error[1]) /
+        (m_arc_position_error[1] + 0.00000001);
   }
 }
 
@@ -1236,13 +1281,13 @@ void RMChallengeFSM::setBaseVariables(bool is_base_found,
   m_discover_base= is_base_found;
   if(is_base_found)
   {
-    m_circle_position_error[0]= position_error[0];
-    m_circle_position_error[1]= position_error[1];
+    m_base_position_error[0]= position_error[0] - PA_CAMERA_DISPLACE;
+    m_base_position_error[1]= position_error[1];
   }
   else
   {
-    m_circle_position_error[0]= 0;
-    m_circle_position_error[1]= 0;
+    m_base_position_error[0]= 0;
+    m_base_position_error[1]= 0;
   }
   ROS_INFO_STREAM("base var is:" << m_discover_base << ","
                                  << m_circle_position_error[0] << ","
@@ -1263,14 +1308,51 @@ void RMChallengeFSM::setLineVariables(float distance_to_line[2],
 
 bool RMChallengeFSM::landPointIsPillar()
 {
+  if(m_current_takeoff_point_id == PA_START ||
+     m_current_takeoff_point_id == PA_BASE_1 ||
+     m_current_takeoff_point_id == PA_BASE_2 ||
+     m_current_takeoff_point_id == PA_BASE_3)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 bool RMChallengeFSM::landPointIsBase()
 {
+  if(m_current_takeoff_point_id == PA_PILLAR_1 ||
+     m_current_takeoff_point_id == PA_PILLAR_2 ||
+     m_current_takeoff_point_id == PA_PILLAR_3 ||
+     m_current_takeoff_point_id == PA_PILLAR_4)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
+
+/*id:
+  0:uav start point
+  1,3,5,7:pillar
+  2,4,6:base
+id==5:only fly to 3 pillar
+*/
 
 bool RMChallengeFSM::isTheLastTravel()
 {
+  if(m_current_takeoff_point_id == PA_PILLAR_3)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 bool RMChallengeFSM::discoverT()
@@ -1282,4 +1364,37 @@ bool RMChallengeFSM::nextTargetIsClosePillar()
 }
 bool RMChallengeFSM::nextTargetIsFarPillar()
 {
+}
+
+bool RMChallengeFSM::lowEnoughToReleaseBall()
+{
+  if(fabs(m_current_height_from_guidance - PA_RELEASE_BALL_HEIGHT) >
+     PA_RELEASE_BALL_HEIGHT_THRESHOLD)
+  {
+    return false;
+  }
+  else
+  {
+    return true;
+  }
+}
+
+void RMChallengeFSM::droneReleaseBall()
+{
+  openGraspper();
+  ros::Duration(1.5).sleep();
+  closeGraspper();
+}
+
+void RMChallengeFSM::droneGoDownToBase()
+{
+  float vz= PA_RELEASE_BALL_HEIGHT > m_current_height_from_guidance ?
+                PA_LAND_Z_VELOCITY :
+                -PA_LAND_Z_VELOCITY;
+  controlDroneVelocity(0.0, 0.0, vz, 0.0);
+}
+
+void RMChallengeFSM::updateTakeoffPointId()
+{
+  m_current_takeoff_point_id++;
 }

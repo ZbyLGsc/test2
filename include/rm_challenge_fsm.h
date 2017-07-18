@@ -1,8 +1,8 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-//#define CURRENT_COMPUTER ZBY_PC
- #define CURRENT_COMPUTER MANIFOLD
+#define CURRENT_COMPUTER ZBY_PC
+//  #define CURRENT_COMPUTER MANIFOLD
 
 #define TAKEOFF_POINT_NUMBER 7
 // parameters of uav
@@ -56,6 +56,20 @@
 #define PA_CAMERA_DISPLACE 0.153
 #define PA_CAMERA_F 507.75
 
+#define PA_START 0
+#define PA_PILLAR_1 1
+#define PA_PILLAR_2 3
+#define PA_PILLAR_3 5
+#define PA_PILLAR_4 7
+#define PA_BASE_1 2
+#define PA_BASE_2 4
+#define PA_BASE_3 6
+#define PA_BASE_4 8
+
+#define PA_RELEASE_BALL_HEIGHT 0.5
+#define PA_RELEASE_BALL_HEIGHT_THRESHOLD 0.2
+#define PA_BASE_POSITION_THRESHOLD 0.15
+
 #include <sstream>
 #include <ros/assert.h>
 #include <ros/ros.h>
@@ -90,7 +104,7 @@ public:
     IDLE,
     TRACK_LINE,
     LAND,
-    CONTROL_GRASPPER,
+    GRAB_BALL,
     GO_TO_LAND_POINT,
     GO_TO_PILLAR,
     RELEASE_BALL,
@@ -169,6 +183,7 @@ private:
 
   /**subscribe from  vision node about base*/
   bool m_discover_base;
+  float m_base_position_error[2];
 
   /**subscribe from vision node about detectLine*/
   float m_distance_to_line[2];
@@ -198,21 +213,22 @@ private:
   bool discoverYellowLine();                   // tested
   bool closeToSetPoint();                      // tested
   bool readyToLand();                          // tested
-  bool finishGraspperTask();                   // tested
+  bool finishGrabBallTask();                   // tested
   bool isCheckedTimeSuitable();
   bool landPointIsPillar();
   bool landPointIsBase();
   bool isTheLastTravel();
-  bool discoverT();
-  bool nextTargetIsClosePillar();
-  bool nextTargetIsFarPillar();
   bool stillFindLandPoint();
+  bool lowEnoughToReleaseBall();
+  bool discoverT();                //?
+  bool nextTargetIsClosePillar();  //?
+  bool nextTargetIsFarPillar();    //?
 
   /**uav control method*/
   void droneTakeoff();
   void droneLand();
   void controlDroneVelocity(float x, float y, float z, float yaw);
-  void controlGraspper();    // tested
+  void grabBall();           // tested
   void openGraspper();       // tested
   void closeGraspper();      // tested
   void updateTakeoffTime();  // tested
@@ -236,6 +252,9 @@ private:
   void navigateByCircle(float &x, float &y, float &z);    // tested
   void navigateByArc(float &x, float &y, float &z);
   void publishVelocity(std::string id, float x, float y, float z);
+  void droneReleaseBall();
+  void droneGoDownToBase();
+  void updateTakeoffPointId();
 
 public:
   /**update from dji's nodes*/
