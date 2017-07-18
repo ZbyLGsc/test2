@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   image_transport
   rospy
   std_msgs
+  tf
 )
 
 
@@ -145,6 +146,8 @@ include_directories(
  # ${catkin_LIBRARIES}
 #)
 include_directories( ${PROJECT_SOURCE_DIR}/include)
+include_directories( ${PROJECT_SOURCE_DIR}/include/AprilTags)
+include_directories( /usr/include/eigen3)
 
 #add_executable(rc_auto_switch src/rc_auto_switch.cpp)
 #add_dependencies(rc_auto_switch dji_sdk_generate_messages_cpp)
@@ -163,8 +166,23 @@ target_link_libraries(rm_challenge_uav_node ${OpenCV_LIBRARIES} ${catkin_LIBRARI
 add_executable(rm_challenge_camera_node
 	${PROJECT_SOURCE_DIR}/src/rm_challenge_vision.cpp
 	${PROJECT_SOURCE_DIR}/src/rm_challenge_camera_node.cpp
+	#${PROJECT_SOURCE_DIR}/src/Edge.cc
+	#${PROJECT_SOURCE_DIR}/src/FloatImage.cc
+	#${PROJECT_SOURCE_DIR}/src/Gaussian.cc
+	#${PROJECT_SOURCE_DIR}/src/GLine2D.cc
+	#${PROJECT_SOURCE_DIR}/src/GLineSegment2D.cc
+	#${PROJECT_SOURCE_DIR}/src/GrayModel.cc
+	#${PROJECT_SOURCE_DIR}/src/Homography33.cc
+	#${PROJECT_SOURCE_DIR}/src/MathUtil.cc
+	#${PROJECT_SOURCE_DIR}/src/Quad.cc
+	#${PROJECT_SOURCE_DIR}/src/Segment.cc
+	#${PROJECT_SOURCE_DIR}/src/TagDetection.cc
+	#${PROJECT_SOURCE_DIR}/src/TagDetector.cc
+	#${PROJECT_SOURCE_DIR}/src/TagFamily.cc
+	#${PROJECT_SOURCE_DIR}/src/UnionFindSimple.cc
+	${PROJECT_SOURCE_DIR}/src/QRCode.cpp
 	)
-target_link_libraries(rm_challenge_camera_node ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(rm_challenge_camera_node ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} ${PROJECT_SOURCE_DIR}/lib/libapriltags.so)
 
 add_executable(rm_test_vision
 	${PROJECT_SOURCE_DIR}/src/rm_challenge_vision.cpp
