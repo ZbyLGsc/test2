@@ -374,14 +374,37 @@ void QRCode::getDetectionLocationAndDistance(
   }
 }
 
-bool QRCode::calculateBasePostion(vector<cv::Point2f>& detections_location,
-                                  vector<float>& detections_distance)
+bool QRCode::calculateBasePostion(
+    vector<cv::Point2f>& detections_location,
+    vector<float>& detections_distance)
 {
-  if(detections_location.size() >= 3)
+  int detections_cnt = detections_location.size();
+  if(detections_cnt == 0)
+  {
+    base_position_x= 1.05;
+    base_position_y= 1.05;
+    return false;
+  }
+  if(detections_cnt == 1)
+  {
+    base_position_x = detections_location[0].x;
+    base_position_y = detections_location[0].y;
+    return true;
+  }
+  if(detections_cnt == 2)
+  {
+    base_position_x = (detections_location[0].x + 
+        detections_location[1].x) / 2;
+    base_position_y = (detections_location[0].y +
+        detections_location[1].y) / 2;
+    return true;
+  }
+  if(detections_cnt >= 3)
   {
     cv::Point2f centerPoint;
     vector<cv::Point2f> centerPoints;
     float radius;
+    //calculate centerpoint(s)
     for(int i= 0; i < detections_location.size() - 2; i++)
     {
       for(int j= i + 1; j < detections_location.size() - 1; j++)
@@ -389,9 +412,10 @@ bool QRCode::calculateBasePostion(vector<cv::Point2f>& detections_location,
         for(int k= j + 1; k < detections_location.size(); k++)
         {
           if(calculateCenterPointFrom3Circles(
-                 detections_location[i], detections_distance[i],
-                 detections_location[j], detections_distance[j],
-                 detections_location[k], detections_distance[k], centerPoint))
+                detections_location[i], detections_distance[i],
+                detections_location[j], detections_distance[j],
+                detections_location[k], detections_distance[k],
+                centerPoint))
           {
             // cout<<"x:"<<centerPoint.x<<" y:"<<centerPoint.y<<endl;
             centerPoints.push_back(centerPoint);
@@ -399,11 +423,18 @@ bool QRCode::calculateBasePostion(vector<cv::Point2f>& detections_location,
         }
       }
     }
+
     if(centerPoints.size() == 0)
     {
-      base_position_x= 1.05;
-      base_position_y= 1.05;
-      return false;
+      float x_sum= 0, y_sum= 0;
+      for(int i= 0; i < detections_cnt; i++)
+      {
+        x_sum+= detections_location[i].x;
+        y_sum+= detections_location[i].y;
+      }
+      centerPoint.x= x_sum / detections_cnt;
+      centerPoint.y= y_sum / detections_cnt;
+
     }
     if(centerPoints.size() > 1)
     {
@@ -421,12 +452,6 @@ bool QRCode::calculateBasePostion(vector<cv::Point2f>& detections_location,
     base_position_x= centerPoint.x;
     base_position_y= centerPoint.y;
     return true;
-  }
-  else
-  {
-    base_position_x= 1.05;
-    base_position_y= 1.05;
-    return false;
   }
 }
 
