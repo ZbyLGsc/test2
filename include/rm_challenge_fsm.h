@@ -10,13 +10,13 @@
 #define PA_COORDINATE_TRANSFORM_DEGREE (-90)
 #define PA_COORDINATE_TRANSFORM_ANGLE                                          \
   PA_COORDINATE_TRANSFORM_DEGREE *PA_DEGREE_TO_RADIAN
-
+GO_TO_PILLAR
 #define PA_TAKEOFF_TIME 7
 #define PA_TAKEOFF_HEIGHT_THRESHOLD 0.1
-#define PA_TAKEOFF_POSITION_ERROR 2
+#define PA_TAKEOFF_POSITION_ERROR 1.5
 #define PA_BASE_HEIGHT_THRESHOLD 0.2
 #define PA_SETPOINT_POSITION_ERROR 0.5
-#define PA_LANDPOINT_POSITION_ERROR 3
+#define PA_LANDPOINT_POSITION_ERROR 2.0
 #define PA_GRASPPER_CONTROL_TIME 6
 #define PA_GO_UP_VELOCITY 0.3
 
@@ -200,8 +200,8 @@ private:
   PREPARE_TO_LAND_TYPE m_prepare_to_land_type;  // initial
   int m_land_counter;                           // initial
   GRASPPER_STATE m_graspper_state= GRASPPER_CLOSE;
-  int m_graspper_control_time= 0;     // initial
-  int m_current_takeoff_point_id= 1;  // initial
+  int m_graspper_control_time= 0;             // initial
+  int m_current_takeoff_point_id= PA_BASE_1;  // initial
   ros::Time m_takeoff_time;
   ros::Time m_checked_time;
 
@@ -256,6 +256,7 @@ private:
                                                           // direction
   void transformCoordinate(float phi, float &x, float &y);
   void unitifyVector(float &x, float &y);  // tested
+  void judgeLineDirection();
   void calculateRealPositionError(float error[2]);
   void navigateByTriangle(float &x, float &y, float &z);  // tested
   void navigateByCircle(float &x, float &y, float &z);    // tested
@@ -265,7 +266,7 @@ private:
   void droneGoDownToBase();
   void droneGoToPillar();
   void updateTakeoffPointId();
-  void droneUpdatePosition(int POSITION_ID = 0);
+  void droneUpdatePosition(int POSITION_ID= 0);
 
   void printStateInfo();
 

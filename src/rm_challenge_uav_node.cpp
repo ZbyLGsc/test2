@@ -188,7 +188,7 @@ void vision_line_callback(const std_msgs::String::ConstPtr &msg)
   float dist_to_line[2];
   ss >> is_T_found >> dist_to_line[0] >> dist_to_line[1] >> line_normal[0] >>
       line_normal[1];
-  g_fsm.setLineVariables(is_T_found,dist_to_line, line_normal);
+  g_fsm.setLineVariables(is_T_found, dist_to_line, line_normal);
 }
 
 void timer_callback(const ros::TimerEvent &evt)
