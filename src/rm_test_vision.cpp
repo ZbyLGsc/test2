@@ -20,7 +20,7 @@ int main(int argc, char **argv)
 
   /*write image to local file*/
   cv::VideoWriter writer;
-  writer.open("/home/ubuntu/rosbag/arc2.avi", CV_FOURCC('P', 'I', 'M', '1'), 30,
+  writer.open("/home/ubuntu/rosbag/T.avi", CV_FOURCC('P', 'I', 'M', '1'), 30,
               cv::Size(640, 480));
   ROS_INFO_STREAM("begin main loop:");
   while(ros::ok())

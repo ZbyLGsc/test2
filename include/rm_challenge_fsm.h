@@ -73,6 +73,7 @@
 #define PA_BASE_POSITION_THRESHOLD 0.15
 #define PA_RELEASE_BALL_VELOCITY 0.1
 #define PA_SLOW_DOWN_HEIGHT 0.5
+
 #define PA_T_DISPLACE 1.6
 #define PA_TARMAC_HEIGHT 0
 #define PA_PILLAR_HEIGHT 0.87
@@ -173,7 +174,7 @@ private:
   float m_setpoints[TAKEOFF_POINT_NUMBER + 1][2];
 
   /**subscribe from dji's nodes*/
-  UAV_STATE m_uav_state;
+  UAV_STATE m_uav_state=UAV_LAND;
   float m_current_height_from_guidance;
   float m_current_position_from_guidance[2];  // initial
   float m_guidance_bias[2];

@@ -2,7 +2,7 @@
 #include "AprilTags/QRCode.h"
 #define M100_CAMERA 1
 #define VIDEO_STREAM 2
-//  #define CURRENT_IMAGE_SOURCE VIDEO_STREAM
+//#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
 #define CURRENT_IMAGE_SOURCE M100_CAMERA
 #define VISABILITY false
 #define QRCODE_VISABLE false
@@ -53,9 +53,9 @@ int main(int argc, char **argv)
   // );
   cv::VideoCapture g_cap;
 #if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
-  g_cap.open("/home/jachinshen/视频/arc2.avi");
+  g_cap.open("/home/ubuntu/rosbag/Tttt.avi");
 #else
-  g_cap.open(1);
+  g_cap.open(0);
 #endif
 
   if(!g_cap.isOpened())
@@ -82,9 +82,9 @@ int main(int argc, char **argv)
 #if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
     /*get new frame*/
     if(g_cap.get(CV_CAP_PROP_POS_FRAMES) >
-       g_cap.get(CV_CAP_PROP_FRAME_COUNT) - 1)
+       g_cap.get(CV_CAP_PROP_FRAME_COUNT)/2)
     {
-      g_cap.set(CV_CAP_PROP_POS_FRAMES, g_cap.get(CV_CAP_PROP_FRAME_COUNT) / 2);
+      g_cap.set(CV_CAP_PROP_POS_FRAMES, 10);
     }
 #endif
 

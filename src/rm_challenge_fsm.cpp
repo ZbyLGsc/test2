@@ -769,8 +769,8 @@ void RMChallengeFSM::droneTrackLine()
                           << "n:" << vn_x << "," << vn_y << "\n"
                           << "yaw:" << yaw << "\n"
                           << "vz:" << v_z);
-  controlDroneVelocity(vt_x + vn_x, vt_y + vn_y, v_z, yaw);
-
+  //controlDroneVelocity(vt_x + vn_x, vt_y + vn_y, v_z, yaw);
+  controlDroneVelocity(vt_x + vn_x, vt_y + vn_y, v_z, 0);
   /*publish velocity*/
   geometry_msgs::Vector3Stamped velocity;
   velocity.header.frame_id= "trackline_velocity";
