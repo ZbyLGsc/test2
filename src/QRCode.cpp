@@ -29,32 +29,31 @@ double tic()
 /**
  * Convert rotation matrix to Euler angles
  */
-void wRo_to_euler(const Eigen::Matrix3d& wRo, double& yaw,
-                  double& pitch, double& roll)
+void wRo_to_euler(const Eigen::Matrix3d& wRo, double& yaw, double& pitch,
+                  double& roll)
 {
   yaw= standardRad(atan2(wRo(1, 0), wRo(0, 0)));
   double c= cos(yaw);
   double s= sin(yaw);
-  pitch=
-      standardRad(atan2(-wRo(2, 0), wRo(0, 0) * c + wRo(1, 0) * s));
-  roll= standardRad(atan2(wRo(0, 2) * s - wRo(1, 2) * c,
-                          -wRo(0, 1) * s + wRo(1, 1) * c));
+  pitch= standardRad(atan2(-wRo(2, 0), wRo(0, 0) * c + wRo(1, 0) * s));
+  roll= standardRad(
+      atan2(wRo(0, 2) * s - wRo(1, 2) * c, -wRo(0, 1) * s + wRo(1, 1) * c));
 }
 
-bool calculateCenterPointFrom3Circles(
-    cv::Point2f Point1, float radius1, cv::Point2f Point2,
-    float radius2, cv::Point2f Point3, float radius3,
-    cv::Point2f& centerPoint)
+bool calculateCenterPointFrom3Circles(cv::Point2f Point1, float radius1,
+                                      cv::Point2f Point2, float radius2,
+                                      cv::Point2f Point3, float radius3,
+                                      cv::Point2f& centerPoint)
 {
   float x1= Point1.x, x2= Point2.x, x3= Point3.x;
   float y1= Point1.y, y2= Point2.y, y3= Point3.y;
   float D= 2 * ((x2 - x1) * (y3 - y2) - (y2 - y1) * (x3 - x2));
   if(abs(D) < 1e-15)
     return false;
-  float C1= radius1 * radius1 - radius2 * radius2 + x2 * x2 -
-            x1 * x1 + y2 * y2 - y1 * y1;
-  float C2= radius2 * radius2 - radius3 * radius3 + x3 * x3 -
-            x2 * x2 + y3 * y3 - y2 * y2;
+  float C1= radius1 * radius1 - radius2 * radius2 + x2 * x2 - x1 * x1 +
+            y2 * y2 - y1 * y1;
+  float C2= radius2 * radius2 - radius3 * radius3 + x3 * x3 - x2 * x2 +
+            y3 * y3 - y2 * y2;
   float Dx= C1 * (y3 - y2) - C2 * (y2 - y1);
   float Dy= C2 * (x2 - x1) - C1 * (x3 - x2);
   float centerPoint_x= Dx / D, centerPoint_y= Dy / D;
@@ -66,8 +65,7 @@ bool calculateCenterPointFrom3Circles(
 }
 
 bool reduceErrorByExtraCircle(cv::Point circlePoint, float radius,
-                              float& centerPoint_x,
-                              float& centerPoint_y)
+                              float& centerPoint_x, float& centerPoint_y)
 {
   float x4= circlePoint.x, y4= circlePoint.y;
   float move_vector_length=
@@ -306,8 +304,8 @@ above...)" << endl;
 
 void QRCode::print_detection(AprilTags::TagDetection& detection) const
 {
-  cout << "  Id: " << detection.id
-       << " (Hamming: " << detection.hammingDistance << ")";
+  cout << "  Id: " << detection.id << " (Hamming: " << detection.hammingDistance
+       << ")";
 
   // recovering the relative pose of a tag:
 
@@ -317,8 +315,8 @@ void QRCode::print_detection(AprilTags::TagDetection& detection) const
 
   Eigen::Vector3d translation;
   Eigen::Matrix3d rotation;
-  detection.getRelativeTranslationRotation(
-      m_tagSize, m_fx, m_fy, m_px, m_py, translation, rotation);
+  detection.getRelativeTranslationRotation(m_tagSize, m_fx, m_fy, m_px, m_py,
+                                           translation, rotation);
 
   Eigen::Matrix3d F;
   F << 1, 0, 0, 0, -1, 0, 0, 0, 1;
@@ -326,10 +324,9 @@ void QRCode::print_detection(AprilTags::TagDetection& detection) const
   double yaw, pitch, roll;
   wRo_to_euler(fixed_rot, yaw, pitch, roll);
 
-  cout << "  distance=" << translation.norm()
-       << "m, x=" << translation(0) << ", y=" << translation(1)
-       << ", z=" << translation(2) << ", yaw=" << yaw
-       << ", pitch=" << pitch << ", roll=" << roll << endl;
+  cout << "  distance=" << translation.norm() << "m, x=" << translation(0)
+       << ", y=" << translation(1) << ", z=" << translation(2)
+       << ", yaw=" << yaw << ", pitch=" << pitch << ", roll=" << roll << endl;
 
   // Also note that for SLAM/multi-view application it is better to
   // use reprojection error of corner points, because the noise in
@@ -343,12 +340,10 @@ void QRCode::getDetectionLocationAndDistance(
     vector<AprilTags::TagDetection>& detections)
 {
   static cv::Point2f id2location[12]= {
-    cv::Point2f(0.2, 0.2),   cv::Point2f(0.2, 1.05),
-    cv::Point2f(0.2, 1.90),  cv::Point2f(1.05, 0.2),
-    cv::Point2f(1.05, 1.90), cv::Point2f(1.90, 0.2),
-    cv::Point2f(1.90, 1.05), cv::Point2f(0.0, 0.0),
-    cv::Point2f(0.0, 0.0),   cv::Point2f(0.0, 0.0),
-    cv::Point2f(1.90, 1.90)
+    cv::Point2f(0.2, 0.2),   cv::Point2f(0.2, 1.05),  cv::Point2f(0.2, 1.90),
+    cv::Point2f(1.05, 0.2),  cv::Point2f(1.05, 1.90), cv::Point2f(1.90, 0.2),
+    cv::Point2f(1.90, 1.05), cv::Point2f(0.0, 0.0),   cv::Point2f(0.0, 0.0),
+    cv::Point2f(0.0, 0.0),   cv::Point2f(1.90, 1.90)
   };
 
   for(int i= 0; i < detections.size(); i++)
@@ -364,8 +359,8 @@ void QRCode::getDetectionLocationAndDistance(
 
     Eigen::Vector3d translation;
     Eigen::Matrix3d rotation;
-    detections[i].getRelativeTranslationRotation(
-        m_tagSize, m_fx, m_fy, m_px, m_py, translation, rotation);
+    detections[i].getRelativeTranslationRotation(m_tagSize, m_fx, m_fy, m_px,
+                                                 m_py, translation, rotation);
 
     Eigen::Matrix3d F;
     F << 1, 0, 0, 0, -1, 0, 0, 0, 1;
@@ -373,15 +368,14 @@ void QRCode::getDetectionLocationAndDistance(
     double yaw, pitch, roll;
     wRo_to_euler(fixed_rot, yaw, pitch, roll);
 
-    float ground_distance= sqrt(
-        abs(pow(translation.norm(), 2) - pow(detections_height, 2)));
+    float ground_distance=
+        sqrt(abs(pow(translation.norm(), 2) - pow(detections_height, 2)));
     detections_distance.push_back(ground_distance);
   }
 }
 
-bool QRCode::calculateBasePostion(
-    vector<cv::Point2f>& detections_location,
-    vector<float>& detections_distance)
+bool QRCode::calculateBasePostion(vector<cv::Point2f>& detections_location,
+                                  vector<float>& detections_distance)
 {
   if(detections_location.size() >= 3)
   {
@@ -397,8 +391,7 @@ bool QRCode::calculateBasePostion(
           if(calculateCenterPointFrom3Circles(
                  detections_location[i], detections_distance[i],
                  detections_location[j], detections_distance[j],
-                 detections_location[k], detections_distance[k],
-                 centerPoint))
+                 detections_location[k], detections_distance[k], centerPoint))
           {
             // cout<<"x:"<<centerPoint.x<<" y:"<<centerPoint.y<<endl;
             centerPoints.push_back(centerPoint);
@@ -485,8 +478,8 @@ void QRCode::processImage(cv::Mat& image, cv::Mat& image_gray,
       // only the first detected tag is sent out for now
       Eigen::Vector3d translation;
       Eigen::Matrix3d rotation;
-      detections[0].getRelativeTranslationRotation(
-          m_tagSize, m_fx, m_fy, m_px, m_py, translation, rotation);
+      detections[0].getRelativeTranslationRotation(m_tagSize, m_fx, m_fy, m_px,
+                                                   m_py, translation, rotation);
       // m_serial.print(detections[0].id);
       // m_serial.print(",");
       // m_serial.print(translation(0));
@@ -632,11 +625,9 @@ bool QRCode::getBasePosition(cv::Mat& src, float detections_height)
   vector<AprilTags::TagDetection> detections;
 
   processImage(src, image_gray, detections);
-  getDetectionLocationAndDistance(detections_location,
-                                  detections_distance,
+  getDetectionLocationAndDistance(detections_location, detections_distance,
                                   detections_height, detections);
-  return calculateBasePostion(detections_location,
-                              detections_distance);
+  return calculateBasePostion(detections_location, detections_distance);
 }
 
 float QRCode::getBaseX()
