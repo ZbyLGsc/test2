@@ -97,8 +97,8 @@ void RMChallengeVision::extractColor(Mat src, COLOR_TYPE color,
     cvCreateTrackbar("rb", "Control", &bgrThresh2, 255);
   }
   /*extract region with needed hsv*/
-  inRange(hsv, Scalar(iLowH, iLowS, iLowV),
-          Scalar(iHighH, iHighS, iHighV), hsv);
+  inRange(hsv, Scalar(iLowH, iLowS, iLowV), Scalar(iHighH, iHighS, iHighV),
+          hsv);
   vector<Mat> bgrSplit;
   split(temp, bgrSplit);
   Mat bgr1, bgr2, bgr3;
@@ -167,8 +167,7 @@ float RMChallengeVision::imageToRealDistance(float imageLength,
                                              float imageDistance,
                                              float realLength)
 {
-  float realDistance=
-      (realLength / (imageLength + 0.00001)) * imageDistance;
+  float realDistance= (realLength / (imageLength + 0.00001)) * imageDistance;
   return realDistance / 1000;
 }
 
@@ -180,8 +179,7 @@ Input:              imageLength: 物体在图像中的长度，单位：像素
 Output:             realHeight: 物体到相机平面的实际距离，单位：mm
 Others:             只有当已知物体实际尺寸时可用
 *************************************************/
-float RMChallengeVision::imageToHeight(float imageLength,
-                                       float realLength)
+float RMChallengeVision::imageToHeight(float imageLength, float realLength)
 {
   static float f= 507.8; /*camera parameter*/
   float realHeight= (realLength / (imageLength + 0.00001)) * f;
@@ -200,8 +198,7 @@ void RMChallengeVision::detectTriangle(Mat src, Mat color_region,
   Mat element= getStructuringElement(MORPH_ELLIPSE, Size(3, 3));
   erode(temp, temp, element);
 
-  cv::findContours(temp, contours, CV_RETR_LIST,
-                   CV_CHAIN_APPROX_SIMPLE);
+  cv::findContours(temp, contours, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
   vector<vector<Point> > triangles;
   for(int k= 0; k < 4; k++)
     triangle[k]= 0;
@@ -221,24 +218,19 @@ void RMChallengeVision::detectTriangle(Mat src, Mat color_region,
     double approxError= 0;
     for(int j= 0; j < (int)contours[i].size(); j++)
     {
-      approxError+=
-          abs(pointPolygonTest(approx, contours[i][j], true));
+      approxError+= abs(pointPolygonTest(approx, contours[i][j], true));
     }
     if(approxError > arcLength(Mat(contours[i]), true) * 0.55)
       continue;
     // fitting 45 45 90 degree of triangle
-    float angle1=
-        angle(approx.at(0), approx.at(1), approx.at(2)) * 57.3;
-    float angle2=
-        angle(approx.at(2), approx.at(0), approx.at(1)) * 57.3;
-    float angle3=
-        angle(approx.at(2), approx.at(1), approx.at(0)) * 57.3;
+    float angle1= angle(approx.at(0), approx.at(1), approx.at(2)) * 57.3;
+    float angle2= angle(approx.at(2), approx.at(0), approx.at(1)) * 57.3;
+    float angle3= angle(approx.at(2), approx.at(1), approx.at(0)) * 57.3;
     bool rightShape= false;
     float angleThreshold= 10.0;
     int verPointId;
     if(fabs(angle1 - 45) < angleThreshold &&
-       fabs(angle2 - 45) < angleThreshold &&
-       fabs(angle3 - 90) < angleThreshold)
+       fabs(angle2 - 45) < angleThreshold && fabs(angle3 - 90) < angleThreshold)
     {
       rightShape= true;
       verPointId= 0;
@@ -265,32 +257,27 @@ void RMChallengeVision::detectTriangle(Mat src, Mat color_region,
                       // for right up
                       // left down
     if(approx.at(verPointId).x > approx.at((verPointId + 1) % 3).x &&
-       approx.at(verPointId).x >
-           approx.at((verPointId + 2) % 3).x)  // left
+       approx.at(verPointId).x > approx.at((verPointId + 2) % 3).x)  // left
     {
       triangle[2]= 1;
       dirColor= Scalar(255, 0, 0);
     }
-    else if(approx.at(verPointId).x <
-                approx.at((verPointId + 1) % 3).x &&
+    else if(approx.at(verPointId).x < approx.at((verPointId + 1) % 3).x &&
             approx.at(verPointId).x <
                 approx.at((verPointId + 2) % 3).x)  // right
     {
       triangle[0]= 1;
       dirColor= Scalar(0, 0, 255);
     }
-    else if(approx.at(verPointId).y <
-                approx.at((verPointId + 1) % 3).y &&
+    else if(approx.at(verPointId).y < approx.at((verPointId + 1) % 3).y &&
             approx.at(verPointId).y <
                 approx.at((verPointId + 2) % 3).y)  // DOWN
     {
       triangle[3]= 1;
       dirColor= Scalar(0, 255, 0);
     }
-    else if(approx.at(verPointId).y >
-                approx.at((verPointId + 1) % 3).y &&
-            approx.at(verPointId).y >
-                approx.at((verPointId + 2) % 3).y)  // UP
+    else if(approx.at(verPointId).y > approx.at((verPointId + 1) % 3).y &&
+            approx.at(verPointId).y > approx.at((verPointId + 2) % 3).y)  // UP
     {
       triangle[1]= 1;
       dirColor= Scalar(0, 255, 255);
@@ -328,8 +315,7 @@ void RMChallengeVision::detectPillarCircle(Mat src, Mat color_region,
   vector<vector<Point> > contours;
   Mat temp;
   color_region.copyTo(temp);
-  cv::findContours(temp, contours, CV_RETR_LIST,
-                   CV_CHAIN_APPROX_SIMPLE);
+  cv::findContours(temp, contours, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
   // find circle in all contours
   vector<float> radiuses;
   Mat draw= src.clone();
@@ -354,10 +340,10 @@ void RMChallengeVision::detectPillarCircle(Mat src, Mat color_region,
         vector<Point> in_circle_pt;
         int out_circle_pt_cnt= 0;
         int in_circle_pt_cnt= 0;
-        ellipse2Poly(center, Size(radius + 0, radius + 0), 0, 0, 360,
-                     4, out_circle_pt);
-        ellipse2Poly(center, Size(radius - 5, radius - 5), 0, 0, 360,
-                     4, in_circle_pt);
+        ellipse2Poly(center, Size(radius + 0, radius + 0), 0, 0, 360, 4,
+                     out_circle_pt);
+        ellipse2Poly(center, Size(radius - 5, radius - 5), 0, 0, 360, 4,
+                     in_circle_pt);
         for(int j= 0; j < (int)out_circle_pt.size(); j++)
         {
           int x= out_circle_pt.at(j).x;
@@ -422,8 +408,7 @@ void RMChallengeVision::detectPillarCircle(Mat src, Mat color_region,
 
 void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
                                         bool& circle_found,
-                                        Point2f& circle_center,
-                                        float& radius)
+                                        Point2f& circle_center, float& radius)
 {
   const static int MIN_RADIUS= 100, MAX_RADIUS= 450;
   static float last_radius= MIN_RADIUS;
@@ -457,18 +442,15 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
   blur(src_gray, src_gray, Size(3, 3));
   /// 霍夫找圆
   vector<Vec3f> circles;
-  double dp= 2, min_dist= 200, canny_thresh= 200,
-         accumulator= last_radius / 2;
-  int min_radius= (int)last_radius - 50 > MIN_RADIUS ?
-                      (int)last_radius - 50 :
-                      MIN_RADIUS,
-      max_radius= (int)last_radius + 100 < MAX_RADIUS ?
-                      (int)last_radius + 100 :
-                      MAX_RADIUS;
+  double dp= 2, min_dist= 200, canny_thresh= 200, accumulator= last_radius / 2;
+  int min_radius= (int)last_radius - 50 > MIN_RADIUS ? (int)last_radius - 50 :
+                                                       MIN_RADIUS,
+      max_radius= (int)last_radius + 100 < MAX_RADIUS ? (int)last_radius + 100 :
+                                                        MAX_RADIUS;
   min_radius= MIN_RADIUS;
   max_radius= MAX_RADIUS;
-  HoughCircles(src_gray, circles, CV_HOUGH_GRADIENT, dp, min_dist,
-               canny_thresh, accumulator, min_radius, max_radius);
+  HoughCircles(src_gray, circles, CV_HOUGH_GRADIENT, dp, min_dist, canny_thresh,
+               accumulator, min_radius, max_radius);
 
   float hough_radius;
   Point2f hough_center;
@@ -480,10 +462,8 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
     /// 霍夫半径
     hough_radius= circles[0][2];
     /// 返回值
-    circle_center.x=
-        hough_center.x - (src.cols - left - right) / 2 - left;
-    circle_center.y=
-        (src.rows - top - bottom) / 2 - hough_center.y + top;
+    circle_center.x= hough_center.x - (src.cols - left - right) / 2 - left;
+    circle_center.y= (src.rows - top - bottom) / 2 - hough_center.y + top;
     circle_found= true;
     last_center= circle_center;
     last_radius= hough_radius;
@@ -531,8 +511,7 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
         //绘制圆心
         circle(src, hough_center, 3, Scalar(0, 255, 0), -1, 8, 0);
         //绘制圆轮廓
-        circle(src, hough_center, last_radius, Scalar(155, 50, 255),
-               3, 8, 0);
+        circle(src, hough_center, last_radius, Scalar(155, 50, 255), 3, 8, 0);
       }
       imshow("Arc", src);
     }
@@ -540,30 +519,26 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
 }
 
 /**detect all possible pillar in contest field*/
-int RMChallengeVision::detectPillar(Mat src,
-                                    PILLAR_RESULT& pillar_result)
+int RMChallengeVision::detectPillar(Mat src, PILLAR_RESULT& pillar_result)
 {
   // first detect red pillar
   Mat red_region;
   extractColor(src, RMChallengeVision::RED, red_region);
   detectTriangle(src, red_region, pillar_result.triangle);
   detectPillarCircle(src, red_region, pillar_result.circle_found,
-                     pillar_result.circle_center,
-                     pillar_result.radius);
+                     pillar_result.circle_center, pillar_result.radius);
 
   detectPillarArc(src, red_region, pillar_result.arc_found,
                   pillar_result.arc_center, pillar_result.arc_radius);
 
   ROS_INFO_STREAM("circle center is:" << pillar_result.circle_center);
   return 1;
-  int triangle_sum=
-      pillar_result.triangle[0] + pillar_result.triangle[1] +
-      pillar_result.triangle[2] + pillar_result.triangle[3];
+  int triangle_sum= pillar_result.triangle[0] + pillar_result.triangle[1] +
+                    pillar_result.triangle[2] + pillar_result.triangle[3];
   if(triangle_sum != 0)
   {
     detectPillarCircle(src, red_region, pillar_result.circle_found,
-                       pillar_result.circle_center,
-                       pillar_result.radius);
+                       pillar_result.circle_center, pillar_result.radius);
     ROS_INFO_STREAM("red pillar");
     return 1;
   }
@@ -572,14 +547,12 @@ int RMChallengeVision::detectPillar(Mat src,
     Mat blue_region;
     extractColor(src, RMChallengeVision::BLUE, blue_region);
     detectTriangle(src, blue_region, pillar_result.triangle);
-    triangle_sum=
-        pillar_result.triangle[0] + pillar_result.triangle[1] +
-        pillar_result.triangle[2] + pillar_result.triangle[3];
+    triangle_sum= pillar_result.triangle[0] + pillar_result.triangle[1] +
+                  pillar_result.triangle[2] + pillar_result.triangle[3];
     if(triangle_sum != 0)
     {
       detectPillarCircle(src, blue_region, pillar_result.circle_found,
-                         pillar_result.circle_center,
-                         pillar_result.radius);
+                         pillar_result.circle_center, pillar_result.radius);
       ROS_INFO_STREAM("blue pillar");
       return 2;
     }
@@ -598,9 +571,8 @@ float RMChallengeVision::angle(Point pt1, Point pt2, Point pt0)
   float dy1= pt1.y - pt0.y;
   float dx2= pt2.x - pt0.x;
   float dy2= pt2.y - pt0.y;
-  float cosine=
-      (dx1 * dx2 + dy1 * dy2) /
-      sqrt((dx1 * dx1 + dy1 * dy1) * (dx2 * dx2 + dy2 * dy2) + 1e-10);
+  float cosine= (dx1 * dx2 + dy1 * dy2) /
+                sqrt((dx1 * dx1 + dy1 * dy1) * (dx2 * dx2 + dy2 * dy2) + 1e-10);
   return acos(cosine);
 }
 /*********************************************************************/
@@ -612,9 +584,8 @@ float RMChallengeVision::angle(Point pt1, Point pt2, Point pt0)
 *                   SV三通道二值化结果
 /*              对应关系：蓝色对于H通道，绿色对应S通道，红色对应V通道
 /***************************************************************/
-void RMChallengeVision::getYellowRegion(Mat& src, Mat& dst, int LowH,
-                                        int HighH, int sThreshold,
-                                        int vThreshold)
+void RMChallengeVision::getYellowRegion(Mat& src, Mat& dst, int LowH, int HighH,
+                                        int sThreshold, int vThreshold)
 {
   Mat hsv, Line_sv, hsvColorRegion;
   vector<Mat> hsvSplit;
@@ -631,8 +602,7 @@ void RMChallengeVision::getYellowRegion(Mat& src, Mat& dst, int LowH,
             THRESH_BINARY);  //去除 V 小于 v_threshold 的区域
   // bitwise_and(Line_h1, Line_h2, Line_h);
   bitwise_and(hsvSplit[1], hsvSplit[2], Line_sv);
-  bitwise_and(hsvSplit[0], Line_sv,
-              hsvColorRegion);  //矩阵位与（255&255=255）
+  bitwise_and(hsvSplit[0], Line_sv, hsvColorRegion);  //矩阵位与（255&255=255）
   // Line_h = Line_h1 + Line_h2;
   // dst = Line_h + hsvSplit[1] + hsvSplit[2];
   if(m_visable)  //调试用
@@ -688,31 +658,29 @@ void RMChallengeVision::getYellowRegion(Mat& src, Mat& dst, int LowH,
             不调试时，仅仅计算距离向量和方向向量并储存
 ****************************************************************/
 void RMChallengeVision::detectLine(Mat& src, float& distance_x,
-                                   float& distance_y,
-                                   float& line_vector_x,
+                                   float& distance_y, float& line_vector_x,
                                    float& line_vector_y)
 {
   Mat img, copy;
   vector<Mat> bgrSplit;
   vector<int> x, y;
   float picture_vector_x, picture_vector_y;  //图片参考系的距离向量
-  uchar* data;  //获取图像数据所用数组
+  uchar* data;                               //获取图像数据所用数组
   if(m_visable)
     split(src, bgrSplit);  //分离出BGR通道，为最终显示结果做准备
 
   getYellowRegion(src, img, 30, 47, 150, 90);  //获取黄色区域
   Mat element1= getStructuringElement(
       MORPH_ELLIPSE, Size(3, 3));  //设置腐蚀的核大小,5x5的椭圆，即圆
-  Mat element2= getStructuringElement(MORPH_ELLIPSE,
-                                      Size(9, 9));  //设置膨胀的核大小
-  erode(img, img, element1);   //腐蚀，去除噪点
-  dilate(img, img, element2);  //膨胀，增加线粗
+  Mat element2=
+      getStructuringElement(MORPH_ELLIPSE, Size(9, 9));  //设置膨胀的核大小
+  erode(img, img, element1);                             //腐蚀，去除噪点
+  dilate(img, img, element2);                            //膨胀，增加线粗
   //去除面积较小的连通域
   vector<vector<Point> > contours;
   Mat temp;
   img.copyTo(temp);
-  cv::findContours(temp, contours, CV_RETR_LIST,
-                   CV_CHAIN_APPROX_SIMPLE);
+  cv::findContours(temp, contours, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
   for(int i= 0; i < (int)contours.size(); i++)
   {
     int area= contourArea(contours[i], false);
@@ -730,8 +698,7 @@ void RMChallengeVision::detectLine(Mat& src, float& distance_x,
     data= img.ptr<uchar>(i);          //获取此行开头指针
     for(int j= 0; j < src.cols; ++j)  //遍历此行每个元素
     {
-      if(*data ==
-         255)  //如果刚好满足之前4个条件（255 =255&255&255&255）
+      if(*data == 255)  //如果刚好满足之前4个条件（255 =255&255&255&255）
       {
         x.push_back(j);  //添加 x 坐标
         y.push_back(i);  //添加 y 坐标
@@ -743,9 +710,8 @@ void RMChallengeVision::detectLine(Mat& src, float& distance_x,
   if(x.size() > 1500)  //如果有数据
   {
     LeastSquare leastsq(x, y);  //拟合曲线
-    leastsq.direction(
-        src.cols / 2, src.rows / 2, picture_vector_x,
-        picture_vector_y);  //获取中心点到直线的向量,图像坐标
+    leastsq.direction(src.cols / 2, src.rows / 2, picture_vector_x,
+                      picture_vector_y);  //获取中心点到直线的向量,图像坐标
     distance_y= picture_vector_x;  //转换为无人机坐标
     distance_x= -picture_vector_y;
     line_vector_y= leastsq.tx;
@@ -782,34 +748,32 @@ void RMChallengeVision::detectLine(Mat& src, float& distance_x,
             不调试时，仅仅计算距离向量和方向向量并储存
 *********************************************************/
 bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
-                                        float& distance_y,
-                                        float& line_vector_x,
+                                        float& distance_y, float& line_vector_x,
                                         float& line_vector_y)
 {
   Mat img, T_img, copy;  // img用于拟合，T_img用于判断
   vector<Mat> bgrSplit;
-  vector<int> x, y;  // x，y坐标储存vector
+  vector<int> x, y;                          // x，y坐标储存vector
   float picture_vector_x, picture_vector_y;  //图片参考系的距离向量
-  int side= 71;    //判断T型的核边长大小
-  double val_max;  //高斯滤波后的最大值
-  Point p_max;     //高斯滤波后最大值的位置
-  uchar* data;     //获取图像数据所用数组
+  int side= 71;                              //判断T型的核边长大小
+  double val_max;                            //高斯滤波后的最大值
+  Point p_max;                               //高斯滤波后最大值的位置
+  uchar* data;                               //获取图像数据所用数组
 
   if(m_visable)
     split(src, bgrSplit);  //分离出BGR通道，为最终显示结果做准备
   getYellowRegion(src, img, 30, 47, 150, 90);  //获取黄色区域
   Mat element1= getStructuringElement(
       MORPH_ELLIPSE, Size(3, 3));  //设置腐蚀的核大小,5x5的椭圆，即圆
-  Mat element2= getStructuringElement(MORPH_ELLIPSE,
-                                      Size(9, 9));  //设置膨胀的核大小
-  erode(img, img, element1);   //腐蚀，去除噪点
+  Mat element2=
+      getStructuringElement(MORPH_ELLIPSE, Size(9, 9));  //设置膨胀的核大小
+  erode(img, img, element1);                             //腐蚀，去除噪点
   dilate(img, img, element2);  //膨胀，增加T型交叉点密度
   //去除面积较小的连通域
   vector<vector<Point> > contours;
   Mat temp;
   img.copyTo(temp);
-  cv::findContours(temp, contours, CV_RETR_LIST,
-                   CV_CHAIN_APPROX_SIMPLE);
+  cv::findContours(temp, contours, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
   for(int i= 0; i < (int)contours.size(); i++)
   {
     int area= contourArea(contours[i], false);
@@ -827,8 +791,7 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
     data= img.ptr<uchar>(i);          //获取此行开头指针
     for(int j= 0; j < src.cols; ++j)  //遍历此行每个元素
     {
-      if(*data ==
-         255)  //如果刚好满足之前4个条件（255 =255&255&255&255）
+      if(*data == 255)  //如果刚好满足之前4个条件（255 =255&255&255&255）
       {
         x.push_back(j);  //添加 x 坐标
         y.push_back(i);  //添加 y 坐标
@@ -847,10 +810,8 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
   // if_debug))//判断最大点周围是否有三条边，若有，肯定为T型
   if(x.size() > 1500)  //如果有数据
   {
-    GaussianBlur(img, T_img, Size(side, side),
-                 0);  //高斯滤波，计算各点黄色密度
-    minMaxLoc(T_img, NULL, &val_max, NULL,
-              &p_max);  //得到密度最大点位置和值
+    GaussianBlur(img, T_img, Size(side, side), 0);  //高斯滤波，计算各点黄色密度
+    minMaxLoc(T_img, NULL, &val_max, NULL, &p_max);  //得到密度最大点位置和值
     threshold(T_img, T_img, val_max / 2, 255,
               THRESH_BINARY);  //获取二值图，便于使用isTri函数
     if(isTri(T_img, p_max.x, p_max.y, side / 2) &&
@@ -865,8 +826,7 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
 
       if(m_visable)
       {
-        circle(bgrSplit[1], Point(p_max.x, p_max.y), side / 2,
-               Scalar(255));
+        circle(bgrSplit[1], Point(p_max.x, p_max.y), side / 2, Scalar(255));
         merge(bgrSplit, copy);
         imshow("T position circle", copy);
         waitKey(1);
@@ -876,9 +836,8 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
     else  //不是T型，则计算距离向量
     {
       LeastSquare leastsq(x, y);  //拟合曲线
-      leastsq.direction(
-          src.cols / 2, src.rows / 2, picture_vector_x,
-          picture_vector_y);  //获取中心点到直线的向量,图像坐标
+      leastsq.direction(src.cols / 2, src.rows / 2, picture_vector_x,
+                        picture_vector_y);  //获取中心点到直线的向量,图像坐标
       distance_y= picture_vector_x;  //转换为无人机坐标
       distance_x= -picture_vector_y;
       line_vector_y= leastsq.tx;
@@ -917,8 +876,8 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
                 if_debug设为true时，会在原图上绘制值为120点，注意：会改变原图
 *********************************************************/
 /**********************************************************/
-bool RMChallengeVision::getRectSide(Mat& src, vector<uchar>& side,
-                                    int x, int y, int r)
+bool RMChallengeVision::getRectSide(Mat& src, vector<uchar>& side, int x, int y,
+                                    int r)
 {
   if((x >= r) && ((x + r) < src.cols) && (y >= r) &&
      ((y + r) < src.rows))  //是否超边界
@@ -980,15 +939,13 @@ bool RMChallengeVision::isTri(Mat& src, int x, int y, int r)
       {
         plus_sum++;
         if(m_visable)
-          cout << "From:isTri side position:" << k << " +" << plus_sum
-               << endl;
+          cout << "From:isTri side position:" << k << " +" << plus_sum << endl;
       }
       else if((sides[k + 1] - sides[k]) == -255)
       {
         minus_sum++;
         if(m_visable)
-          cout << "From:isTri side position:" << k << " -"
-               << minus_sum << endl;
+          cout << "From:isTri side position:" << k << " -" << minus_sum << endl;
       }
 
     if(plus_sum == 3 && minus_sum == 3)
@@ -1029,8 +986,7 @@ bool RMChallengeVision::hasTri(Mat& src, int r, int val_max)
     data= img_1.ptr<uchar>(i);        //获取此行开头指针
     for(int j= 0; j < src.cols; ++j)  //遍历此行每个元素
     {
-      if(*data ==
-         255)  //如果刚好满足之前4个条件（255 =255&255&255&255）
+      if(*data == 255)  //如果刚好满足之前4个条件（255 =255&255&255&255）
       {
         x.push_back(j);  //添加 x 坐标
         y.push_back(i);  //添加 y 坐标

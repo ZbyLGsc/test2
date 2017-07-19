@@ -1,21 +1,22 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-// #define CURRENT_COMPUTER ZBY_PC
- #define CURRENT_COMPUTER MANIFOLD
+#define CURRENT_COMPUTER ZBY_PC
+// #define CURRENT_COMPUTER MANIFOLD
 
 #define TAKEOFF_POINT_NUMBER 7
 // parameters of uav
 #define PA_DEGREE_TO_RADIAN (3.1415926 / 180.0)
 #define PA_COORDINATE_TRANSFORM_DEGREE (-90)
-#define PA_COORDINATE_TRANSFORM_ANGLE                                \
+#define PA_COORDINATE_TRANSFORM_ANGLE                                          \
   PA_COORDINATE_TRANSFORM_DEGREE *PA_DEGREE_TO_RADIAN
 
 #define PA_TAKEOFF_TIME 7
 #define PA_TAKEOFF_HEIGHT_THRESHOLD 0.1
-#define PA_TAKEOFF_POSITION_ERROR 3.5
+#define PA_TAKEOFF_POSITION_ERROR 2
 #define PA_BASE_HEIGHT_THRESHOLD 0.2
 #define PA_SETPOINT_POSITION_ERROR 0.5
+#define PA_LANDPOINT_POSITION_ERROR 3
 #define PA_GRASPPER_CONTROL_TIME 6
 #define PA_GO_UP_VELOCITY 0.3
 
@@ -65,10 +66,15 @@
 #define PA_BASE_2 4
 #define PA_BASE_3 6
 #define PA_BASE_4 8
+#define PA_T_1 9
+#define PA_T_2 10
 
-#define PA_RELEASE_BALL_HEIGHT 0.5
+#define PA_RELEASE_BALL_HEIGHT 0.6
 #define PA_RELEASE_BALL_HEIGHT_THRESHOLD 0.2
 #define PA_BASE_POSITION_THRESHOLD 0.15
+#define PA_RELEASE_BALL_VELOCITY 0.1
+#define PA_SLOW_DOWN_HEIGHT 0.5
+#define PA_T_DISPLACE 1.6
 
 #include <sstream>
 #include <ros/assert.h>
@@ -98,16 +104,16 @@ class RMChallengeFSM
 public:
   enum TASK_STATE
   {
-    TAKE_OFF,//0
+    TAKE_OFF,  // 0
     GO_UP,
     GO_TO_SETPOINT,
-    IDLE,//3
+    IDLE,  // 3
     TRACK_LINE,
     LAND,
-    GRAB_BALL,//6
+    GRAB_BALL,  // 6
     GO_TO_LAND_POINT,
     GO_TO_PILLAR,
-    RELEASE_BALL,//6
+    RELEASE_BALL,  // 9
     CROSS_ARENA,
   };
   enum GRASPPER_STATE
@@ -134,7 +140,8 @@ public:
   enum LINE_TYPE
   {
     YELLOW_LINE,
-    VIRTUAL_LINE,
+    VIRTUAL_LINE_SETPOINT,
+    VIRTUAL_LINE_LANDPOINT,
   };
   RMChallengeFSM()
   {
@@ -175,10 +182,8 @@ private:
   bool m_discover_pillar_arc;
   float m_circle_position_error[2];
   float m_current_height_from_circle;
-
   float m_arc_position_error[2];
   float m_current_height_from_arc;
-
   int m_pillar_triangle[4];
 
   /**subscribe from  vision node about base*/
@@ -188,6 +193,9 @@ private:
   /**subscribe from vision node about detectLine*/
   float m_distance_to_line[2];
   float m_line_normal[2];
+  bool m_discover_T;
+
+  /**internal variables related to uav state*/
   LAND_POINT_TYPE m_land_point_type;
   PREPARE_TO_LAND_TYPE m_prepare_to_land_type;  // initial
   int m_land_counter;                           // initial
@@ -197,6 +205,7 @@ private:
   ros::Time m_takeoff_time;
   ros::Time m_checked_time;
 
+  /**publish debug message*/
   ros::Publisher m_velocity_pub;
   ros::Publisher m_position_pub;
 
@@ -243,8 +252,8 @@ private:
                                LINE_TYPE lint_type);  // tested
   void calculateTangentialVelocity(float &x, float &y,
                                    LINE_TYPE lint_type);  // tested
-  void calculateYawRate(float &yaw);  // tested,confirm yaw
-                                      // direction
+  void calculateYawRate(float &yaw);                      // tested,confirm yaw
+                                                          // direction
   void transformCoordinate(float phi, float &x, float &y);
   void unitifyVector(float &x, float &y);  // tested
   void calculateRealPositionError(float error[2]);
@@ -254,7 +263,11 @@ private:
   void publishVelocity(std::string id, float x, float y, float z);
   void droneReleaseBall();
   void droneGoDownToBase();
+  void droneGoToPillar();
   void updateTakeoffPointId();
+  void droneUpdatePosition(int POSITION_ID = 0);
+
+  void printStateInfo();
 
 public:
   /**update from dji's nodes*/
@@ -262,13 +275,13 @@ public:
   void setHeightFromGuidance(float height);
   void setPositionFromGuidance(float x, float y);  //考虑漂移，m_bias
   /**update from topic about circle and triangle*/
-  void setCircleVariables(bool is_circle_found,
-                          float position_error[2], float height);
+  void setCircleVariables(bool is_circle_found, float position_error[2],
+                          float height);
   void setTriangleVariables(int pillar_triangle[4]);
   void setArcVariables(bool is_arc_found, float position_error[2]);
   /**update from topic about base */
   void setBaseVariables(bool is_base_found, float position_error[2]);
   /**update from topic about detectLine*/
-  void setLineVariables(float distance_to_line[2],
+  void setLineVariables(bool is_T_found, float distance_to_line[2],
                         float line_normal[2]);
 };

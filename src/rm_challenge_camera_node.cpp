@@ -28,10 +28,8 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "rm_challenge_camera_node");
   ros::NodeHandle node;
 
-  vision_pillar_pub=
-      node.advertise<std_msgs::String>("tpp/pillar", 1);
-  vision_line_pub=
-      node.advertise<std_msgs::String>("tpp/yellow_line", 1);
+  vision_pillar_pub= node.advertise<std_msgs::String>("tpp/pillar", 1);
+  vision_line_pub= node.advertise<std_msgs::String>("tpp/yellow_line", 1);
   vision_base_pub= node.advertise<std_msgs::String>("tpp/base", 1);
 
   image_transport::ImageTransport image_transport(node);
@@ -56,7 +54,7 @@ int main(int argc, char **argv)
 #if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
   g_cap.open("/home/jachinshen/视频/arc2.avi");
 #else
-  g_cap.open(0);
+  g_cap.open(1);
 #endif
 
   if(!g_cap.isOpened())
@@ -84,8 +82,7 @@ int main(int argc, char **argv)
     if(g_cap.get(CV_CAP_PROP_POS_FRAMES) >
        g_cap.get(CV_CAP_PROP_FRAME_COUNT) - 1)
     {
-      g_cap.set(CV_CAP_PROP_POS_FRAMES,
-                g_cap.get(CV_CAP_PROP_FRAME_COUNT) / 2);
+      g_cap.set(CV_CAP_PROP_POS_FRAMES, g_cap.get(CV_CAP_PROP_FRAME_COUNT) / 2);
     }
 #endif
 
@@ -94,8 +91,8 @@ int main(int argc, char **argv)
       continue;
 
     /* publish this frame to ROS topic*/
-    image_ptr= cv_bridge::CvImage(std_msgs::Header(), "bgr8", frame)
-                   .toImageMsg();
+    image_ptr=
+        cv_bridge::CvImage(std_msgs::Header(), "bgr8", frame).toImageMsg();
     vision_image_pub.publish(image_ptr);
 
     /*std_msg of string published to uav*/
@@ -134,21 +131,20 @@ int main(int argc, char **argv)
     }
     // publish result to uav
     std_msgs::String pillar_msg;
-    ss << pillar_result.triangle[0] << " "
-       << pillar_result.triangle[1] << " "
-       << pillar_result.triangle[2] << " "
-       << pillar_result.triangle[3] << " "
-       << pillar_result.circle_found << " " << pos_err_x << " "
-       << pos_err_y << " " << height << " " << arc_err_x << " "
-       << arc_err_y << " " << pillar_result.arc_found;
+    ss << pillar_result.triangle[0] << " " << pillar_result.triangle[1] << " "
+       << pillar_result.triangle[2] << " " << pillar_result.triangle[3] << " "
+       << pillar_result.circle_found << " " << pos_err_x << " " << pos_err_y
+       << " " << height << " " << arc_err_x << " " << arc_err_y << " "
+       << pillar_result.arc_found;
     pillar_msg.data= ss.str();
     vision_pillar_pub.publish(pillar_msg);
 
     /*test detect yellow line*/
     //    ROS_INFO_STREAM("detect line");
     float distance_x, distance_y, line_vector_x, line_vector_y;
-    if(vision.detectLineWithT(frame, distance_x, distance_y,
-                              line_vector_x, line_vector_y))
+    bool is_T_found= vision.detectLineWithT(frame, distance_x, distance_y,
+                                            line_vector_x, line_vector_y);
+    if(is_T_found)
       ROS_INFO_STREAM("T");
     else
     {
@@ -159,8 +155,8 @@ int main(int argc, char **argv)
     // publish result
     ss.str("");
     std_msgs::String line_msg;
-    ss << distance_x << " " << distance_y << " " << line_vector_x
-       << " " << line_vector_y;
+    ss << is_T_found << " " << distance_x << " " << distance_y << " "
+       << line_vector_x << " " << line_vector_y;
     line_msg.data= ss.str();
     vision_line_pub.publish(line_msg);
 
@@ -181,8 +177,7 @@ int main(int argc, char **argv)
     }
     ss.str("");
     std_msgs::String base_msg;
-    ss << base_found << " " << qr_code.getBaseX() << " "
-       << qr_code.getBaseY();
+    ss << base_found << " " << qr_code.getBaseX() << " " << qr_code.getBaseY();
     base_msg.data= ss.str();
     vision_base_pub.publish(base_msg);
 

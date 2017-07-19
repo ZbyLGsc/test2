@@ -16,15 +16,12 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
   m_serial_port->open("/dev/ttyTHS0", m_err_code);
   m_serial_port->set_option(serial_port::baud_rate(9600), m_err_code);
   m_serial_port->set_option(
-      serial_port::flow_control(serial_port::flow_control::none),
-      m_err_code);
-  m_serial_port->set_option(
-      serial_port::parity(serial_port::parity::none), m_err_code);
-  m_serial_port->set_option(
-      serial_port::stop_bits(serial_port::stop_bits::one),
-      m_err_code);
-  m_serial_port->set_option(serial_port::character_size(8),
+      serial_port::flow_control(serial_port::flow_control::none), m_err_code);
+  m_serial_port->set_option(serial_port::parity(serial_port::parity::none),
                             m_err_code);
+  m_serial_port->set_option(serial_port::stop_bits(serial_port::stop_bits::one),
+                            m_err_code);
+  m_serial_port->set_option(serial_port::character_size(8), m_err_code);
 
 /*initialize dji sdk*/
 #if CURRENT_COMPUTER == MANIFOLD
@@ -33,11 +30,9 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
 
   /*initialize publisher*/
   m_position_pub=
-      node_handle.advertise<geometry_msgs::Vector3Stamped>(
-          "/m100/position", 1);
+      node_handle.advertise<geometry_msgs::Vector3Stamped>("/m100/position", 1);
   m_velocity_pub=
-      node_handle.advertise<geometry_msgs::Vector3Stamped>(
-          "/m100/velocity", 1);
+      node_handle.advertise<geometry_msgs::Vector3Stamped>("/m100/velocity", 1);
 
   /*initialize setpoint, takeoffpoint and takeoff height,
    only set for one time, takeoff positions are absolute position,
@@ -111,7 +106,7 @@ void RMChallengeFSM::resetAllState()
 
 void RMChallengeFSM::run()
 {
-  ROS_INFO_STREAM("running: state is:" << m_state);
+  printStateInfo();
   switch(m_state)
   {
     case TAKE_OFF:
@@ -186,6 +181,11 @@ void RMChallengeFSM::run()
         if(discoverYellowLine())
         {
           droneTrackLine();
+          if(discoverT())
+          {
+            droneUpdatePosition(PA_T_1);
+            transferToTask(GO_TO_PILLAR);
+          }
           /*
           //This part should be added later,T
           if(discoverT())
@@ -288,6 +288,7 @@ void RMChallengeFSM::run()
       {
         closeGraspper();
         updateTakeoffPointId();
+        droneUpdatePosition();
         transferToTask(TAKE_OFF);
       }
       break;
@@ -320,11 +321,27 @@ void RMChallengeFSM::run()
         droneHover();
         droneReleaseBall();
         updateTakeoffPointId();
+        droneUpdatePosition();
         transferToTask(GO_UP);
       }
       else
       {
         droneGoDownToBase();
+      }
+      break;
+    }
+
+    case CROSS_ARENA:
+    {
+      break;
+    }
+
+    case GO_TO_PILLAR:
+    {
+      droneGoToPillar();
+      if(discoverLandPoint())
+      {
+        transferToTask(GO_TO_LAND_POINT);
       }
       break;
     }
@@ -432,16 +449,14 @@ bool RMChallengeFSM::closeToGoalHeight()
                            m_goal_height[m_current_takeoff_point_id]);
   if(height_error < PA_TAKEOFF_HEIGHT_THRESHOLD)
   {
-    ROS_INFO_STREAM("Take off height error :" << height_error
-                                              << "is "
-                                                 "small");
+    ROS_INFO_STREAM("Take off height error :" << height_error << "is "
+                                                                 "small");
     return true;
   }
   else
   {
-    ROS_INFO_STREAM("Take off height error:" << height_error
-                                             << "is too "
-                                                "large");
+    ROS_INFO_STREAM("Take off height error:" << height_error << "is too "
+                                                                "large");
     return false;
   }
 }
@@ -456,16 +471,14 @@ bool RMChallengeFSM::farFromTakeoffPoint()
                2));
   if(pos_error > PA_TAKEOFF_POSITION_ERROR)
   {
-    ROS_INFO_STREAM("distance to takeoff point is:" << pos_error
-                                                    << ",fa"
-                                                       "r");
+    ROS_INFO_STREAM("distance to takeoff point is:" << pos_error << ",fa"
+                                                                    "r");
     return true;
   }
   else
   {
-    ROS_INFO_STREAM("distance to takeoff point is:" << pos_error
-                                                    << ",too "
-                                                       "close");
+    ROS_INFO_STREAM("distance to takeoff point is:" << pos_error << ",too "
+                                                                    "close");
     return false;
   }
 }
@@ -488,8 +501,8 @@ bool RMChallengeFSM::discoverTriangle()
 bool RMChallengeFSM::discoverLandPoint()
 {
   if(m_current_takeoff_point_id == PA_PILLAR_1 ||
-     m_current_takeoff_point_id == PA_PILLAR_2||
-     m_current_takeoff_point_id == PA_PILLAR_3||
+     m_current_takeoff_point_id == PA_PILLAR_2 ||
+     m_current_takeoff_point_id == PA_PILLAR_3 ||
      m_current_takeoff_point_id == PA_PILLAR_4)
   {
     if(m_discover_base)
@@ -523,8 +536,8 @@ bool RMChallengeFSM::discoverLandPoint()
 bool RMChallengeFSM::stillFindLandPoint()
 {
   if(m_current_takeoff_point_id == PA_PILLAR_1 ||
-     m_current_takeoff_point_id == PA_PILLAR_2||
-     m_current_takeoff_point_id == PA_PILLAR_3||
+     m_current_takeoff_point_id == PA_PILLAR_2 ||
+     m_current_takeoff_point_id == PA_PILLAR_3 ||
      m_current_takeoff_point_id == PA_PILLAR_4)
   {
     if(m_discover_base)
@@ -540,8 +553,7 @@ bool RMChallengeFSM::stillFindLandPoint()
   else
   {
     if(m_discover_pillar_circle || discoverTriangle() ||
-       m_discover_pillar_arc ||
-       m_prepare_to_land_type != PREPARE_AT_HIGH)
+       m_discover_pillar_arc || m_prepare_to_land_type != PREPARE_AT_HIGH)
     {
       m_land_point_type= PILLAR_LAND_POINT;
       return true;
@@ -573,9 +585,9 @@ bool RMChallengeFSM::closeToSetPoint()
                 m_takeoff_points[m_current_takeoff_point_id][0];
   float disp_y= m_current_position_from_guidance[1] -
                 m_takeoff_points[m_current_takeoff_point_id][1];
-  double pos_error= sqrt(
-      pow(disp_x - m_setpoints[m_current_takeoff_point_id][0], 2) +
-      pow(disp_y - m_setpoints[m_current_takeoff_point_id][1], 2));
+  double pos_error=
+      sqrt(pow(disp_x - m_setpoints[m_current_takeoff_point_id][0], 2) +
+           pow(disp_y - m_setpoints[m_current_takeoff_point_id][1], 2));
   if(pos_error < PA_SETPOINT_POSITION_ERROR)
   {
     ROS_INFO_STREAM("Error to setpoint is :" << pos_error << ",clos"
@@ -645,8 +657,7 @@ void RMChallengeFSM::updateTakeoffTime()
   m_takeoff_time= ros::Time::now();
   ROS_INFO_STREAM("Taking off time is :" << m_takeoff_time);
 }
-void RMChallengeFSM::controlDroneVelocity(float x, float y, float z,
-                                          float yaw)
+void RMChallengeFSM::controlDroneVelocity(float x, float y, float z, float yaw)
 {
 #if CURRENT_COMPUTER == MANIFOLD
   m_drone->attitude_control(0x4B, x, y, z, yaw);
@@ -655,8 +666,7 @@ void RMChallengeFSM::controlDroneVelocity(float x, float y, float z,
 }
 void RMChallengeFSM::droneGoUp()
 {
-  if(m_goal_height[m_current_takeoff_point_id] >
-     m_current_height_from_guidance)
+  if(m_goal_height[m_current_takeoff_point_id] > m_current_height_from_guidance)
   {
     controlDroneVelocity(0.0, 0.0, PA_GO_UP_VELOCITY, 0.0);
     ROS_INFO_STREAM("go up");
@@ -667,13 +677,14 @@ void RMChallengeFSM::droneGoUp()
     ROS_INFO_STREAM("go down");
   }
 }
+
 void RMChallengeFSM::droneGoToSetPoint()
 {
   float vt_x, vt_y;
-  calculateTangentialVelocity(vt_x, vt_y, VIRTUAL_LINE);
+  calculateTangentialVelocity(vt_x, vt_y, VIRTUAL_LINE_SETPOINT);
   ROS_INFO_STREAM("vtx:" << vt_x << " vt_y:" << vt_y);
   float vn_x, vn_y;
-  calculateNormalVelocity(vn_x, vn_y, VIRTUAL_LINE);
+  calculateNormalVelocity(vn_x, vn_y, VIRTUAL_LINE_SETPOINT);
   ROS_INFO_STREAM("vnx:" << vn_x << " vn_y:" << vn_y);
   controlDroneVelocity(vt_x + vn_x, vt_y + vn_y, 0.0, 0.0);
 
@@ -686,6 +697,7 @@ void RMChallengeFSM::droneGoToSetPoint()
   velocity.vector.z= 0.0;
   m_velocity_pub.publish(velocity);
 }
+
 void RMChallengeFSM::droneTrackLine()
 {
   float vt_x, vt_y;
@@ -739,7 +751,7 @@ bool RMChallengeFSM::readyToLand()
     /*only calculate position error*/
     float pos_error= sqrt(pow(m_base_position_error[0], 2) +
                           pow(m_base_position_error[1], 2));
-    if(pos_error < PA_BASE_POSITION_THRESHOLD&&m_discover_base)
+    if(pos_error < PA_BASE_POSITION_THRESHOLD && m_discover_base)
     {
       // ROS_INFO_STREAM("ready to land at base," << land_err << ","
       //                                          << height_error);
@@ -754,10 +766,9 @@ bool RMChallengeFSM::readyToLand()
   }
   else if(m_land_point_type == PILLAR_LAND_POINT)
   {
-    height_error=
-        fabs(PA_LAND_HEIGHT_FINAL - m_current_height_from_guidance);
-    float oror= sqrt(pow(m_arc_position_error[0], 2) +
-                     pow(m_arc_position_error[1], 2));
+    height_error= fabs(PA_LAND_HEIGHT_FINAL - m_current_height_from_guidance);
+    float oror=
+        sqrt(pow(m_arc_position_error[0], 2) + pow(m_arc_position_error[1], 2));
     float pos_error_x= fabs(m_arc_position_error[0]);
     float pos_error_y= fabs(m_arc_position_error[1]);
     // need output
@@ -813,9 +824,7 @@ void RMChallengeFSM::dronePrepareToLand()
     vz= 0;
     vx= PA_KP_BASE * m_base_position_error[0];
     vy= PA_KP_BASE * m_base_position_error[1];
-    ROS_INFO_STREAM("landing at base v are:" << vx << "," << vy <<
-    ","
-                                             << vz);
+    ROS_INFO_STREAM("landing at base v are:" << vx << "," << vy << "," << vz);
   }
   else if(m_land_point_type == PILLAR_LAND_POINT)
   {
@@ -851,13 +860,11 @@ void RMChallengeFSM::dronePrepareToLand()
   {
     /*publish position and height error to compare*/
     publishVelocity("arc error", m_arc_position_error[0],
-                    m_arc_position_error[1],
-                    m_current_height_from_guidance);
+                    m_arc_position_error[1], m_current_height_from_guidance);
   }
 }
 
-void RMChallengeFSM::publishVelocity(std::string id, float x, float y,
-                                     float z)
+void RMChallengeFSM::publishVelocity(std::string id, float x, float y, float z)
 {
   geometry_msgs::Vector3Stamped vector3;
   vector3.header.frame_id= id;
@@ -889,8 +896,7 @@ void RMChallengeFSM::navigateByCircle(float &vx, float &vy, float &vz)
     else
     {
       vx= vy= 0.0;
-      float height_error=
-          PA_LAND_HEIGHT - m_current_height_from_circle;
+      float height_error= PA_LAND_HEIGHT - m_current_height_from_circle;
       if(fabs(height_error) > PA_LAND_HEIGHT_THRESHOLD)
       {
         vz= fabs(height_error) / (height_error + 0.0000000001) *
@@ -932,10 +938,9 @@ void RMChallengeFSM::navigateByCircle(float &vx, float &vy, float &vz)
 void RMChallengeFSM::navigateByArc(float &vx, float &vy, float &vz)
 {
   ROS_INFO_STREAM("navigate at super low");
-  float height_error=
-      PA_LAND_HEIGHT_FINAL - m_current_height_from_guidance;
-  float pos_error= sqrt(pow(m_arc_position_error[0], 2) +
-                        pow(m_arc_position_error[1], 2));
+  float height_error= PA_LAND_HEIGHT_FINAL - m_current_height_from_guidance;
+  float pos_error=
+      sqrt(pow(m_arc_position_error[0], 2) + pow(m_arc_position_error[1], 2));
   float pos_error_x= m_arc_position_error[0];
   float pos_error_y= m_arc_position_error[1];
   if(fabs(pos_error_x) > PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG ||
@@ -1060,8 +1065,7 @@ void RMChallengeFSM::unitifyVector(float &x, float &y)
 *This function transform global guidance position to
 *uav local position, with a angle phi
 */
-void RMChallengeFSM::transformCoordinate(float phi, float &x,
-                                         float &y)
+void RMChallengeFSM::transformCoordinate(float phi, float &x, float &y)
 {
   float xw= x;
   float yw= y;
@@ -1073,7 +1077,7 @@ void RMChallengeFSM::transformCoordinate(float phi, float &x,
 void RMChallengeFSM::calculateNormalVelocity(float &x, float &y,
                                              LINE_TYPE line_type)
 {
-  if(line_type == VIRTUAL_LINE)
+  if(line_type == VIRTUAL_LINE_SETPOINT)
   {
     float xc= m_current_position_from_guidance[0];
     float yc= m_current_position_from_guidance[1];
@@ -1099,7 +1103,7 @@ void RMChallengeFSM::calculateNormalVelocity(float &x, float &y,
 void RMChallengeFSM::calculateTangentialVelocity(float &x, float &y,
                                                  LINE_TYPE line_type)
 {
-  if(line_type == VIRTUAL_LINE)
+  if(line_type == VIRTUAL_LINE_SETPOINT)
   {
     float x0= m_takeoff_points[m_current_takeoff_point_id][0];
     float y0= m_takeoff_points[m_current_takeoff_point_id][1];
@@ -1108,11 +1112,11 @@ void RMChallengeFSM::calculateTangentialVelocity(float &x, float &y,
     x= PA_KT * (xs - x0) / sqrt(pow(xs - x0, 2) + pow(ys - y0, 2));
     y= PA_KT * (ys - y0) / sqrt(pow(xs - x0, 2) + pow(ys - y0, 2));
   }
+
   else if(line_type == YELLOW_LINE)
   {
     unitifyVector(m_line_normal[0], m_line_normal[1]);
-    if(m_current_takeoff_point_id == 3 ||
-       m_current_takeoff_point_id == 4)
+    if(m_current_takeoff_point_id == 3 || m_current_takeoff_point_id == 4)
     {
       x= -PA_KT_RATIO * PA_KT * m_line_normal[0];
       y= -PA_KT_RATIO * PA_KT * m_line_normal[1];
@@ -1122,6 +1126,16 @@ void RMChallengeFSM::calculateTangentialVelocity(float &x, float &y,
       x= PA_KT_RATIO * PA_KT * m_line_normal[0];
       y= PA_KT_RATIO * PA_KT * m_line_normal[1];
     }
+  }
+
+  else if(line_type == VIRTUAL_LINE_LANDPOINT)
+  {
+    float x0= m_current_position_from_guidance[0];
+    float y0= m_current_position_from_guidance[1];
+    float xs= m_takeoff_points[m_current_takeoff_point_id + 1][0];
+    float ys= m_takeoff_points[m_current_takeoff_point_id + 1][1];
+    x= PA_KT * (xs - x0) / sqrt(pow(xs - x0, 2) + pow(ys - y0, 2));
+    y= PA_KT * (ys - y0) / sqrt(pow(xs - x0, 2) + pow(ys - y0, 2));
   }
 }
 void RMChallengeFSM::calculateYawRate(float &yaw)
@@ -1183,8 +1197,7 @@ void RMChallengeFSM::setDroneState(int state)
 void RMChallengeFSM::setHeightFromGuidance(float height)
 {
   m_current_height_from_guidance= height;
-  ROS_INFO_STREAM(
-      "height from guidance is:" << m_current_height_from_guidance);
+  ROS_INFO_STREAM("height from guidance is:" << m_current_height_from_guidance);
 }
 /**
 *set position from guidance
@@ -1224,14 +1237,12 @@ void RMChallengeFSM::setPositionFromGuidance(float x, float y)
 }
 
 void RMChallengeFSM::setCircleVariables(bool is_circle_found,
-                                        float position_error[2],
-                                        float height)
+                                        float position_error[2], float height)
 {
   m_discover_pillar_circle= is_circle_found;
   if(is_circle_found)
   {
-    m_circle_position_error[0]=
-        position_error[0] - PA_CAMERA_DISPLACE;
+    m_circle_position_error[0]= position_error[0] - PA_CAMERA_DISPLACE;
     m_circle_position_error[1]= position_error[1];
     m_current_height_from_circle= height;
   }
@@ -1259,8 +1270,7 @@ void RMChallengeFSM::setTriangleVariables(int pillar_triangle[4])
   //                                << pillar_triangle[3]);
 }
 
-void RMChallengeFSM::setArcVariables(bool is_arc_found,
-                                     float position_error[2])
+void RMChallengeFSM::setArcVariables(bool is_arc_found, float position_error[2])
 {
   /*transform pixel position error to metric error*/
   calculateRealPositionError(position_error);
@@ -1298,9 +1308,11 @@ void RMChallengeFSM::setBaseVariables(bool is_base_found,
   //                                << m_base_position_error[0] << ","
   //                                << m_base_position_error[1]);
 }
-void RMChallengeFSM::setLineVariables(float distance_to_line[2],
+void RMChallengeFSM::setLineVariables(bool is_T_found,
+                                      float distance_to_line[2],
                                       float line_normal[2])
 {
+  m_discover_T= is_T_found;
   m_distance_to_line[0]= distance_to_line[0];
   m_distance_to_line[1]= distance_to_line[1];
   m_line_normal[0]= line_normal[0];
@@ -1360,10 +1372,6 @@ bool RMChallengeFSM::isTheLastTravel()
   }
 }
 
-bool RMChallengeFSM::discoverT()
-{
-}
-
 bool RMChallengeFSM::nextTargetIsClosePillar()
 {
 }
@@ -1393,13 +1401,153 @@ void RMChallengeFSM::droneReleaseBall()
 
 void RMChallengeFSM::droneGoDownToBase()
 {
+  /*go down faster when height is large,
+   slower when height is small*/
   float vz= PA_RELEASE_BALL_HEIGHT > m_current_height_from_guidance ?
-                PA_LAND_Z_VELOCITY :
-                -PA_LAND_Z_VELOCITY;
+                PA_RELEASE_BALL_VELOCITY :
+                -PA_RELEASE_BALL_VELOCITY;
+  if((m_current_height_from_guidance - PA_RELEASE_BALL_HEIGHT) >
+     PA_SLOW_DOWN_HEIGHT)
+  {
+    vz*= 4;
+  }
   controlDroneVelocity(0.0, 0.0, vz, 0.0);
 }
 
 void RMChallengeFSM::updateTakeoffPointId()
 {
   m_current_takeoff_point_id++;
+}
+
+bool RMChallengeFSM::discoverT()
+{
+  /*
+  judging citeria:
+    discover T from vision,
+    correct takeoff point id,
+    distance to landpoint close enough
+  */
+  bool is_takeoff_id_correct= m_current_takeoff_point_id == PA_BASE_2 ||
+                              m_current_takeoff_point_id == PA_BASE_3;
+  float pos_error=
+      sqrt(pow(m_current_position_from_guidance[0] -
+                   m_takeoff_points[m_current_takeoff_point_id + 1][0],
+               2) +
+           pow(m_current_position_from_guidance[1] -
+                   m_takeoff_points[m_current_takeoff_point_id + 1][1],
+               2));
+  bool is_close_to_target=
+      pos_error < PA_LANDPOINT_POSITION_ERROR * 2 ? true : false;
+
+  if(m_discover_T && is_takeoff_id_correct && is_close_to_target)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+void RMChallengeFSM::droneGoToPillar()
+{
+  /*go to takeoff point +1*/
+  float vt_x, vt_y;
+  calculateTangentialVelocity(vt_x, vt_y, VIRTUAL_LINE_LANDPOINT);
+  controlDroneVelocity(vt_x, vt_y, 0.0, 0.0);
+}
+
+void RMChallengeFSM::droneUpdatePosition(int POSITION_ID)
+{
+  if(POSITION_ID == 0)
+  {
+    POSITION_ID= m_current_takeoff_point_id;
+  }
+  /*set pisition from guidance to according point,then update bias */
+  float x= m_current_position_from_guidance[0];
+  float y= m_current_position_from_guidance[1];
+  if(POSITION_ID <= PA_BASE_4)
+  {
+    m_current_position_from_guidance[0]= m_takeoff_points[POSITION_ID][0];
+    m_current_position_from_guidance[1]= m_takeoff_points[POSITION_ID][1];
+  }
+  else if(POSITION_ID == PA_T_1)
+  {
+    m_current_position_from_guidance[0]= m_takeoff_points[PA_PILLAR_3][0];
+    m_current_position_from_guidance[1]=
+        m_takeoff_points[PA_PILLAR_3][1] + PA_T_DISPLACE;
+  }
+  else if(POSITION_ID == PA_T_2)
+  {
+    m_current_position_from_guidance[0]= m_takeoff_points[PA_PILLAR_3][0];
+    m_current_position_from_guidance[1]=
+        m_takeoff_points[PA_PILLAR_3][1] - PA_T_DISPLACE;
+  }
+
+  m_guidance_bias[0]= x - m_current_position_from_guidance[0];
+  m_guidance_bias[1]= y - m_current_position_from_guidance[1];
+}
+
+void RMChallengeFSM::printStateInfo()
+{
+  std::string s;
+  switch(m_state)
+  {
+    case TAKE_OFF:
+    {
+      s="TAKE OFF";
+      break;
+    }   
+    case GO_UP:
+    {
+      s="GO UP";
+      break;
+    }
+    case GO_TO_SETPOINT:
+    {
+      s="GO TO SETPOINT";
+      break;
+    }
+    case IDLE:
+    {
+      s="IDLE";
+      break;
+    }
+    case TRACK_LINE:
+    {
+      s="TRACK LINE";
+      break;
+    }
+    case LAND:
+    {
+      s="LAND";
+      break;
+    }
+    case GRAB_BALL:
+    {
+      s="GRAB BALL";
+      break;
+    }
+    case GO_TO_LAND_POINT:
+    {
+      s="GO TO LANDPOINT";
+      break;
+    }
+    case GO_TO_PILLAR:
+    {
+      s="GO TO PILLAR";
+      break;    
+    }
+    case RELEASE_BALL:
+    {
+      s="RELEASE BALL";
+      break;
+    }
+    case CROSS_ARENA:
+    {
+      s="CROSS ARENA";
+      break;
+    }
+  }
+  ROS_INFO_STREAM("State is: "<<s);
 }
