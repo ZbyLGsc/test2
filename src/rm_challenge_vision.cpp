@@ -418,6 +418,7 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
   circle_center= last_center;
   circle_found= false;
 
+  Mat temp=src.clone();
   /// 扩展边缘
   int top= last_center.y + last_radius > src.rows / 2 ?
                (int)last_center.y + last_radius - src.rows / 2 :
@@ -437,7 +438,7 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
   //  cout<<top<<' ';
   /// 原图像转换为灰度图像
   Mat src_gray;
-  cvtColor(src, src_gray, CV_BGR2GRAY);
+  cvtColor(temp, src_gray, CV_BGR2GRAY);
   /// 模糊
   blur(src_gray, src_gray, Size(3, 3));
   /// 霍夫找圆
@@ -462,8 +463,8 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
     /// 霍夫半径
     hough_radius= circles[0][2];
     /// 返回值
-    circle_center.x= hough_center.x - (src.cols - left - right) / 2 - left;
-    circle_center.y= (src.rows - top - bottom) / 2 - hough_center.y + top;
+    circle_center.x= hough_center.x - (temp.cols - left - right) / 2 - left;
+    circle_center.y= (temp.rows - top - bottom) / 2 - hough_center.y + top;
     circle_found= true;
     last_center= circle_center;
     last_radius= hough_radius;
@@ -473,7 +474,7 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
     return;
   }
   //  /// 已知圆心找最小圆
-  //  Mat mask(src.rows, src.cols, CV_8U, Scalar(0));
+  //  Mat mask(temp.rows, temp.cols, CV_8U, Scalar(0));
   //  int tmp_r;
   //  for(tmp_r= last_radius - 20; tmp_r < last_radius + 20; tmp_r++)
   ////  for(tmp_r= min_radius; tmp_r < max_radius; tmp_r++)
@@ -503,17 +504,17 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
       Point pu(320, 0);
       Point pd(320, 480);
       Point cen(320, 240);
-      line(src, pl, pr, Scalar(0, 255, 0), 1);
-      line(src, pu, pd, Scalar(0, 255, 0), 1);
+      line(temp, pl, pr, Scalar(0, 255, 0), 1);
+      line(temp, pu, pd, Scalar(0, 255, 0), 1);
       if(hough_center.x != 0 && hough_center.y != 0)
       {
-        line(src, hough_center, cen, Scalar(0, 0, 255), 2);
+        line(temp, hough_center, cen, Scalar(0, 0, 255), 2);
         //绘制圆心
-        circle(src, hough_center, 3, Scalar(0, 255, 0), -1, 8, 0);
+        circle(temp, hough_center, 3, Scalar(0, 255, 0), -1, 8, 0);
         //绘制圆轮廓
-        circle(src, hough_center, last_radius, Scalar(155, 50, 255), 3, 8, 0);
+        circle(temp, hough_center, last_radius, Scalar(155, 50, 255), 3, 8, 0);
       }
-      imshow("Arc", src);
+      imshow("Arc", temp);
     }
   }
 }
@@ -523,16 +524,18 @@ int RMChallengeVision::detectPillar(Mat src, PILLAR_RESULT& pillar_result)
 {
   // first detect red pillar
   Mat red_region;
-  extractColor(src, RMChallengeVision::RED, red_region);
-  detectTriangle(src, red_region, pillar_result.triangle);
+  extractColor(src, RMChallengeVision::BLUE, red_region);
   detectPillarCircle(src, red_region, pillar_result.circle_found,
                      pillar_result.circle_center, pillar_result.radius);
+
+  detectTriangle(src, red_region, pillar_result.triangle);
 
   detectPillarArc(src, red_region, pillar_result.arc_found,
                   pillar_result.arc_center, pillar_result.arc_radius);
 
   ROS_INFO_STREAM("circle center is:" << pillar_result.circle_center);
   return 1;
+
   int triangle_sum= pillar_result.triangle[0] + pillar_result.triangle[1] +
                     pillar_result.triangle[2] + pillar_result.triangle[3];
   if(triangle_sum != 0)
@@ -564,6 +567,7 @@ int RMChallengeVision::detectPillar(Mat src, PILLAR_RESULT& pillar_result)
     }
   }
 }
+
 /**p0 angle point,return the cosine of angle*/
 float RMChallengeVision::angle(Point pt1, Point pt2, Point pt0)
 {

@@ -374,11 +374,10 @@ void QRCode::getDetectionLocationAndDistance(
   }
 }
 
-bool QRCode::calculateBasePostion(
-    vector<cv::Point2f>& detections_location,
-    vector<float>& detections_distance)
+bool QRCode::calculateBasePostion(vector<cv::Point2f>& detections_location,
+                                  vector<float>& detections_distance)
 {
-  int detections_cnt = detections_location.size();
+  int detections_cnt= detections_location.size();
   if(detections_cnt == 0)
   {
     base_position_x= 1.05;
@@ -387,16 +386,14 @@ bool QRCode::calculateBasePostion(
   }
   if(detections_cnt == 1)
   {
-    base_position_x = detections_location[0].x;
-    base_position_y = detections_location[0].y;
+    base_position_x= detections_location[0].x;
+    base_position_y= detections_location[0].y;
     return true;
   }
   if(detections_cnt == 2)
   {
-    base_position_x = (detections_location[0].x + 
-        detections_location[1].x) / 2;
-    base_position_y = (detections_location[0].y +
-        detections_location[1].y) / 2;
+    base_position_x= (detections_location[0].x + detections_location[1].x) / 2;
+    base_position_y= (detections_location[0].y + detections_location[1].y) / 2;
     return true;
   }
   if(detections_cnt >= 3)
@@ -404,7 +401,7 @@ bool QRCode::calculateBasePostion(
     cv::Point2f centerPoint;
     vector<cv::Point2f> centerPoints;
     float radius;
-    //calculate centerpoint(s)
+    // calculate centerpoint(s)
     for(int i= 0; i < detections_location.size() - 2; i++)
     {
       for(int j= i + 1; j < detections_location.size() - 1; j++)
@@ -412,10 +409,9 @@ bool QRCode::calculateBasePostion(
         for(int k= j + 1; k < detections_location.size(); k++)
         {
           if(calculateCenterPointFrom3Circles(
-                detections_location[i], detections_distance[i],
-                detections_location[j], detections_distance[j],
-                detections_location[k], detections_distance[k],
-                centerPoint))
+                 detections_location[i], detections_distance[i],
+                 detections_location[j], detections_distance[j],
+                 detections_location[k], detections_distance[k], centerPoint))
           {
             // cout<<"x:"<<centerPoint.x<<" y:"<<centerPoint.y<<endl;
             centerPoints.push_back(centerPoint);
@@ -434,7 +430,6 @@ bool QRCode::calculateBasePostion(
       }
       centerPoint.x= x_sum / detections_cnt;
       centerPoint.y= y_sum / detections_cnt;
-
     }
     if(centerPoints.size() > 1)
     {

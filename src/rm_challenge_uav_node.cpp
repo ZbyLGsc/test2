@@ -61,6 +61,7 @@ int main(int argc, char **argv)
   ros::Timer timer= node.createTimer(ros::Duration(1.0 / 50.0), timer_callback);
 
   /*initialize fsm*/
+  g_fsm.setPositionFromGuidance(5.2, -2);//TEST
   g_fsm.initialize(node);
   ROS_INFO_STREAM("initialize finish, start to run");
 
@@ -69,6 +70,8 @@ int main(int argc, char **argv)
   //    g_fsm.setDroneState( 3 );
   //    g_fsm.setDroneState( 4 );
   g_fsm.setHeightFromGuidance(2.35);
+  g_fsm.setPositionFromGuidance(4, -8.5);//TEST
+
   // while(ros::ok())
   // {
   //   g_fsm.setPositionFromGuidance(0, -1);
@@ -83,7 +86,6 @@ int main(int argc, char **argv)
   // g_fsm.setPositionFromGuidance(2, -3);
   // g_fsm.droneGoToSetPoint();
 
-  g_fsm.setPositionFromGuidance(2.5, 2.5);
   // g_fsm.transformCoordinate(-90.0 / 180 * 3.1415926, x, y);
   // ros::Duration(2).sleep();
   // float pos_err[2] = { 0.07, 0.3 };

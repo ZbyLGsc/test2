@@ -5,6 +5,7 @@
 //  #define CURRENT_IMAGE_SOURCE VIDEO_STREAM
 #define CURRENT_IMAGE_SOURCE M100_CAMERA
 #define VISABILITY false
+#define QRCODE_VISABLE false
 
 /**global publisher*/
 ros::Publisher vision_pillar_pub;
@@ -65,12 +66,13 @@ int main(int argc, char **argv)
   RMChallengeVision vision;
   vision.setVisability(VISABILITY);
 
+  QRCode qr_code;
+  qr_code.setVisability(QRCODE_VISABLE);
+  qr_code.setup();
+
   Mat frame, image_gray;
   sensor_msgs::ImagePtr image_ptr;
 
-  QRCode qr_code;
-  qr_code.setVisability(false);
-  qr_code.setup();
 
   while(ros::ok())
   {

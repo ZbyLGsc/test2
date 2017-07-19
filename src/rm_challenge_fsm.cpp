@@ -94,6 +94,17 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
   m_setpoints[PA_BASE_4][0]= 0.0;  //
   m_setpoints[PA_BASE_4][1]= 0.0;
 
+  /*take off height*/
+  // This should minus start point height later!
+  m_goal_height[PA_START]= PA_FLYING_HEIGHT - PA_TARMAC_HEIGHT;
+  m_goal_height[PA_PILLAR_1]= PA_FLYING_HEIGHT - PA_PILLAR_HEIGHT;
+  m_goal_height[PA_PILLAR_2]= PA_FLYING_HEIGHT - PA_PILLAR_HEIGHT;
+  m_goal_height[PA_PILLAR_3]= PA_FLYING_HEIGHT - PA_PILLAR_HEIGHT;
+  m_goal_height[PA_PILLAR_4]= PA_FLYING_HEIGHT - PA_PILLAR_HEIGHT;
+  m_goal_height[PA_BASE_1]= PA_FLYING_HEIGHT;
+  m_goal_height[PA_BASE_2]= PA_FLYING_HEIGHT;
+  m_goal_height[PA_BASE_3]= PA_FLYING_HEIGHT;
+
   /*initialize  state*/
   resetAllState();
 }
@@ -103,14 +114,13 @@ void RMChallengeFSM::resetAllState()
   ros::Duration(1.0).sleep();
   m_state= TAKE_OFF;
   m_uav_state= UAV_LAND;
-  m_current_position_from_guidance[0]= 0.0;
-  m_current_position_from_guidance[1]= 0.0;
   m_prepare_to_land_type= PREPARE_AT_HIGH;
   m_graspper_control_time= 0;
   /*if want to test different task,change id here as well as .h*/
   m_current_takeoff_point_id= PA_BASE_1;
   /**/
   droneUpdatePosition();
+
   m_land_counter= 0;
 #if CURRENT_COMPUTER == MANIFOLD
   m_drone->request_sdk_permission_control();
@@ -469,6 +479,7 @@ bool RMChallengeFSM::closeToGoalHeight()
     return false;
   }
 }
+
 bool RMChallengeFSM::farFromTakeoffPoint()
 {
   double pos_error=
@@ -478,6 +489,13 @@ bool RMChallengeFSM::farFromTakeoffPoint()
            pow(m_current_position_from_guidance[1] -
                    m_takeoff_points[m_current_takeoff_point_id][1],
                2));
+  ROS_INFO_STREAM("guidance position:" << m_current_position_from_guidance[0]
+                                       << " "
+                                       << m_current_position_from_guidance[1]);
+  ROS_INFO_STREAM("takeoff position:"
+                  << m_takeoff_points[m_current_takeoff_point_id][0] << " "
+                  << m_takeoff_points[m_current_takeoff_point_id][1]);
+
   if(pos_error > PA_TAKEOFF_POSITION_ERROR)
   {
     ROS_INFO_STREAM("distance to takeoff point is:" << pos_error << ",fa"
@@ -491,6 +509,7 @@ bool RMChallengeFSM::farFromTakeoffPoint()
     return false;
   }
 }
+
 bool RMChallengeFSM::discoverTriangle()
 {
   int triangle_num= m_pillar_triangle[0] + m_pillar_triangle[1] +
@@ -539,16 +558,28 @@ bool RMChallengeFSM::discoverLandPoint()
     bool close_to_lp=
         landpoint_error < PA_LANDPOINT_POSITION_ERROR ? true : false;
 
-    if(is_pillar_found && close_to_lp)
+    if(!is_pillar_found)
+    {
+      ROS_INFO_STREAM("no circle from vision");
+      return false;
+    }
+    else if(!close_to_lp)
+    {
+      ROS_INFO_STREAM("far from landpoint");
+      ROS_INFO_STREAM("guidance position:"
+                      << m_current_position_from_guidance[0] << " "
+                      << m_current_position_from_guidance[1]);
+      ROS_INFO_STREAM("takeoff position:"
+                      << m_takeoff_points[m_current_takeoff_point_id + 1][0]
+                      << " "
+                      << m_takeoff_points[m_current_takeoff_point_id + 1][1]);
+      return false;
+    }
+    else
     {
       m_land_point_type= PILLAR_LAND_POINT;
       ROS_INFO_STREAM("circle:" << m_discover_pillar_circle);
       return true;
-    }
-    else
-    {
-      ROS_INFO_STREAM("no circle");
-      return false;
     }
   }
 }
@@ -1441,12 +1472,19 @@ bool RMChallengeFSM::discoverT()
     correct takeoff point id,
     distance to landpoint close enough
   */
-  bool is_takeoff_id_correct= m_current_takeoff_point_id == PA_BASE_2;
+  ROS_INFO_STREAM("looking for T");
+  bool is_takeoff_id_correct= m_current_takeoff_point_id == PA_BASE_1;
   if(!is_takeoff_id_correct)
+  {
+    ROS_INFO_STREAM("ID wrong");
     return false;
+  }
 
   if(!m_discover_T)
+  {
+    ROS_INFO_STREAM("no T from vision");
     return false;
+  }
 
   float pos_error=
       sqrt(pow(m_current_position_from_guidance[0] -
@@ -1461,10 +1499,12 @@ bool RMChallengeFSM::discoverT()
 
   if(is_close_to_target)
   {
+    ROS_INFO_STREAM("TTT");
     return true;
   }
   else
   {
+    ROS_INFO_STREAM("too far from T");
     return false;
   }
 }
@@ -1493,15 +1533,15 @@ void RMChallengeFSM::droneUpdatePosition(int POSITION_ID)
   }
   else if(POSITION_ID == PA_T_1)
   {
-    m_current_position_from_guidance[0]= m_takeoff_points[PA_PILLAR_3][0];
+    m_current_position_from_guidance[0]= m_takeoff_points[PA_PILLAR_2][0];
     m_current_position_from_guidance[1]=
-        m_takeoff_points[PA_PILLAR_3][1] + PA_T_DISPLACE;
+        m_takeoff_points[PA_PILLAR_2][1] + PA_T_DISPLACE;
   }
   else if(POSITION_ID == PA_T_2)
   {
-    m_current_position_from_guidance[0]= m_takeoff_points[PA_PILLAR_3][0];
+    m_current_position_from_guidance[0]= m_takeoff_points[PA_PILLAR_4][0];
     m_current_position_from_guidance[1]=
-        m_takeoff_points[PA_PILLAR_3][1] - PA_T_DISPLACE;
+        m_takeoff_points[PA_PILLAR_4][1] - PA_T_DISPLACE;
   }
 
   m_guidance_bias[0]= x - m_current_position_from_guidance[0];
@@ -1569,7 +1609,7 @@ void RMChallengeFSM::printStateInfo()
       break;
     }
   }
-  ROS_INFO_STREAM("State is: " << s);
+  ROS_INFO_STREAM("\n State is: " << s);
 }
 
 void RMChallengeFSM::judgeLineDirection()

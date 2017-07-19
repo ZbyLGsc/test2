@@ -1,8 +1,8 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-#define CURRENT_COMPUTER ZBY_PC
-// #define CURRENT_COMPUTER MANIFOLD
+// #define CURRENT_COMPUTER ZBY_PC
+#define CURRENT_COMPUTER MANIFOLD
 
 #define TAKEOFF_POINT_NUMBER 7
 // parameters of uav
@@ -10,7 +10,6 @@
 #define PA_COORDINATE_TRANSFORM_DEGREE (-90)
 #define PA_COORDINATE_TRANSFORM_ANGLE                                          \
   PA_COORDINATE_TRANSFORM_DEGREE *PA_DEGREE_TO_RADIAN
-GO_TO_PILLAR
 #define PA_TAKEOFF_TIME 7
 #define PA_TAKEOFF_HEIGHT_THRESHOLD 0.1
 #define PA_TAKEOFF_POSITION_ERROR 1.5
@@ -75,6 +74,8 @@ GO_TO_PILLAR
 #define PA_RELEASE_BALL_VELOCITY 0.1
 #define PA_SLOW_DOWN_HEIGHT 0.5
 #define PA_T_DISPLACE 1.6
+#define PA_TARMAC_HEIGHT 0
+#define PA_PILLAR_HEIGHT 0.87
 
 #include <sstream>
 #include <ros/assert.h>
