@@ -20,8 +20,8 @@ int main(int argc, char **argv)
 
   /*write image to local file*/
   cv::VideoWriter writer;
-  writer.open("/home/ubuntu/rosbag/arc2.avi",
-              CV_FOURCC('P', 'I', 'M', '1'), 30, cv::Size(640, 480));
+  writer.open("/home/ubuntu/rosbag/arc2.avi", CV_FOURCC('P', 'I', 'M', '1'), 30,
+              cv::Size(640, 480));
   ROS_INFO_STREAM("begin main loop:");
   while(ros::ok())
   {
@@ -53,8 +53,7 @@ void m100ImageCallback(const sensor_msgs::Image::ConstPtr msg)
   cv_bridge::CvImagePtr cv_ptr;
   try
   {
-    cv_ptr=
-        cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
+    cv_ptr= cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
   }
   catch(cv_bridge::Exception &e)
   {

@@ -60,8 +60,7 @@ void velocityCallback2(const geometry_msgs::Vector3Stamped vel)
     //&&h_error < PA_LAND_HEIGHT_THRESHOLD_FINAL
     if(error > 0.0005 && error < 0.1)
     {
-      ROS_INFO_STREAM("!!!!!!!!!error:" << error
-                                        << " height:" << h_error);
+      ROS_INFO_STREAM("!!!!!!!!!error:" << error << " height:" << h_error);
     }
   }
 }
