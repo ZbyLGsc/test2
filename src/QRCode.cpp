@@ -57,9 +57,9 @@ bool calculateCenterPointFrom3Circles(cv::Point2f Point1, float radius1,
   float Dx= C1 * (y3 - y2) - C2 * (y2 - y1);
   float Dy= C2 * (x2 - x1) - C1 * (x3 - x2);
   float centerPoint_x= Dx / D, centerPoint_y= Dy / D;
-  // if(centerPoint_x > 2.10 || centerPoint_x < 0.0 ||
-  //   centerPoint_y > 2.10 || centerPoint_y < 0.0)
-  //    return false;
+   if(centerPoint_x > 2.10 || centerPoint_x < 0.0 ||
+     centerPoint_y > 2.10 || centerPoint_y < 0.0)
+      return false;
   centerPoint= cv::Point2f(centerPoint_x, centerPoint_y);
   return true;
 }

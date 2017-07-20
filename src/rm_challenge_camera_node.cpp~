@@ -2,9 +2,10 @@
 #include "AprilTags/QRCode.h"
 #define M100_CAMERA 1
 #define VIDEO_STREAM 2
-//  #define CURRENT_IMAGE_SOURCE VIDEO_STREAM
+//#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
 #define CURRENT_IMAGE_SOURCE M100_CAMERA
 #define VISABILITY false
+#define QRCODE_VISABLE false
 
 /**global publisher*/
 ros::Publisher vision_pillar_pub;
@@ -28,10 +29,8 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "rm_challenge_camera_node");
   ros::NodeHandle node;
 
-  vision_pillar_pub=
-      node.advertise<std_msgs::String>("tpp/pillar", 1);
-  vision_line_pub=
-      node.advertise<std_msgs::String>("tpp/yellow_line", 1);
+  vision_pillar_pub= node.advertise<std_msgs::String>("tpp/pillar", 1);
+  vision_line_pub= node.advertise<std_msgs::String>("tpp/yellow_line", 1);
   vision_base_pub= node.advertise<std_msgs::String>("tpp/base", 1);
 
   image_transport::ImageTransport image_transport(node);
@@ -54,9 +53,10 @@ int main(int argc, char **argv)
   // );
   cv::VideoCapture g_cap;
 #if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
-  g_cap.open("/home/jachinshen/视频/arc2.avi");
+  // g_cap.open("/home/ubuntu/rosbag/Tttt.avi");
+  g_cap.open("/home/zby/ros_bags/7.19/TTT.avi");
 #else
-  g_cap.open(1);
+  g_cap.open(0);
 #endif
 
   if(!g_cap.isOpened())
@@ -67,12 +67,12 @@ int main(int argc, char **argv)
   RMChallengeVision vision;
   vision.setVisability(VISABILITY);
 
+  QRCode qr_code;
+  qr_code.setVisability(QRCODE_VISABLE);
+  qr_code.setup();
+
   Mat frame, image_gray;
   sensor_msgs::ImagePtr image_ptr;
-
-  QRCode qr_code;
-  qr_code.setVisability(false);
-  qr_code.setup();
 
   while(ros::ok())
   {
@@ -82,10 +82,9 @@ int main(int argc, char **argv)
 #if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
     /*get new frame*/
     if(g_cap.get(CV_CAP_PROP_POS_FRAMES) >
-       g_cap.get(CV_CAP_PROP_FRAME_COUNT) - 1)
+       g_cap.get(CV_CAP_PROP_FRAME_COUNT) / 2)
     {
-      g_cap.set(CV_CAP_PROP_POS_FRAMES,
-                g_cap.get(CV_CAP_PROP_FRAME_COUNT) / 2);
+      g_cap.set(CV_CAP_PROP_POS_FRAMES, 10);
     }
 #endif
 
@@ -94,8 +93,8 @@ int main(int argc, char **argv)
       continue;
 
     /* publish this frame to ROS topic*/
-    image_ptr= cv_bridge::CvImage(std_msgs::Header(), "bgr8", frame)
-                   .toImageMsg();
+    image_ptr=
+        cv_bridge::CvImage(std_msgs::Header(), "bgr8", frame).toImageMsg();
     vision_image_pub.publish(image_ptr);
 
     /*std_msg of string published to uav*/
@@ -134,21 +133,20 @@ int main(int argc, char **argv)
     }
     // publish result to uav
     std_msgs::String pillar_msg;
-    ss << pillar_result.triangle[0] << " "
-       << pillar_result.triangle[1] << " "
-       << pillar_result.triangle[2] << " "
-       << pillar_result.triangle[3] << " "
-       << pillar_result.circle_found << " " << pos_err_x << " "
-       << pos_err_y << " " << height << " " << arc_err_x << " "
-       << arc_err_y << " " << pillar_result.arc_found;
+    ss << pillar_result.triangle[0] << " " << pillar_result.triangle[1] << " "
+       << pillar_result.triangle[2] << " " << pillar_result.triangle[3] << " "
+       << pillar_result.circle_found << " " << pos_err_x << " " << pos_err_y
+       << " " << height << " " << arc_err_x << " " << arc_err_y << " "
+       << pillar_result.arc_found;
     pillar_msg.data= ss.str();
     vision_pillar_pub.publish(pillar_msg);
 
     /*test detect yellow line*/
     //    ROS_INFO_STREAM("detect line");
     float distance_x, distance_y, line_vector_x, line_vector_y;
-    if(vision.detectLineWithT(frame, distance_x, distance_y,
-                              line_vector_x, line_vector_y))
+    bool is_T_found= vision.detectLineWithT(frame, distance_x, distance_y,
+                                            line_vector_x, line_vector_y);
+    if(is_T_found)
       ROS_INFO_STREAM("T");
     else
     {
@@ -159,13 +157,13 @@ int main(int argc, char **argv)
     // publish result
     ss.str("");
     std_msgs::String line_msg;
-    ss << distance_x << " " << distance_y << " " << line_vector_x
-       << " " << line_vector_y;
+    ss << is_T_found << " " << distance_x << " " << distance_y << " "
+       << line_vector_x << " " << line_vector_y;
     line_msg.data= ss.str();
     vision_line_pub.publish(line_msg);
 
     /*detect QRCode*/
-    bool base_found;
+    /*bool base_found;
     if(qr_code.getBasePosition(frame, 2.4))
     {
       ROS_INFO_STREAM("base position :" << qr_code.getBaseX() << " "
@@ -181,10 +179,9 @@ int main(int argc, char **argv)
     }
     ss.str("");
     std_msgs::String base_msg;
-    ss << base_found << " " << qr_code.getBaseX() << " "
-       << qr_code.getBaseY();
+    ss << base_found << " " << qr_code.getBaseX() << " " << qr_code.getBaseY();
     base_msg.data= ss.str();
-    vision_base_pub.publish(base_msg);
+    vision_base_pub.publish(base_msg);*/
 
     cv::waitKey(1);
   }
