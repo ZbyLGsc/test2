@@ -96,14 +96,14 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
 
   /*take off height*/
   // This should minus start point height later!
-  m_goal_height[PA_START]= PA_FLYING_HEIGHT - PA_TARMAC_HEIGHT;
-  m_goal_height[PA_PILLAR_1]= PA_FLYING_HEIGHT - PA_PILLAR_HEIGHT;
-  m_goal_height[PA_PILLAR_2]= PA_FLYING_HEIGHT - PA_PILLAR_HEIGHT;
-  m_goal_height[PA_PILLAR_3]= PA_FLYING_HEIGHT - PA_PILLAR_HEIGHT;
-  m_goal_height[PA_PILLAR_4]= PA_FLYING_HEIGHT - PA_PILLAR_HEIGHT;
-  m_goal_height[PA_BASE_1]= PA_FLYING_HEIGHT;
-  m_goal_height[PA_BASE_2]= PA_FLYING_HEIGHT;
-  m_goal_height[PA_BASE_3]= PA_FLYING_HEIGHT;
+  m_goal_height[PA_START]= PA_TAKEOFF_HEIGHT - PA_TARMAC_HEIGHT;
+  m_goal_height[PA_PILLAR_1]= PA_TAKEOFF_HEIGHT - PA_PILLAR_HEIGHT;
+  m_goal_height[PA_PILLAR_2]= PA_TAKEOFF_HEIGHT - PA_PILLAR_HEIGHT;
+  m_goal_height[PA_PILLAR_3]= PA_TAKEOFF_HEIGHT - PA_PILLAR_HEIGHT;
+  m_goal_height[PA_PILLAR_4]= PA_TAKEOFF_HEIGHT - PA_PILLAR_HEIGHT;
+  m_goal_height[PA_BASE_1]= PA_TAKEOFF_HEIGHT;
+  m_goal_height[PA_BASE_2]= PA_TAKEOFF_HEIGHT;
+  m_goal_height[PA_BASE_3]= PA_TAKEOFF_HEIGHT;
 
   /*initialize  state*/
   resetAllState();
@@ -482,15 +482,12 @@ bool RMChallengeFSM::closeToGoalHeight()
 
 bool RMChallengeFSM::farFromTakeoffPoint()
 {
-  double pos_error=
-      sqrt(pow(m_real_position[0] -
-                   m_takeoff_points[m_current_takeoff_point_id][0],
-               2) +
-           pow(m_real_position[1] -
-                   m_takeoff_points[m_current_takeoff_point_id][1],
-               2));
-  ROS_INFO_STREAM("guidance position:" << m_real_position[0]
-                                       << " "
+  double pos_error= sqrt(
+      pow(m_real_position[0] - m_takeoff_points[m_current_takeoff_point_id][0],
+          2) +
+      pow(m_real_position[1] - m_takeoff_points[m_current_takeoff_point_id][1],
+          2));
+  ROS_INFO_STREAM("guidance position:" << m_real_position[0] << " "
                                        << m_real_position[1]);
   ROS_INFO_STREAM("takeoff position:"
                   << m_takeoff_points[m_current_takeoff_point_id][0] << " "
@@ -566,9 +563,8 @@ bool RMChallengeFSM::discoverLandPoint()
     else if(!close_to_lp)
     {
       ROS_INFO_STREAM("far from landpoint");
-      ROS_INFO_STREAM("guidance position:"
-                      << m_real_position[0] << " "
-                      << m_real_position[1]);
+      ROS_INFO_STREAM("guidance position:" << m_real_position[0] << " "
+                                           << m_real_position[1]);
       ROS_INFO_STREAM("takeoff position:"
                       << m_takeoff_points[m_current_takeoff_point_id + 1][0]
                       << " "
@@ -632,10 +628,10 @@ bool RMChallengeFSM::discoverYellowLine()
 }
 bool RMChallengeFSM::closeToSetPoint()
 {
-  float disp_x= m_real_position[0] -
-                m_takeoff_points[m_current_takeoff_point_id][0];
-  float disp_y= m_real_position[1] -
-                m_takeoff_points[m_current_takeoff_point_id][1];
+  float disp_x=
+      m_real_position[0] - m_takeoff_points[m_current_takeoff_point_id][0];
+  float disp_y=
+      m_real_position[1] - m_takeoff_points[m_current_takeoff_point_id][1];
   double pos_error=
       sqrt(pow(disp_x - m_setpoints[m_current_takeoff_point_id][0], 2) +
            pow(disp_y - m_setpoints[m_current_takeoff_point_id][1], 2));
@@ -751,9 +747,9 @@ void RMChallengeFSM::droneGoToSetPoint()
 
 void RMChallengeFSM::droneTrackLine()
 {
-  float vt_x, vt_y;
-  float vn_x, vn_y;
-  float v_z, yaw;
+  float vt_x= 0, vt_y= 0;
+  float vn_x= 0, vn_y= 0;
+  float v_z= 0, yaw= 0;
 
   calculateTangentialVelocity(vt_x, vt_y, YELLOW_LINE);
   calculateNormalVelocity(vn_x, vn_y, YELLOW_LINE);
@@ -769,8 +765,8 @@ void RMChallengeFSM::droneTrackLine()
                           << "n:" << vn_x << "," << vn_y << "\n"
                           << "yaw:" << yaw << "\n"
                           << "vz:" << v_z);
-  //controlDroneVelocity(vt_x + vn_x, vt_y + vn_y, v_z, yaw);
-  controlDroneVelocity(vt_x + vn_x, vt_y + vn_y, v_z, 0);
+  // controlDroneVelocity(vt_x + vn_x, vt_y + vn_y, v_z, yaw);
+  controlDroneVelocity(vt_x + vn_x, vt_y + vn_y, v_z, 0.0);
   /*publish velocity*/
   geometry_msgs::Vector3Stamped velocity;
   velocity.header.frame_id= "trackline_velocity";
@@ -871,10 +867,23 @@ void RMChallengeFSM::dronePrepareToLand()
   std::string velocity_id;
   if(m_land_point_type == BASE_LAND_POINT)
   {
-    /*adjust position to center of base*/
-    vz= 0;
-    vx= -0.5*PA_KP_BASE * m_base_position_error[0];
-    vy= -0.5*PA_KP_BASE * m_base_position_error[1];
+    /*adjust position to center of base
+      height first then position
+    */
+    if(fabs(m_current_height_from_guidance - PA_FLYING_HEIGHT) >
+       PA_FLYING_HEIGHT_THRESHOLD)
+    {
+      vz= PA_FLYING_HEIGHT > m_current_height_from_guidance ?
+              PA_FLYING_Z_VELOCITY :
+              -PA_FLYING_Z_VELOCITY;
+      vx= vy= 0;
+    }
+    else
+    {
+      vz= 0;
+      vx= -0.5 * PA_KP_BASE * m_base_position_error[0];
+      vy= -0.5 * PA_KP_BASE * m_base_position_error[1];
+    }
     ROS_INFO_STREAM("landing at base v are:" << vx << "," << vy << "," << vz);
   }
   else if(m_land_point_type == PILLAR_LAND_POINT)
@@ -1253,8 +1262,8 @@ void RMChallengeFSM::setHeightFromGuidance(float height)
 void RMChallengeFSM::setPositionFromGuidance(float x, float y)
 {
   transformCoordinate(PA_COORDINATE_TRANSFORM_ANGLE, x, y);
-  m_raw_guidance_position[0]=x;
-  m_raw_guidance_position[1]=y;
+  m_raw_guidance_position[0]= x;
+  m_raw_guidance_position[1]= y;
   if(m_uav_state == UAV_LAND)
   {
     /* update guidance bias*/
@@ -1268,9 +1277,8 @@ void RMChallengeFSM::setPositionFromGuidance(float x, float y)
     /* update actual position */
     m_real_position[0]= x - m_guidance_bias[0];
     m_real_position[1]= y - m_guidance_bias[1];
-    ROS_INFO_STREAM("position from guidance is:"
-                    << m_real_position[0] << ","
-                    << m_real_position[1]);
+    ROS_INFO_STREAM("position from guidance is:" << m_real_position[0] << ","
+                                                 << m_real_position[1]);
 
     /*publish position*/
     geometry_msgs::Vector3Stamped pos;

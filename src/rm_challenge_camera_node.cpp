@@ -74,7 +74,6 @@ int main(int argc, char **argv)
   Mat frame, image_gray;
   sensor_msgs::ImagePtr image_ptr;
 
-
   while(ros::ok())
   {
     ROS_INFO_STREAM("loop :"
@@ -83,7 +82,7 @@ int main(int argc, char **argv)
 #if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
     /*get new frame*/
     if(g_cap.get(CV_CAP_PROP_POS_FRAMES) >
-       g_cap.get(CV_CAP_PROP_FRAME_COUNT)/2)
+       g_cap.get(CV_CAP_PROP_FRAME_COUNT) / 2)
     {
       g_cap.set(CV_CAP_PROP_POS_FRAMES, 10);
     }
