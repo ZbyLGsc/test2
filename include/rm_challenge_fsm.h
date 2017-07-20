@@ -1,8 +1,8 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-#define CURRENT_COMPUTER ZBY_PC
-// #define CURRENT_COMPUTER MANIFOLD
+// #define CURRENT_COMPUTER ZBY_PC
+#define CURRENT_COMPUTER MANIFOLD
 
 #define TAKEOFF_POINT_NUMBER 7
 // parameters of uav
@@ -10,13 +10,12 @@
 #define PA_COORDINATE_TRANSFORM_DEGREE (-90)
 #define PA_COORDINATE_TRANSFORM_ANGLE                                          \
   PA_COORDINATE_TRANSFORM_DEGREE *PA_DEGREE_TO_RADIAN
-
 #define PA_TAKEOFF_TIME 7
 #define PA_TAKEOFF_HEIGHT_THRESHOLD 0.1
-#define PA_TAKEOFF_POSITION_ERROR 2
+#define PA_TAKEOFF_POSITION_ERROR 1.5
 #define PA_BASE_HEIGHT_THRESHOLD 0.2
 #define PA_SETPOINT_POSITION_ERROR 0.5
-#define PA_LANDPOINT_POSITION_ERROR 3
+#define PA_LANDPOINT_POSITION_ERROR 2.0
 #define PA_GRASPPER_CONTROL_TIME 6
 #define PA_GO_UP_VELOCITY 0.3
 
@@ -74,7 +73,10 @@
 #define PA_BASE_POSITION_THRESHOLD 0.15
 #define PA_RELEASE_BALL_VELOCITY 0.1
 #define PA_SLOW_DOWN_HEIGHT 0.5
+
 #define PA_T_DISPLACE 1.6
+#define PA_TARMAC_HEIGHT 0
+#define PA_PILLAR_HEIGHT 0.87
 
 #include <sstream>
 #include <ros/assert.h>
@@ -172,10 +174,15 @@ private:
   float m_setpoints[TAKEOFF_POINT_NUMBER + 1][2];
 
   /**subscribe from dji's nodes*/
-  UAV_STATE m_uav_state;
+  UAV_STATE m_uav_state=UAV_LAND;
   float m_current_height_from_guidance;
-  float m_current_position_from_guidance[2];  // initial
+  /**
+  raw_position=real_position+bias
+  bias=raw - real
+  */
+  float m_real_position[2];  // initial
   float m_guidance_bias[2];
+  float m_raw_guidance_position[2];
 
   /**subscribe from vision node about circle,arc and triangle*/
   bool m_discover_pillar_circle;
@@ -200,8 +207,8 @@ private:
   PREPARE_TO_LAND_TYPE m_prepare_to_land_type;  // initial
   int m_land_counter;                           // initial
   GRASPPER_STATE m_graspper_state= GRASPPER_CLOSE;
-  int m_graspper_control_time= 0;     // initial
-  int m_current_takeoff_point_id= 1;  // initial
+  int m_graspper_control_time= 0;             // initial
+  int m_current_takeoff_point_id= PA_BASE_1;  // initial
   ros::Time m_takeoff_time;
   ros::Time m_checked_time;
 
@@ -256,6 +263,7 @@ private:
                                                           // direction
   void transformCoordinate(float phi, float &x, float &y);
   void unitifyVector(float &x, float &y);  // tested
+  void judgeLineDirection();
   void calculateRealPositionError(float error[2]);
   void navigateByTriangle(float &x, float &y, float &z);  // tested
   void navigateByCircle(float &x, float &y, float &z);    // tested
@@ -265,7 +273,7 @@ private:
   void droneGoDownToBase();
   void droneGoToPillar();
   void updateTakeoffPointId();
-  void droneUpdatePosition(int POSITION_ID = 0);
+  void droneUpdatePosition(int POSITION_ID= 0);
 
   void printStateInfo();
 
