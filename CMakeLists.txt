@@ -166,21 +166,21 @@ target_link_libraries(rm_challenge_uav_node ${OpenCV_LIBRARIES} ${catkin_LIBRARI
 add_executable(rm_challenge_camera_node
 	${PROJECT_SOURCE_DIR}/src/rm_challenge_vision.cpp
 	${PROJECT_SOURCE_DIR}/src/rm_challenge_camera_node.cpp
-	${PROJECT_SOURCE_DIR}/src/apriltags/Edge.cc
-	${PROJECT_SOURCE_DIR}/src/apriltags/FloatImage.cc
-	${PROJECT_SOURCE_DIR}/src/apriltags/Gaussian.cc
-	${PROJECT_SOURCE_DIR}/src/apriltags/GLine2D.cc
-	${PROJECT_SOURCE_DIR}/src/apriltags/GLineSegment2D.cc
-	${PROJECT_SOURCE_DIR}/src/apriltags/GrayModel.cc
-	${PROJECT_SOURCE_DIR}/src/apriltags/Homography33.cc
-	${PROJECT_SOURCE_DIR}/src/apriltags/MathUtil.cc
-	${PROJECT_SOURCE_DIR}/src/apriltags/Quad.cc
-	${PROJECT_SOURCE_DIR}/src/apriltags/Segment.cc
-	${PROJECT_SOURCE_DIR}/src/apriltags/TagDetection.cc
-	${PROJECT_SOURCE_DIR}/src/apriltags/TagDetector.cc
-	${PROJECT_SOURCE_DIR}/src/apriltags/TagFamily.cc
-	${PROJECT_SOURCE_DIR}/src/apriltags/UnionFindSimple.cc
-	${PROJECT_SOURCE_DIR}/src/QRCode.cpp
+#	${PROJECT_SOURCE_DIR}/src/apriltags/Edge.cc
+#	${PROJECT_SOURCE_DIR}/src/apriltags/FloatImage.cc
+#	${PROJECT_SOURCE_DIR}/src/apriltags/Gaussian.cc
+#	${PROJECT_SOURCE_DIR}/src/apriltags/GLine2D.cc
+#	${PROJECT_SOURCE_DIR}/src/apriltags/GLineSegment2D.cc
+#	${PROJECT_SOURCE_DIR}/src/apriltags/GrayModel.cc
+#	${PROJECT_SOURCE_DIR}/src/apriltags/Homography33.cc
+#	${PROJECT_SOURCE_DIR}/src/apriltags/MathUtil.cc
+#	${PROJECT_SOURCE_DIR}/src/apriltags/Quad.cc
+#	${PROJECT_SOURCE_DIR}/src/apriltags/Segment.cc
+#	${PROJECT_SOURCE_DIR}/src/apriltags/TagDetection.cc
+#	${PROJECT_SOURCE_DIR}/src/apriltags/TagDetector.cc
+#	${PROJECT_SOURCE_DIR}/src/apriltags/TagFamily.cc
+#	${PROJECT_SOURCE_DIR}/src/apriltags/UnionFindSimple.cc
+#	${PROJECT_SOURCE_DIR}/src/QRCode.cpp
 	)
 target_link_libraries(rm_challenge_camera_node ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 
