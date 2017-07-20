@@ -20,8 +20,8 @@ int main(int argc, char **argv)
 
   /*write image to local file*/
   cv::VideoWriter writer;
-  writer.open("/home/zby/ros_bags/7.19/T.avi", CV_FOURCC('P', 'I', 'M', '1'), 30,
-              cv::Size(640, 480));
+  writer.open("/home/zby/ros_bags/7.19/T.avi", CV_FOURCC('P', 'I', 'M', '1'),
+              30, cv::Size(640, 480));
   ROS_INFO_STREAM("begin main loop:");
   while(ros::ok())
   {

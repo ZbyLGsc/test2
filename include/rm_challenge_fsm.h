@@ -11,16 +11,17 @@
 #define PA_COORDINATE_TRANSFORM_ANGLE                                          \
   PA_COORDINATE_TRANSFORM_DEGREE *PA_DEGREE_TO_RADIAN
 #define PA_TAKEOFF_TIME 7
+#define PA_TAKEOFF_HEIGHT 2.4
 #define PA_TAKEOFF_HEIGHT_THRESHOLD 0.1
 #define PA_TAKEOFF_POSITION_ERROR 1.5
 #define PA_BASE_HEIGHT_THRESHOLD 0.2
 #define PA_SETPOINT_POSITION_ERROR 0.5
-#define PA_LANDPOINT_POSITION_ERROR 2.0
+#define PA_LANDPOINT_POSITION_ERROR 2.5
 #define PA_GRASPPER_CONTROL_TIME 6
 #define PA_GO_UP_VELOCITY 0.3
 
-#define PA_FLYING_HEIGHT 2.4
-#define PA_FLYING_HEIGHT_THRESHOLD 0.2
+#define PA_FLYING_HEIGHT 2.7
+#define PA_FLYING_HEIGHT_THRESHOLD 0.1
 #define PA_FLYING_Z_VELOCITY 0.1
 
 #define PA_LAND_COUNT 1
@@ -76,7 +77,7 @@
 
 #define PA_T_DISPLACE 1.6
 #define PA_TARMAC_HEIGHT 0
-#define PA_PILLAR_HEIGHT 0.87
+#define PA_PILLAR_HEIGHT 0.75
 
 #include <sstream>
 #include <ros/assert.h>
@@ -174,7 +175,7 @@ private:
   float m_setpoints[TAKEOFF_POINT_NUMBER + 1][2];
 
   /**subscribe from dji's nodes*/
-  UAV_STATE m_uav_state=UAV_LAND;
+  UAV_STATE m_uav_state= UAV_LAND;
   float m_current_height_from_guidance;
   /**
   raw_position=real_position+bias
@@ -207,7 +208,7 @@ private:
   PREPARE_TO_LAND_TYPE m_prepare_to_land_type;  // initial
   int m_land_counter;                           // initial
   GRASPPER_STATE m_graspper_state= GRASPPER_CLOSE;
-  int m_graspper_control_time= 0;             // initial
+  int m_graspper_control_time= 0;               // initial
   int m_current_takeoff_point_id= PA_BASE_1;  // initial
   ros::Time m_takeoff_time;
   ros::Time m_checked_time;

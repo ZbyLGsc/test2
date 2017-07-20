@@ -418,7 +418,7 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
   circle_center= last_center;
   circle_found= false;
 
-  Mat temp=src.clone();
+  Mat temp= src.clone();
   /// 扩展边缘
   int top= last_center.y + last_radius > src.rows / 2 ?
                (int)last_center.y + last_radius - src.rows / 2 :
