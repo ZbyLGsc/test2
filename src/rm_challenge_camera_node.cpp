@@ -53,7 +53,8 @@ int main(int argc, char **argv)
   // );
   cv::VideoCapture g_cap;
 #if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
-  g_cap.open("/home/ubuntu/rosbag/Tttt.avi");
+  // g_cap.open("/home/ubuntu/rosbag/Tttt.avi");
+  g_cap.open("/home/zby/ros_bags/7.19/TTT.avi");
 #else
   g_cap.open(0);
 #endif

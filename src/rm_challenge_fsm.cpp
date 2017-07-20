@@ -483,15 +483,15 @@ bool RMChallengeFSM::closeToGoalHeight()
 bool RMChallengeFSM::farFromTakeoffPoint()
 {
   double pos_error=
-      sqrt(pow(m_current_position_from_guidance[0] -
+      sqrt(pow(m_real_position[0] -
                    m_takeoff_points[m_current_takeoff_point_id][0],
                2) +
-           pow(m_current_position_from_guidance[1] -
+           pow(m_real_position[1] -
                    m_takeoff_points[m_current_takeoff_point_id][1],
                2));
-  ROS_INFO_STREAM("guidance position:" << m_current_position_from_guidance[0]
+  ROS_INFO_STREAM("guidance position:" << m_real_position[0]
                                        << " "
-                                       << m_current_position_from_guidance[1]);
+                                       << m_real_position[1]);
   ROS_INFO_STREAM("takeoff position:"
                   << m_takeoff_points[m_current_takeoff_point_id][0] << " "
                   << m_takeoff_points[m_current_takeoff_point_id][1]);
@@ -549,10 +549,10 @@ bool RMChallengeFSM::discoverLandPoint()
   {
     bool is_pillar_found= m_discover_pillar_circle || discoverTriangle();
     float landpoint_error=
-        sqrt(pow(m_current_position_from_guidance[0] -
+        sqrt(pow(m_real_position[0] -
                      m_takeoff_points[m_current_takeoff_point_id + 1][0],
                  2) +
-             pow(m_current_position_from_guidance[1] -
+             pow(m_real_position[1] -
                      m_takeoff_points[m_current_takeoff_point_id + 1][1],
                  2));
     bool close_to_lp=
@@ -567,8 +567,8 @@ bool RMChallengeFSM::discoverLandPoint()
     {
       ROS_INFO_STREAM("far from landpoint");
       ROS_INFO_STREAM("guidance position:"
-                      << m_current_position_from_guidance[0] << " "
-                      << m_current_position_from_guidance[1]);
+                      << m_real_position[0] << " "
+                      << m_real_position[1]);
       ROS_INFO_STREAM("takeoff position:"
                       << m_takeoff_points[m_current_takeoff_point_id + 1][0]
                       << " "
@@ -632,9 +632,9 @@ bool RMChallengeFSM::discoverYellowLine()
 }
 bool RMChallengeFSM::closeToSetPoint()
 {
-  float disp_x= m_current_position_from_guidance[0] -
+  float disp_x= m_real_position[0] -
                 m_takeoff_points[m_current_takeoff_point_id][0];
-  float disp_y= m_current_position_from_guidance[1] -
+  float disp_y= m_real_position[1] -
                 m_takeoff_points[m_current_takeoff_point_id][1];
   double pos_error=
       sqrt(pow(disp_x - m_setpoints[m_current_takeoff_point_id][0], 2) +
@@ -1130,8 +1130,8 @@ void RMChallengeFSM::calculateNormalVelocity(float &x, float &y,
 {
   if(line_type == VIRTUAL_LINE_SETPOINT)
   {
-    float xc= m_current_position_from_guidance[0];
-    float yc= m_current_position_from_guidance[1];
+    float xc= m_real_position[0];
+    float yc= m_real_position[1];
     float x0= m_takeoff_points[m_current_takeoff_point_id][0];
     float y0= m_takeoff_points[m_current_takeoff_point_id][1];
     float xs= x0 + m_setpoints[m_current_takeoff_point_id][0];
@@ -1175,8 +1175,8 @@ void RMChallengeFSM::calculateTangentialVelocity(float &x, float &y,
 
   else if(line_type == VIRTUAL_LINE_LANDPOINT)
   {
-    float x0= m_current_position_from_guidance[0];
-    float y0= m_current_position_from_guidance[1];
+    float x0= m_real_position[0];
+    float y0= m_real_position[1];
     float xs= m_takeoff_points[m_current_takeoff_point_id + 1][0];
     float ys= m_takeoff_points[m_current_takeoff_point_id + 1][1];
     x= PA_KT * (xs - x0) / sqrt(pow(xs - x0, 2) + pow(ys - y0, 2));
@@ -1253,29 +1253,31 @@ void RMChallengeFSM::setHeightFromGuidance(float height)
 void RMChallengeFSM::setPositionFromGuidance(float x, float y)
 {
   transformCoordinate(PA_COORDINATE_TRANSFORM_ANGLE, x, y);
+  m_raw_guidance_position[0]=x;
+  m_raw_guidance_position[1]=y;
   if(m_uav_state == UAV_LAND)
   {
     /* update guidance bias*/
-    m_guidance_bias[0]= x - m_current_position_from_guidance[0];
-    m_guidance_bias[1]= y - m_current_position_from_guidance[1];
+    m_guidance_bias[0]= x - m_real_position[0];
+    m_guidance_bias[1]= y - m_real_position[1];
     ROS_INFO_STREAM("guidance bias is:" << m_guidance_bias[0] << ","
                                         << m_guidance_bias[1]);
   }
   else if(m_uav_state == UAV_FLY)
   {
     /* update actual position */
-    m_current_position_from_guidance[0]= x - m_guidance_bias[0];
-    m_current_position_from_guidance[1]= y - m_guidance_bias[1];
+    m_real_position[0]= x - m_guidance_bias[0];
+    m_real_position[1]= y - m_guidance_bias[1];
     ROS_INFO_STREAM("position from guidance is:"
-                    << m_current_position_from_guidance[0] << ","
-                    << m_current_position_from_guidance[1]);
+                    << m_real_position[0] << ","
+                    << m_real_position[1]);
 
     /*publish position*/
     geometry_msgs::Vector3Stamped pos;
     pos.header.frame_id= "position";
     pos.header.stamp= ros::Time::now();
-    pos.vector.x= m_current_position_from_guidance[0];
-    pos.vector.y= m_current_position_from_guidance[1];
+    pos.vector.x= m_real_position[0];
+    pos.vector.y= m_real_position[1];
     pos.vector.z= 0.0;
     m_position_pub.publish(pos);
   }
@@ -1487,10 +1489,10 @@ bool RMChallengeFSM::discoverT()
   }
 
   float pos_error=
-      sqrt(pow(m_current_position_from_guidance[0] -
+      sqrt(pow(m_real_position[0] -
                    m_takeoff_points[m_current_takeoff_point_id + 1][0],
                2) +
-           pow(m_current_position_from_guidance[1] -
+           pow(m_real_position[1] -
                    m_takeoff_points[m_current_takeoff_point_id + 1][1] -
                    PA_T_DISPLACE,
                2));
@@ -1524,28 +1526,26 @@ void RMChallengeFSM::droneUpdatePosition(int POSITION_ID)
     POSITION_ID= m_current_takeoff_point_id;
   }
   /*set pisition from guidance to according point,then update bias */
-  float x= m_current_position_from_guidance[0];
-  float y= m_current_position_from_guidance[1];
   if(POSITION_ID <= PA_BASE_4)
   {
-    m_current_position_from_guidance[0]= m_takeoff_points[POSITION_ID][0];
-    m_current_position_from_guidance[1]= m_takeoff_points[POSITION_ID][1];
+    m_real_position[0]= m_takeoff_points[POSITION_ID][0];
+    m_real_position[1]= m_takeoff_points[POSITION_ID][1];
   }
   else if(POSITION_ID == PA_T_1)
   {
-    m_current_position_from_guidance[0]= m_takeoff_points[PA_PILLAR_2][0];
-    m_current_position_from_guidance[1]=
+    m_real_position[0]= m_takeoff_points[PA_PILLAR_2][0];
+    m_real_position[1]=
         m_takeoff_points[PA_PILLAR_2][1] + PA_T_DISPLACE;
   }
   else if(POSITION_ID == PA_T_2)
   {
-    m_current_position_from_guidance[0]= m_takeoff_points[PA_PILLAR_4][0];
-    m_current_position_from_guidance[1]=
+    m_real_position[0]= m_takeoff_points[PA_PILLAR_4][0];
+    m_real_position[1]=
         m_takeoff_points[PA_PILLAR_4][1] - PA_T_DISPLACE;
   }
 
-  m_guidance_bias[0]= x - m_current_position_from_guidance[0];
-  m_guidance_bias[1]= y - m_current_position_from_guidance[1];
+  m_guidance_bias[0]= m_raw_guidance_position[0] - m_real_position[0];
+  m_guidance_bias[1]= m_raw_guidance_position[1] - m_real_position[1];
 }
 
 void RMChallengeFSM::printStateInfo()

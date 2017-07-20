@@ -176,8 +176,13 @@ private:
   /**subscribe from dji's nodes*/
   UAV_STATE m_uav_state=UAV_LAND;
   float m_current_height_from_guidance;
-  float m_current_position_from_guidance[2];  // initial
+  /**
+  raw_position=real_position+bias
+  bias=raw - real
+  */
+  float m_real_position[2];  // initial
   float m_guidance_bias[2];
+  float m_raw_guidance_position[2];
 
   /**subscribe from vision node about circle,arc and triangle*/
   bool m_discover_pillar_circle;
