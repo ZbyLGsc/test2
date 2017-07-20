@@ -20,7 +20,7 @@
 #define PA_GRASPPER_CONTROL_TIME 6
 #define PA_GO_UP_VELOCITY 0.3
 
-#define PA_FLYING_HEIGHT 2.6
+#define PA_FLYING_HEIGHT 2.7
 #define PA_FLYING_HEIGHT_THRESHOLD 0.1
 #define PA_FLYING_Z_VELOCITY 0.1
 
@@ -209,7 +209,7 @@ private:
   int m_land_counter;                           // initial
   GRASPPER_STATE m_graspper_state= GRASPPER_CLOSE;
   int m_graspper_control_time= 0;               // initial
-  int m_current_takeoff_point_id= PA_PILLAR_2;  // initial
+  int m_current_takeoff_point_id= PA_BASE_1;  // initial
   ros::Time m_takeoff_time;
   ros::Time m_checked_time;
 
