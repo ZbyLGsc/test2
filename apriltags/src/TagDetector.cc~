@@ -24,7 +24,7 @@
 
 #include "AprilTags/TagDetector.h"
 
-#define DEBUG_APRIL
+//#define DEBUG_APRIL
 
 #ifdef DEBUG_APRIL
 #include <opencv/cv.h>
@@ -156,7 +156,7 @@ namespace AprilTags {
       float Iy = fimSeg.get(x, y+1) - fimSeg.get(x, y-1);
 
       float mag = Ix*Ix + Iy*Iy;
-#if 0 // kaess: fast version, but maybe less accurate?
+#if 1 // kaess: fast version, but maybe less accurate?
       float theta = MathUtil::fast_atan2(Iy, Ix);
 #else
       float theta = atan2(Iy, Ix);
@@ -170,7 +170,7 @@ namespace AprilTags {
 #ifdef DEBUG_APRIL
   int height_ = fimSeg.getHeight();
   int width_  = fimSeg.getWidth();
-  cv::Mat image1(height_, width_, CV_8UC3);
+  cv::Mat image(height_, width_, CV_8UC3);
   {
     for (int y=0; y<height_; y++) {
       for (int x=0; x<width_; x++) {
@@ -182,7 +182,7 @@ namespace AprilTags {
         for (int k=0; k<3; k++) {
           v(k) = val;
         }
-        image1.at<cv::Vec3b>(y, x) = v;
+        image.at<cv::Vec3b>(y, x) = v;
       }
     }
   }
@@ -209,7 +209,7 @@ namespace AprilTags {
     float * tmax = &storage[width*height*1];
     float * mmin = &storage[width*height*2];
     float * mmax = &storage[width*height*3];
-                  
+    #pragma omp parallel for              
     for (int y = 0; y+1 < height; y++) {
       for (int x = 0; x+1 < width; x++) {
                                   
@@ -241,6 +241,7 @@ namespace AprilTags {
   // We will soon fit lines (segments) to these points.
 
   map<int, vector<XYWeight> > clusters;
+#pragma omp parallel for
   for (int y = 0; y+1 < fimSeg.getHeight(); y++) {
     for (int x = 0; x+1 < fimSeg.getWidth(); x++) {
       if (uf.getSetSize(y*fimSeg.getWidth()+x) < Segment::minimumSegmentSize)
@@ -262,6 +263,7 @@ namespace AprilTags {
   // Step five: Loop over the clusters, fitting lines (which we call Segments).
   std::vector<Segment> segments; //used in Step six
   std::map<int, std::vector<XYWeight> >::const_iterator clustersItr;
+#pragma omp parallel for  
   for (clustersItr = clusters.begin(); clustersItr != clusters.end(); clustersItr++) {
     std::vector<XYWeight> points = clustersItr->second;
     GLineSegment2D gseg = GLineSegment2D::lsqFitXYW(points);
@@ -349,6 +351,7 @@ namespace AprilTags {
   }
   
   // Now, find child segments that begin where each parent segment ends.
+#pragma omp parallel for  
   for (unsigned i = 0; i < segments.size(); i++) {
     Segment &parentseg = segments[i];
       

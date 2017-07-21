@@ -94,7 +94,7 @@ int main(int argc, char** argv)
       continue;
 
     bool base_found;
-    ROS_INFO_STREAM("before");
+    //ROS_INFO_STREAM("before");
     if(qr_code.getBasePosition(g_image, 2.4))
     {
       ROS_INFO_STREAM("base position :" << qr_code.getBaseX() << " "
@@ -108,7 +108,7 @@ int main(int argc, char** argv)
                                         << qr_code.getBaseY());
       base_found= false;
     }
-    ROS_INFO_STREAM("after");
+    //ROS_INFO_STREAM("after");
     ss.str("");
     std_msgs::String base_msg;
     ss << base_found << " " << qr_code.getBaseX() << " " << qr_code.getBaseY();

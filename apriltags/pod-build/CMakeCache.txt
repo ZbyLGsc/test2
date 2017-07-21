@@ -328,6 +328,12 @@ OpenCV_LIB_DIR_DBG:PATH=
 //Path where release OpenCV libraries are located
 OpenCV_LIB_DIR_OPT:PATH=
 
+//C++ compiler flags for OpenMP parallization
+OpenMP_CXX_FLAGS:STRING=-fopenmp
+
+//C compiler flags for OpenMP parallization
+OpenMP_C_FLAGS:STRING=-fopenmp
+
 //pkg-config executable
 PKG_CONFIG_EXECUTABLE:FILEPATH=/usr/bin/pkg-config
 
@@ -365,7 +371,7 @@ actionlib_msgs_DIR:PATH=/opt/ros/indigo/share/actionlib_msgs/cmake
 apriltags_BINARY_DIR:STATIC=/home/ubuntu/dji_fly/src/test2/apriltags/pod-build
 
 //Dependencies for the target
-apriltags_LIB_DEPENDS:STATIC=general;opencv_videostab;general;opencv_video;general;opencv_ts;general;opencv_superres;general;opencv_stitching;general;opencv_photo;general;opencv_ocl;general;opencv_objdetect;general;opencv_nonfree;general;opencv_ml;general;opencv_legacy;general;opencv_imgproc;general;opencv_highgui;general;opencv_gpu;general;opencv_flann;general;opencv_features2d;general;opencv_core;general;opencv_contrib;general;opencv_calib3d;general;/opt/ros/indigo/lib/libimage_transport.so;general;/usr/lib/arm-linux-gnueabihf/libtinyxml.so;general;/opt/ros/indigo/lib/libclass_loader.so;general;/usr/lib/libPocoFoundation.so;general;/usr/lib/arm-linux-gnueabihf/libdl.so;general;/opt/ros/indigo/lib/libroslib.so;general;/opt/ros/indigo/lib/libcv_bridge.so;general;/usr/lib/arm-linux-gnueabihf/libopencv_videostab.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_video.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_superres.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_stitching.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_photo.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_ocl.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_objdetect.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_ml.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_legacy.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_imgproc.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_highgui.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_gpu.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_flann.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_features2d.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_core.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_contrib.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_calib3d.so.2.4.8;general;/opt/ros/indigo/lib/libtf.so;general;/opt/ros/indigo/lib/libtf2_ros.so;general;/opt/ros/indigo/lib/libactionlib.so;general;/opt/ros/indigo/lib/libmessage_filters.so;general;/opt/ros/indigo/lib/libroscpp.so;general;/usr/lib/arm-linux-gnueabihf/libboost_signals.so;general;/usr/lib/arm-linux-gnueabihf/libboost_filesystem.so;general;/opt/ros/indigo/lib/libxmlrpcpp.so;general;/opt/ros/indigo/lib/libtf2.so;general;/opt/ros/indigo/lib/libroscpp_serialization.so;general;/opt/ros/indigo/lib/librosconsole.so;general;/opt/ros/indigo/lib/librosconsole_log4cxx.so;general;/opt/ros/indigo/lib/librosconsole_backend_interface.so;general;/usr/lib/liblog4cxx.so;general;/usr/lib/arm-linux-gnueabihf/libboost_regex.so;general;/opt/ros/indigo/lib/librostime.so;general;/usr/lib/arm-linux-gnueabihf/libboost_date_time.so;general;/opt/ros/indigo/lib/libcpp_common.so;general;/usr/lib/arm-linux-gnueabihf/libboost_system.so;general;/usr/lib/arm-linux-gnueabihf/libboost_thread.so;general;/usr/lib/arm-linux-gnueabihf/libpthread.so;general;/usr/lib/arm-linux-gnueabihf/libconsole_bridge.so;general;-lv4l2;
+apriltags_LIB_DEPENDS:STATIC=general;opencv_videostab;general;opencv_video;general;opencv_ts;general;opencv_superres;general;opencv_stitching;general;opencv_photo;general;opencv_ocl;general;opencv_objdetect;general;opencv_nonfree;general;opencv_ml;general;opencv_legacy;general;opencv_imgproc;general;opencv_highgui;general;opencv_gpu;general;opencv_flann;general;opencv_features2d;general;opencv_core;general;opencv_contrib;general;opencv_calib3d;general;-pg;general;-fopenmp;general;/opt/ros/indigo/lib/libimage_transport.so;general;/usr/lib/arm-linux-gnueabihf/libtinyxml.so;general;/opt/ros/indigo/lib/libclass_loader.so;general;/usr/lib/libPocoFoundation.so;general;/usr/lib/arm-linux-gnueabihf/libdl.so;general;/opt/ros/indigo/lib/libroslib.so;general;/opt/ros/indigo/lib/libcv_bridge.so;general;/usr/lib/arm-linux-gnueabihf/libopencv_videostab.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_video.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_superres.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_stitching.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_photo.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_ocl.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_objdetect.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_ml.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_legacy.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_imgproc.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_highgui.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_gpu.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_flann.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_features2d.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_core.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_contrib.so.2.4.8;general;/usr/lib/arm-linux-gnueabihf/libopencv_calib3d.so.2.4.8;general;/opt/ros/indigo/lib/libtf.so;general;/opt/ros/indigo/lib/libtf2_ros.so;general;/opt/ros/indigo/lib/libactionlib.so;general;/opt/ros/indigo/lib/libmessage_filters.so;general;/opt/ros/indigo/lib/libroscpp.so;general;/usr/lib/arm-linux-gnueabihf/libboost_signals.so;general;/usr/lib/arm-linux-gnueabihf/libboost_filesystem.so;general;/opt/ros/indigo/lib/libxmlrpcpp.so;general;/opt/ros/indigo/lib/libtf2.so;general;/opt/ros/indigo/lib/libroscpp_serialization.so;general;/opt/ros/indigo/lib/librosconsole.so;general;/opt/ros/indigo/lib/librosconsole_log4cxx.so;general;/opt/ros/indigo/lib/librosconsole_backend_interface.so;general;/usr/lib/liblog4cxx.so;general;/usr/lib/arm-linux-gnueabihf/libboost_regex.so;general;/opt/ros/indigo/lib/librostime.so;general;/usr/lib/arm-linux-gnueabihf/libboost_date_time.so;general;/opt/ros/indigo/lib/libcpp_common.so;general;/usr/lib/arm-linux-gnueabihf/libboost_system.so;general;/usr/lib/arm-linux-gnueabihf/libboost_thread.so;general;/usr/lib/arm-linux-gnueabihf/libpthread.so;general;/usr/lib/arm-linux-gnueabihf/libconsole_bridge.so;general;-lv4l2;
 
 //Value Computed by CMake
 apriltags_SOURCE_DIR:STATIC=/home/ubuntu/dji_fly/src/test2/apriltags
@@ -696,6 +702,8 @@ CUDA_parse_cubin:INTERNAL=/usr/share/cmake-2.8/Modules/FindCUDA/parse_cubin.cmak
 CUDA_run_nvcc:INTERNAL=/usr/share/cmake-2.8/Modules/FindCUDA/run_nvcc.cmake
 //Details about finding CUDA
 FIND_PACKAGE_MESSAGE_DETAILS_CUDA:INTERNAL=[/usr/local/cuda][/usr/local/cuda/bin/nvcc][/usr/local/cuda/include][/usr/local/cuda/lib/libcudart.so][v6.5(6.5)]
+//Details about finding OpenMP
+FIND_PACKAGE_MESSAGE_DETAILS_OpenMP:INTERNAL=[-fopenmp][-fopenmp][v()]
 //Details about finding PkgConfig
 FIND_PACKAGE_MESSAGE_DETAILS_PkgConfig:INTERNAL=[/usr/bin/pkg-config][v0.26()]
 //Details about finding PythonInterp
@@ -727,6 +735,12 @@ OpenCV_CONFIG_PATH-ADVANCED:INTERNAL=1
 OpenCV_LIB_DIR_DBG-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: OpenCV_LIB_DIR_OPT
 OpenCV_LIB_DIR_OPT-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OpenMP_CXX_FLAGS
+OpenMP_CXX_FLAGS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OpenMP_C_FLAGS
+OpenMP_C_FLAGS-ADVANCED:INTERNAL=1
+//Test OpenMP_FLAG_DETECTED
+OpenMP_FLAG_DETECTED:INTERNAL=1
 //ADVANCED property for variable: PKG_CONFIG_EXECUTABLE
 PKG_CONFIG_EXECUTABLE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: PYTHON_EXECUTABLE

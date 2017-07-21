@@ -25,7 +25,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories("/opt/ros/lunar/include")
-target_link_libraries(apriltags ${OpenCV_LIBS}) #-pg) #-fopenmp)
+target_link_libraries(apriltags ${OpenCV_LIBS} -pg -fopenmp)
 target_link_libraries(apriltags ${catkin_LIBRARIES})
 pods_use_pkg_config_packages(apriltags eigen3)
 

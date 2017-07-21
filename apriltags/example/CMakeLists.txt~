@@ -2,17 +2,16 @@ cmake_minimum_required (VERSION 2.6)
 
 find_package(OpenMP REQUIRED)
 if(OPENMP_FOUND)
-	message(STATUS "OPENMP FOUND")
-	set(OpenMP_FLAGS ${OpenMP_CXX_FLAGS})
-	set(OpenMP_LIBS gomp)
+  message(STATUS "OPENMP FOUND)
+  set(OpenMP_FLAGS ${OpenMP_CXX_FLAGS})
+  set(OpenMP_LIBS gomp)
 endif()
 
 link_libraries(apriltags ${OpenMP_LIBS})
 
 
-
 add_executable(rm_challenge_qrcode_node rm_challenge_qrcode_node.cpp)
-target_compile_options(rm_challenge_qrcode_node PRIVATE ${OpenMP_FLAGS})
+target_compile_options(rm_challenge_qrcode_node PRIVATE ${OpemMP_FLAGS})
 pods_install_executables(rm_challenge_qrcode_node)
 
 

@@ -71,6 +71,7 @@ int main(int argc, char** argv)
 
   vision_base_pub= node.advertise<std_msgs::String>("tpp/base", 1);
 
+  qr_code.setVisability(false);
   qr_code.setup();
 
   image_transport::ImageTransport image_transport(node);
