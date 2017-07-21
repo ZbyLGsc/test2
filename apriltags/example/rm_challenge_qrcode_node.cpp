@@ -28,14 +28,14 @@ using namespace std;
 
 /**global publisher*/
 ros::Publisher vision_base_pub;
-image_transport::Subscriber vision_image_sub;
 ros::Subscriber base_change_sub;
+image_transport::Subscriber vision_image_sub;
 
 QRCode qr_code;
 std::stringstream ss;
 cv::Mat g_image;
 bool g_is_new_image= false;
-bool g_is_base_running= true;
+bool g_is_base_running= false;
 
 void baseChangeCallback(const std_msgs::String::ConstPtr& msg);
 
@@ -73,12 +73,13 @@ int main(int argc, char** argv)
 
   vision_base_pub= node.advertise<std_msgs::String>("tpp/base", 1);
 
+  qr_code.setVisability(false);
   qr_code.setup();
 
-  base_change_sub= node.subscribe("/tpp/base_change", 1, baseChangeCallback);
   image_transport::ImageTransport image_transport(node);
   vision_image_sub= image_transport.subscribe("m100/image", 1, imageCallBack);
 
+  base_change_sub= node.subscribe("/tpp/base_change", 1, baseChangeCallback);
   /*main loop*/
   // cv::Mat m_copy = m_origin.clone();
   // cv::cvtColor(m_copy, m_copy, CV_BGR2HSV);
@@ -98,7 +99,7 @@ int main(int argc, char** argv)
     if(g_is_base_running)
     {
       bool base_found;
-      ROS_INFO_STREAM("before");
+      // ROS_INFO_STREAM("before");
       if(qr_code.getBasePosition(g_image, 2.4))
       {
         ROS_INFO_STREAM("base position :" << qr_code.getBaseX() << " "
@@ -112,7 +113,7 @@ int main(int argc, char** argv)
                                           << qr_code.getBaseY());
         base_found= false;
       }
-      ROS_INFO_STREAM("after");
+      // ROS_INFO_STREAM("after");
       ss.str("");
       std_msgs::String base_msg;
       ss << base_found << " " << qr_code.getBaseX() << " "
@@ -122,7 +123,7 @@ int main(int argc, char** argv)
 
       g_is_new_image= false;
     }
-    ros::spinOnce();
+
     cv::waitKey(1);
   }
 
