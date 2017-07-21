@@ -14,14 +14,13 @@
 #define PA_TAKEOFF_HEIGHT 2.4
 #define PA_TAKEOFF_HEIGHT_THRESHOLD 0.1
 #define PA_TAKEOFF_POSITION_ERROR 1.5
-#define PA_BASE_HEIGHT_THRESHOLD 0.2
 #define PA_SETPOINT_POSITION_ERROR 0.5
 #define PA_LANDPOINT_POSITION_ERROR 2.5
 #define PA_GRASPPER_CONTROL_TIME 6
 #define PA_GO_UP_VELOCITY 0.3
 
 #define PA_FLYING_HEIGHT 2.7
-#define PA_FLYING_HEIGHT_THRESHOLD 0.1
+#define PA_FLYING_HEIGHT_THRESHOLD 0.2
 #define PA_FLYING_Z_VELOCITY 0.1
 
 #define PA_LAND_COUNT 1
@@ -42,7 +41,7 @@
 #define PA_LAND_Z_VELOCITY 0.15
 #define PA_LAND_TRIANGLE_VELOCITY_HIGH 0.15
 #define PA_LAND_TRIANGLE_VELOCITY_LOW 0.07
-#define PA_KP_BASE 0.4
+#define PA_KP_BASE 0.2
 #define PA_KP_PILLAR_HIGH 0.3
 #define PA_KP_PILLAR_LOW 0.3
 
@@ -71,10 +70,12 @@
 
 #define PA_RELEASE_BALL_HEIGHT 0.6
 #define PA_RELEASE_BALL_HEIGHT_THRESHOLD 0.2
-#define PA_BASE_POSITION_THRESHOLD 0.15
+#define PA_BASE_POSITION_THRESHOLD 0.25
 #define PA_RELEASE_BALL_VELOCITY 0.1
 #define PA_SLOW_DOWN_HEIGHT 0.5
 
+#define PA_BASE_HEIGHT 2.8
+#define PA_BASE_HEIGHT_THRESHOLD 0.1
 #define PA_T_DISPLACE 1.6
 #define PA_TARMAC_HEIGHT 0
 #define PA_PILLAR_HEIGHT 0.75
@@ -220,7 +221,9 @@ private:
   /**change pillar detecting color*/
   ros::Publisher m_color_change_pub;
   /**change vision task*/
-  ros::Publisher m_task_change_pub;
+  ros::Publisher m_pillar_change_pub;
+  ros::Publisher m_line_change_pub;
+  ros::Publisher m_base_change_pub;
 
 private:
   /**uav state checking method*/
@@ -283,7 +286,12 @@ private:
 
   void printStateInfo();
   void publishColorChange();
-  void publishTaskChange();
+  void publishPillarChange();
+  void publishLineChange();
+  void publishBaseChange();
+  void updatePillarColor();
+
+  void calculateZVelocity(float &vz);
 
 public:
   /**update from dji's nodes*/

@@ -13,6 +13,7 @@ using namespace cv;
 #include <sstream>
 #include <cmath>
 #include <stdlib.h>
+#include <string>
 using namespace std;
 
 #include <ros/ros.h>

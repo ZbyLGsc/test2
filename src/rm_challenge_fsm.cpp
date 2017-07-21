@@ -35,29 +35,12 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
       node_handle.advertise<geometry_msgs::Vector3Stamped>("/m100/velocity", 1);
   m_color_change_pub=
       node_handle.advertise<std_msgs::String>("/tpp/color_change", 1);
-  m_task_change_pub=
-      node_handle.advertise<std_msgs::String>("/tpp/task_change", 1);
-
-  /*test color change and task change*/
-  ros::Duration(5.0).sleep();
-
-  publishColorChange();
-  publishTaskChange();
-  ros::Duration(5.0).sleep();
-
-  publishColorChange();
-  publishTaskChange();
-  ros::Duration(5.0).sleep();
-
-  publishColorChange();
-  publishTaskChange();
-  ros::Duration(5.0).sleep();
-
-  publishColorChange();
-  publishTaskChange();
-  ros::Duration(5.0).sleep();
-
-  /**/
+  m_pillar_change_pub=
+      node_handle.advertise<std_msgs::String>("/tpp/pillar_change", 1);
+  m_line_change_pub=
+      node_handle.advertise<std_msgs::String>("/tpp/line_change", 1);
+  m_base_change_pub=
+      node_handle.advertise<std_msgs::String>("/tpp/base_change", 1);
 
   /*initialize setpoint, takeoffpoint and takeoff height,
    only set for one time, takeoff positions are absolute position,
@@ -132,6 +115,22 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
 
   /*initialize  state*/
   resetAllState();
+
+  /*test color change and task change*/
+  ros::Duration(2.0).sleep();
+
+  publishColorChange();
+  ros::Duration(5.0).sleep();
+
+  publishColorChange();
+  ros::Duration(5.0).sleep();
+
+  publishColorChange();
+  ros::Duration(5.0).sleep();
+
+  publishColorChange();
+  ros::Duration(5.0).sleep();
+  /**/
 }
 
 void RMChallengeFSM::resetAllState()
@@ -337,6 +336,7 @@ void RMChallengeFSM::run()
         closeGraspper();
         updateTakeoffPointId();
         droneUpdatePosition();
+        updatePillarColor();
         transferToTask(TAKE_OFF);
       }
       break;
@@ -711,6 +711,7 @@ void RMChallengeFSM::closeGraspper()
                      m_err_code);  // close graspper
   m_graspper_state= GRASPPER_CLOSE;
 }
+
 void RMChallengeFSM::grabBall()
 {
   m_graspper_control_time++;
@@ -724,11 +725,13 @@ void RMChallengeFSM::grabBall()
   }
   ROS_INFO_STREAM("graspper state is:" << m_graspper_state);
 }
+
 void RMChallengeFSM::updateTakeoffTime()
 {
   m_takeoff_time= ros::Time::now();
   ROS_INFO_STREAM("Taking off time is :" << m_takeoff_time);
 }
+
 void RMChallengeFSM::controlDroneVelocity(float x, float y, float z, float yaw)
 {
 #if CURRENT_COMPUTER == MANIFOLD
@@ -736,6 +739,7 @@ void RMChallengeFSM::controlDroneVelocity(float x, float y, float z, float yaw)
 #endif
   ros::Duration(20 / 1000).sleep();
 }
+
 void RMChallengeFSM::droneGoUp()
 {
   if(m_goal_height[m_current_takeoff_point_id] > m_current_height_from_guidance)
@@ -778,14 +782,8 @@ void RMChallengeFSM::droneTrackLine()
 
   calculateTangentialVelocity(vt_x, vt_y, YELLOW_LINE);
   calculateNormalVelocity(vn_x, vn_y, YELLOW_LINE);
+  calculateZVelocity(v_z);
   calculateYawRate(yaw);
-  if(fabs(m_current_height_from_guidance - PA_FLYING_HEIGHT) >
-     PA_FLYING_HEIGHT_THRESHOLD)
-  {
-    v_z= PA_FLYING_HEIGHT > m_current_height_from_guidance ?
-             PA_FLYING_Z_VELOCITY :
-             -PA_FLYING_Z_VELOCITY;
-  }
   ROS_INFO_STREAM("\n t:" << vt_x << "," << vt_y << "\n"
                           << "n:" << vn_x << "," << vn_y << "\n"
                           << "yaw:" << yaw << "\n"
@@ -801,6 +799,7 @@ void RMChallengeFSM::droneTrackLine()
   velocity.vector.z= v_z;
   m_velocity_pub.publish(velocity);
 }
+
 void RMChallengeFSM::droneHover()
 {
   controlDroneVelocity(0, 0, 0, 0);
@@ -895,10 +894,10 @@ void RMChallengeFSM::dronePrepareToLand()
     /*adjust position to center of base
       height first then position
     */
-    if(fabs(m_current_height_from_guidance - PA_FLYING_HEIGHT) >
-       PA_FLYING_HEIGHT_THRESHOLD)
+    if(fabs(m_current_height_from_guidance - PA_BASE_HEIGHT) >
+       PA_BASE_HEIGHT_THRESHOLD)
     {
-      vz= PA_FLYING_HEIGHT > m_current_height_from_guidance ?
+      vz= PA_BASE_HEIGHT > m_current_height_from_guidance ?
               PA_FLYING_Z_VELOCITY :
               -PA_FLYING_Z_VELOCITY;
       vx= vy= 0;
@@ -906,8 +905,8 @@ void RMChallengeFSM::dronePrepareToLand()
     else
     {
       vz= 0;
-      vx= -0.5 * PA_KP_BASE * m_base_position_error[0];
-      vy= -0.5 * PA_KP_BASE * m_base_position_error[1];
+      vx= -PA_KP_BASE * m_base_position_error[0];
+      vy= -PA_KP_BASE * m_base_position_error[1];
     }
     ROS_INFO_STREAM("landing at base v are:" << vx << "," << vy << "," << vz);
   }
@@ -1714,20 +1713,63 @@ void RMChallengeFSM::judgeLineDirection()
 
 void RMChallengeFSM::publishColorChange()
 {
-  std::stringstream ss;
   std_msgs::String msg;
-  ss << "";
-  msg.data= ss.str();
+  msg.data= "";
   m_color_change_pub.publish(msg);
   ROS_INFO_STREAM("inform camera pillar color change");
 }
 
-void RMChallengeFSM::publishTaskChange()
+void RMChallengeFSM::publishPillarChange()
 {
-  std::stringstream ss;
   std_msgs::String msg;
-  ss << "change";
-  msg.data= ss.str();
-  m_task_change_pub.publish(msg);
-  ROS_INFO_STREAM("info camera task change");
+  msg.data= "";
+  m_pillar_change_pub.publish(msg);
+  ROS_INFO_STREAM("info pillar task change");
+}
+
+void RMChallengeFSM::publishLineChange()
+{
+  std_msgs::String msg;
+  msg.data= "";
+  m_pillar_change_pub.publish(msg);
+  ROS_INFO_STREAM("info line task change");
+}
+
+void RMChallengeFSM::publishBaseChange()
+{
+  std_msgs::String msg;
+  msg.data= "";
+  m_pillar_change_pub.publish(msg);
+  ROS_INFO_STREAM("info base task change");
+}
+
+void RMChallengeFSM::updatePillarColor()
+{
+  /*when at pillar 1 and pillar 3,need to change pillar color*/
+  if(m_current_takeoff_point_id == PA_PILLAR_1 ||
+     m_current_takeoff_point_id == PA_PILLAR_3)
+  {
+    publishColorChange();
+  }
+}
+
+void RMChallengeFSM::calculateZVelocity(float &vz)
+{
+  /*do not control v.z when cross slope,pillar 1 and base 3*/
+  if(m_current_takeoff_point_id == PA_PILLAR_1 ||
+     m_current_takeoff_point_id == PA_BASE_3)
+  {
+    vz= 0;
+  }
+  else if(fabs(m_current_height_from_guidance - PA_FLYING_HEIGHT) >
+          PA_FLYING_HEIGHT_THRESHOLD)
+  {
+    vz= PA_FLYING_HEIGHT > m_current_height_from_guidance ?
+             PA_FLYING_Z_VELOCITY :
+             -PA_FLYING_Z_VELOCITY;
+  }
+  else
+  {
+    vz= 0;
+  }
 }
