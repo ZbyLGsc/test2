@@ -48,8 +48,7 @@ int main(int argc, char **argv)
   color_change_sub= node.subscribe("/tpp/color_change", 1, colorChangeCallback);
   pillar_change_sub=
       node.subscribe("/tpp/pillar_change", 1, pillarChangeCallback);
-  line_change_sub=
-      node.subscribe("/tpp/line_change", 1, lineChangeCallback);
+  line_change_sub= node.subscribe("/tpp/line_change", 1, lineChangeCallback);
 
   image_transport::ImageTransport image_transport(node);
   vision_image_pub= image_transport.advertise("m100/image", 1);
@@ -102,6 +101,11 @@ int main(int argc, char **argv)
   else if(first_pillar_color == 'b')
   {
     g_color= RMChallengeVision::BLUE;
+  }
+  else
+  {
+    ROS_INFO_STREAM("not a available color!");
+    return -2;
   }
 
   while(ros::ok())

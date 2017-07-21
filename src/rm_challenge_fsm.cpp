@@ -120,16 +120,36 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
   ros::Duration(2.0).sleep();
 
   publishColorChange();
+  publishPillarChange();
+  publishLineChange();
+  publishBaseChange();
   ros::Duration(5.0).sleep();
 
   publishColorChange();
+  publishPillarChange();
+  publishLineChange();
+  publishBaseChange();
   ros::Duration(5.0).sleep();
 
   publishColorChange();
+  publishPillarChange();
+  publishLineChange();
+  publishBaseChange();
   ros::Duration(5.0).sleep();
 
   publishColorChange();
+  publishPillarChange();
+  publishLineChange();
+  publishBaseChange();
   ros::Duration(5.0).sleep();
+
+  publishColorChange();
+  publishPillarChange();
+  publishLineChange();
+  publishBaseChange();
+  ros::Duration(5.0).sleep();
+
+
   /**/
 }
 
@@ -1731,7 +1751,7 @@ void RMChallengeFSM::publishLineChange()
 {
   std_msgs::String msg;
   msg.data= "";
-  m_pillar_change_pub.publish(msg);
+  m_line_change_pub.publish(msg);
   ROS_INFO_STREAM("info line task change");
 }
 
@@ -1739,7 +1759,7 @@ void RMChallengeFSM::publishBaseChange()
 {
   std_msgs::String msg;
   msg.data= "";
-  m_pillar_change_pub.publish(msg);
+  m_base_change_pub.publish(msg);
   ROS_INFO_STREAM("info base task change");
 }
 
@@ -1765,8 +1785,8 @@ void RMChallengeFSM::calculateZVelocity(float &vz)
           PA_FLYING_HEIGHT_THRESHOLD)
   {
     vz= PA_FLYING_HEIGHT > m_current_height_from_guidance ?
-             PA_FLYING_Z_VELOCITY :
-             -PA_FLYING_Z_VELOCITY;
+            PA_FLYING_Z_VELOCITY :
+            -PA_FLYING_Z_VELOCITY;
   }
   else
   {
