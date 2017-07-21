@@ -232,6 +232,7 @@ void QRCode::parseOptions(int argc, char* argv[])
 
 void QRCode::setup()
 {
+  setTagCodes("16h5");
   m_tagDetector= new AprilTags::TagDetector(m_tagCodes);
 
   // prepare window for drawing the camera images

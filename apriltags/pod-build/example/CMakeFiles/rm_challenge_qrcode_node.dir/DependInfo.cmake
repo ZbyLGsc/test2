@@ -28,7 +28,7 @@ SET(CMAKE_C_TARGET_INCLUDE_PATH
   "/opt/local/include"
   "/usr/local/include/opencv"
   "/usr/local/include"
-  "/opt/ros/indigo/include"
+  "/opt/ros/lunar/include"
   "/usr/include/eigen3"
   )
 SET(CMAKE_CXX_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})
