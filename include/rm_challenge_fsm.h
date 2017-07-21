@@ -286,10 +286,11 @@ private:
 
   void printStateInfo();
   void publishColorChange();
-  void publishPillarChange();
-  void publishLineChange();
-  void publishBaseChange();
+  void publishPillarChange(std::string state);
+  void publishLineChange(std::string state);
+  void publishBaseChange(std::string state);
   void updatePillarColor();
+  void updateVisionTask();
 
   void calculateZVelocity(float &vz);
 

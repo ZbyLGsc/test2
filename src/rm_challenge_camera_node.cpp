@@ -18,12 +18,12 @@ ros::Subscriber pillar_change_sub;
 ros::Subscriber line_change_sub;
 /**color and task flag*/
 RMChallengeVision::COLOR_TYPE g_color= RMChallengeVision::RED;
-bool g_is_pillar_running= true;
-bool g_is_line_running= true;
+bool g_is_pillar_running= false;
+bool g_is_line_running= false;
 
 /**global video capture and image*/
 // cv::Mat g_pillar_image;
-// cv::Mat g_line_image;
+// cv::Mat g_line_image;  
 // cv::Mat g_base_image;
 // int g_processed_time = 0;
 /**callback of timer*/
@@ -244,12 +244,22 @@ void colorChangeCallback(const std_msgs::String::ConstPtr &msg)
 
 void pillarChangeCallback(const std_msgs::String::ConstPtr &msg)
 {
-  ROS_INFO_STREAM("receive pillar change info");
-  g_is_pillar_running= !g_is_pillar_running;
+  ROS_INFO_STREAM("receive base change info");
+  if(msg->data=="pause")
+    g_is_pillar_running= false;
+  else if(msg->data=="resume")
+    g_is_pillar_running=true;
+  else  
+    ROS_INFO_STREAM("invalid state");
 }
 
 void lineChangeCallback(const std_msgs::String::ConstPtr &msg)
 {
-  ROS_INFO_STREAM("receive line change info");
-  g_is_line_running= !g_is_line_running;
+  ROS_INFO_STREAM("receive base change info");
+  if(msg->data=="pause")
+    g_is_line_running= false;
+  else if(msg->data=="resume")
+    g_is_line_running=true;
+  else  
+    ROS_INFO_STREAM("invalid state");
 }

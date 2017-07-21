@@ -116,41 +116,6 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
   /*initialize  state*/
   resetAllState();
 
-  /*test color change and task change*/
-  ros::Duration(2.0).sleep();
-
-  publishColorChange();
-  publishPillarChange();
-  publishLineChange();
-  publishBaseChange();
-  ros::Duration(5.0).sleep();
-
-  publishColorChange();
-  publishPillarChange();
-  publishLineChange();
-  publishBaseChange();
-  ros::Duration(5.0).sleep();
-
-  publishColorChange();
-  publishPillarChange();
-  publishLineChange();
-  publishBaseChange();
-  ros::Duration(5.0).sleep();
-
-  publishColorChange();
-  publishPillarChange();
-  publishLineChange();
-  publishBaseChange();
-  ros::Duration(5.0).sleep();
-
-  publishColorChange();
-  publishPillarChange();
-  publishLineChange();
-  publishBaseChange();
-  ros::Duration(5.0).sleep();
-
-
-  /**/
 }
 
 void RMChallengeFSM::resetAllState()
@@ -217,6 +182,7 @@ void RMChallengeFSM::run()
 
     case GO_TO_SETPOINT:
     {
+      updateVisionTask();
       if(!farFromTakeoffPoint())
       {
         droneGoToSetPoint();
@@ -941,6 +907,7 @@ void RMChallengeFSM::dronePrepareToLand()
     {
       navigateByCircle(vx, vy, vz);
       velocity_id= "by circle";
+      publishLineChange("pause");
     }
     else if(discoverTriangle())
     {
@@ -1739,28 +1706,49 @@ void RMChallengeFSM::publishColorChange()
   ROS_INFO_STREAM("inform camera pillar color change");
 }
 
-void RMChallengeFSM::publishPillarChange()
+void RMChallengeFSM::publishPillarChange(std::string state)
 {
-  std_msgs::String msg;
-  msg.data= "";
-  m_pillar_change_pub.publish(msg);
-  ROS_INFO_STREAM("info pillar task change");
+  if(state == "resume" || state == "pause")
+  {
+    std_msgs::String msg;
+    msg.data=state;
+    m_pillar_change_pub.publish(msg);
+    ROS_INFO_STREAM("info pillar task change");
+  }
+  else
+  {
+    ROS_INFO_STREAM("invalid state change");
+  }
 }
 
-void RMChallengeFSM::publishLineChange()
+void RMChallengeFSM::publishLineChange(std::string state)
 {
-  std_msgs::String msg;
-  msg.data= "";
-  m_line_change_pub.publish(msg);
-  ROS_INFO_STREAM("info line task change");
+  if(state == "resume" || state == "pause")
+  {
+    std_msgs::String msg;
+    msg.data=state;
+    m_line_change_pub.publish(msg);
+    ROS_INFO_STREAM("info line task change");
+  }
+  else
+  {
+    ROS_INFO_STREAM("invalid state change");
+  }
 }
 
-void RMChallengeFSM::publishBaseChange()
+void RMChallengeFSM::publishBaseChange(std::string state)
 {
-  std_msgs::String msg;
-  msg.data= "";
-  m_base_change_pub.publish(msg);
-  ROS_INFO_STREAM("info base task change");
+  if(state == "resume" || state == "pause")
+  {
+    std_msgs::String msg;
+    msg.data=state;
+    m_base_change_pub.publish(msg);
+    ROS_INFO_STREAM("info base task change");
+  }
+  else
+  {
+    ROS_INFO_STREAM("invalid state change");
+  }
 }
 
 void RMChallengeFSM::updatePillarColor()
@@ -1791,5 +1779,27 @@ void RMChallengeFSM::calculateZVelocity(float &vz)
   else
   {
     vz= 0;
+  }
+}
+
+void RMChallengeFSM::updateVisionTask()
+{
+  if(m_current_takeoff_point_id==PA_PILLAR_1||
+  m_current_takeoff_point_id==PA_PILLAR_2||
+  m_current_takeoff_point_id==PA_PILLAR_3||
+  m_current_takeoff_point_id==PA_PILLAR_4)
+  {
+    publishPillarChange("pause");
+    publishLineChange("resume");
+    publishBaseChange("resume");
+  }
+  else if(m_current_takeoff_point_id==PA_BASE_1||
+  m_current_takeoff_point_id==PA_BASE_2||
+  m_current_takeoff_point_id==PA_BASE_3||
+  m_current_takeoff_point_id==PA_START)
+  {
+    publishPillarChange("resume");
+    publishLineChange("resume");
+    publishBaseChange("pause");
   }
 }

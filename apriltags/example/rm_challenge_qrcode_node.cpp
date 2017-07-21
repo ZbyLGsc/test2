@@ -133,5 +133,10 @@ int main(int argc, char** argv)
 void baseChangeCallback(const std_msgs::String::ConstPtr& msg)
 {
   ROS_INFO_STREAM("receive base change info");
-  g_is_base_running= !g_is_base_running;
+  if(msg->data=="pause")
+    g_is_base_running= false;
+  else if(msg->data=="resume")
+    g_is_base_running=true;
+  else  
+    ROS_INFO_STREAM("invalid state");
 }
