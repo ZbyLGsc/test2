@@ -207,7 +207,7 @@ int main(int argc, char **argv)
     }
 
     /*detect QRCode*/
-    bool base_found;
+   /* bool base_found;
     if(qr_code.getBasePosition(frame, 2.4))
     {
       ROS_INFO_STREAM("base position :" << qr_code.getBaseX() << " "
@@ -225,7 +225,7 @@ int main(int argc, char **argv)
     std_msgs::String base_msg;
     ss << base_found << " " << qr_code.getBaseX() << " " << qr_code.getBaseY();
     base_msg.data= ss.str();
-    vision_base_pub.publish(base_msg);
+    vision_base_pub.publish(base_msg);*/
 
     ros::spinOnce();
 

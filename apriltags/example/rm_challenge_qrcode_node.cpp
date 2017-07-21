@@ -1,25 +1,25 @@
+#include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include <opencv2/calib3d/calib3d.hpp>
 //#include <opencv2/nonfree/nonfree.hpp>
 //#include <opencv2/features2d/features2d.hpp>
 //#include <opencv2/features2d/features2d.hpp>
 #include "opencv2/imgproc/imgproc.hpp"
 using namespace cv;
 
-#include <vector>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <cmath>
 #include <stdlib.h>
+#include <cmath>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <vector>
 using namespace std;
 
-#include <ros/ros.h>
-#include "std_msgs/String.h"
 #include <cv_bridge/cv_bridge.h>
 #include <image_transport/image_transport.h>
+#include <ros/ros.h>
 #include "AprilTags/QRCode.h"
+#include "std_msgs/String.h"
 #define M100_CAMERA 1
 #define VIDEO_STREAM 2
 #define CURRENT_IMAGE_SOURCE VIDEO_STREAM
@@ -27,15 +27,17 @@ using namespace std;
 #define VISABILITY false
 
 /**global publisher*/
-ros::Publisher vision_pillar_pub;
-ros::Publisher vision_line_pub;
 ros::Publisher vision_base_pub;
 image_transport::Subscriber vision_image_sub;
+ros::Subscriber base_change_sub;
 
 QRCode qr_code;
 std::stringstream ss;
 cv::Mat g_image;
 bool g_is_new_image= false;
+bool g_is_base_running= true;
+
+void baseChangeCallback(const std_msgs::String::ConstPtr& msg);
 
 /**global video capture and image*/
 // cv::Mat g_pillar_image;
@@ -71,9 +73,9 @@ int main(int argc, char** argv)
 
   vision_base_pub= node.advertise<std_msgs::String>("tpp/base", 1);
 
-  qr_code.setVisability(false);
   qr_code.setup();
 
+  base_change_sub= node.subscribe("/tpp/base_change", 1, baseChangeCallback);
   image_transport::ImageTransport image_transport(node);
   vision_image_sub= image_transport.subscribe("m100/image", 1, imageCallBack);
 
@@ -93,32 +95,42 @@ int main(int argc, char** argv)
     if(!g_is_new_image)
       continue;
 
-    bool base_found;
-    //ROS_INFO_STREAM("before");
-    if(qr_code.getBasePosition(g_image, 2.4))
+    if(g_is_base_running)
     {
-      ROS_INFO_STREAM("base position :" << qr_code.getBaseX() << " "
-                                        << qr_code.getBaseY());
-      base_found= true;
-    }
-    else
-    {
-      ROS_INFO_STREAM("can't find base");
-      ROS_INFO_STREAM("base position :" << qr_code.getBaseX() << " "
-                                        << qr_code.getBaseY());
-      base_found= false;
-    }
-    //ROS_INFO_STREAM("after");
-    ss.str("");
-    std_msgs::String base_msg;
-    ss << base_found << " " << qr_code.getBaseX() << " " << qr_code.getBaseY();
-    base_msg.data= ss.str();
-    vision_base_pub.publish(base_msg);
+      bool base_found;
+      ROS_INFO_STREAM("before");
+      if(qr_code.getBasePosition(g_image, 2.4))
+      {
+        ROS_INFO_STREAM("base position :" << qr_code.getBaseX() << " "
+                                          << qr_code.getBaseY());
+        base_found= true;
+      }
+      else
+      {
+        ROS_INFO_STREAM("can't find base");
+        ROS_INFO_STREAM("base position :" << qr_code.getBaseX() << " "
+                                          << qr_code.getBaseY());
+        base_found= false;
+      }
+      ROS_INFO_STREAM("after");
+      ss.str("");
+      std_msgs::String base_msg;
+      ss << base_found << " " << qr_code.getBaseX() << " "
+         << qr_code.getBaseY();
+      base_msg.data= ss.str();
+      vision_base_pub.publish(base_msg);
 
-    g_is_new_image= false;
-
+      g_is_new_image= false;
+    }
+    ros::spinOnce();
     cv::waitKey(1);
   }
 
   return 1;
+}
+
+void baseChangeCallback(const std_msgs::String::ConstPtr& msg)
+{
+  ROS_INFO_STREAM("receive base change info");
+  g_is_base_running= !g_is_base_running;
 }
