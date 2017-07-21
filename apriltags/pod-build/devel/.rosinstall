@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/ubuntu/dji_fly/src/test2/apriltags/pod-build/devel/setup.sh

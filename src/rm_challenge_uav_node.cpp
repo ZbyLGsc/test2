@@ -25,8 +25,7 @@ bool is_F_mode= true;
 
 void uav_state_callback(const std_msgs::UInt8::ConstPtr &msg);
 void guidance_distance_callback(const sensor_msgs::LaserScan &g_oa);
-void guidance_position_callback(
-    const geometry_msgs::Vector3Stamped &g_pos);
+void guidance_position_callback(const geometry_msgs::Vector3Stamped &g_pos);
 // void ultrasonic_callback(const sensor_msgs::LaserScan& g_ul) ;
 void vision_pillar_callback(const std_msgs::String::ConstPtr &msg);
 void vision_base_callback(const std_msgs::String::ConstPtr &msg);
@@ -47,8 +46,8 @@ int main(int argc, char **argv)
       node.subscribe("/dji_sdk/flight_status", 1, uav_state_callback);
   ros::Subscriber guidance_distance_sub= node.subscribe(
       "/guidance/obstacle_distance", 1, guidance_distance_callback);
-  ros::Subscriber guidance_position_sub= node.subscribe(
-      "/guidance/position", 1, guidance_position_callback);
+  ros::Subscriber guidance_position_sub=
+      node.subscribe("/guidance/position", 1, guidance_position_callback);
   // ultrasonic_sub =
   //     my_node.subscribe("/guidance/ultrasonic", 1,
   //     ultrasonic_callback);
@@ -59,10 +58,10 @@ int main(int argc, char **argv)
       node.subscribe("tpp/base", 1, vision_base_callback);
   ros::Subscriber vision_line_sub=
       node.subscribe("tpp/yellow_line", 1, vision_line_callback);
-  ros::Timer timer=
-      node.createTimer(ros::Duration(1.0 / 50.0), timer_callback);
+  ros::Timer timer= node.createTimer(ros::Duration(1.0 / 50.0), timer_callback);
 
   /*initialize fsm*/
+  g_fsm.setPositionFromGuidance(5.2, -2);  // TEST
   g_fsm.initialize(node);
   ROS_INFO_STREAM("initialize finish, start to run");
 
@@ -70,7 +69,9 @@ int main(int argc, char **argv)
   g_fsm.setDroneState(3);
   //    g_fsm.setDroneState( 3 );
   //    g_fsm.setDroneState( 4 );
-  g_fsm.setHeightFromGuidance(2.1);
+  g_fsm.setHeightFromGuidance(2.35);
+  g_fsm.setPositionFromGuidance(4, -8.5);  // TEST
+
   // while(ros::ok())
   // {
   //   g_fsm.setPositionFromGuidance(0, -1);
@@ -85,7 +86,6 @@ int main(int argc, char **argv)
   // g_fsm.setPositionFromGuidance(2, -3);
   // g_fsm.droneGoToSetPoint();
 
-  g_fsm.setPositionFromGuidance(7, 0);
   // g_fsm.transformCoordinate(-90.0 / 180 * 3.1415926, x, y);
   // ros::Duration(2).sleep();
   // float pos_err[2] = { 0.07, 0.3 };
@@ -135,13 +135,11 @@ void guidance_distance_callback(const sensor_msgs::LaserScan &g_oa)
   ROS_INFO("frame_id: %s stamp: %d\n", g_oa.header.frame_id.c_str(),
            g_oa.header.stamp.sec);
   ROS_INFO("obstacle distance: [%f %f %f %f %f]\n", g_oa.ranges[0],
-           g_oa.ranges[1], g_oa.ranges[2], g_oa.ranges[3],
-           g_oa.ranges[4]);
+           g_oa.ranges[1], g_oa.ranges[2], g_oa.ranges[3], g_oa.ranges[4]);
   g_fsm.setHeightFromGuidance(g_oa.ranges[0]);
 }
 
-void guidance_position_callback(
-    const geometry_msgs::Vector3Stamped &g_pos)
+void guidance_position_callback(const geometry_msgs::Vector3Stamped &g_pos)
 {
   ROS_INFO("frame_id: %s stamp: %d\n", g_pos.header.frame_id.c_str(),
            g_pos.header.stamp.sec);
@@ -161,14 +159,17 @@ void guidance_position_callback(
 void vision_pillar_callback(const std_msgs::String::ConstPtr &msg)
 {
   float h;
-  float pos[2];
+  float circle_pos[2];
+  float arc_pos[2];
   int tri[4];
-  bool circle_found;
+  bool circle_found, arc_found;
   std::stringstream ss(msg->data.c_str());
-  ss >> tri[0] >> tri[1] >> tri[2] >> tri[3] >> circle_found >>
-      pos[1] >> pos[0] >> h;
-  g_fsm.setCircleVariables(circle_found, pos, h);
+  ss >> tri[0] >> tri[1] >> tri[2] >> tri[3] >> circle_found >> circle_pos[1] >>
+      circle_pos[0] >> h >> arc_pos[1] >> arc_pos[0] >> arc_found;
+  g_fsm.setCircleVariables(circle_found, circle_pos, h);
   g_fsm.setTriangleVariables(tri);
+  // height not used,set to 0
+  g_fsm.setArcVariables(arc_found, arc_pos);
 }
 
 void vision_base_callback(const std_msgs::String::ConstPtr &msg)
@@ -176,28 +177,20 @@ void vision_base_callback(const std_msgs::String::ConstPtr &msg)
   float pos[2];
   bool base_found;
   std::stringstream ss(msg->data.c_str());
-  ss >> pos[1] >> pos[0];
-  if(fabs(pos[0]) < 0.000000001 && fabs(pos[1]) < 0.000000001)
-    base_found= false;
-  else
-  {
-    base_found= true;
-    if(fabs(pos[1]) > 0.000000001)
-      pos[1]= pos[1] / 1000;
-    if(fabs(pos[0]) > 0.000000001)
-      pos[0]= (pos[0] / 1000) - 0.15;
-  }
+  ss >> base_found >> pos[0] >> pos[1];
+
   g_fsm.setBaseVariables(base_found, pos);
 }
 
 void vision_line_callback(const std_msgs::String::ConstPtr &msg)
 {
   std::stringstream ss(msg->data.c_str());
+  bool is_T_found;
   float line_normal[2];
   float dist_to_line[2];
-  ss >> dist_to_line[0] >> dist_to_line[1] >> line_normal[0] >>
+  ss >> is_T_found >> dist_to_line[0] >> dist_to_line[1] >> line_normal[0] >>
       line_normal[1];
-  g_fsm.setLineVariables(dist_to_line, line_normal);
+  g_fsm.setLineVariables(is_T_found, dist_to_line, line_normal);
 }
 
 void timer_callback(const ros::TimerEvent &evt)

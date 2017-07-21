@@ -8,49 +8,83 @@
 // parameters of uav
 #define PA_DEGREE_TO_RADIAN (3.1415926 / 180.0)
 #define PA_COORDINATE_TRANSFORM_DEGREE (-90)
-#define PA_COORDINATE_TRANSFORM_ANGLE                                \
+#define PA_COORDINATE_TRANSFORM_ANGLE                                          \
   PA_COORDINATE_TRANSFORM_DEGREE *PA_DEGREE_TO_RADIAN
-
-#define PA_TAKEOFF_TIME 8
+#define PA_TAKEOFF_TIME 7
+#define PA_TAKEOFF_HEIGHT 2.4
 #define PA_TAKEOFF_HEIGHT_THRESHOLD 0.1
-#define PA_TAKEOFF_POSITION_ERROR 2
-#define PA_BASE_HEIGHT_THRESHOLD 0.2
-
-#define PA_SETPOINT_POSITION_ERROR 1
+#define PA_TAKEOFF_POSITION_ERROR 1.5
+#define PA_SETPOINT_POSITION_ERROR 0.5
+#define PA_LANDPOINT_POSITION_ERROR 2.5
 #define PA_GRASPPER_CONTROL_TIME 6
-#define PA_GO_UP_VELOCITY 0.2
+#define PA_GO_UP_VELOCITY 0.3
 
-#define PA_FLYING_HEIGHT 2.0
+#define PA_FLYING_HEIGHT 2.7
 #define PA_FLYING_HEIGHT_THRESHOLD 0.2
-#define PA_FLYING_Z_VELOCITY 0.15
+#define PA_FLYING_Z_VELOCITY 0.1
 
-#define PA_LAND_COUNT 3
+#define PA_LAND_COUNT 1
+#define PA_TIME_MIN 1.5
+#define PA_TIME_MAX 5.0
 #define PA_LAND_HEIGHT 1.05
-#define PA_LAND_HEIGHT_THRESHOLD 0.05
-#define PA_LAND_POSITION_THRESHOLD_LOW 0.03
+#define PA_LAND_HEIGHT_FINAL 0.6
+#define PA_LAND_HEIGHT_THRESHOLD 0.2
+#define PA_LAND_HEIGHT_THRESHOLD_FINAL 0.2
 #define PA_LAND_POSITION_THRESHOLD_HIGH 0.3
-#define PA_V_MIN_HIGH 0.12
-#define PA_V_MIN_LOW 0.036
+#define PA_LAND_POSITION_THRESHOLD_LOW 0.15
+#define PA_LAND_POSITION_THRESHOLD_SUPER_LOW 0.06
+#define PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG 0.12
+#define PA_V_MIN_HIGH 0.15
+#define PA_V_MIN_LOW 0.04
+#define PA_V_MIN_FINAL 0.025
+#define PA_LAND_Z_VELOCITY_FINAL 0.15
 #define PA_LAND_Z_VELOCITY 0.15
 #define PA_LAND_TRIANGLE_VELOCITY_HIGH 0.15
 #define PA_LAND_TRIANGLE_VELOCITY_LOW 0.07
-#define PA_KP_BASE 0.4
+#define PA_KP_BASE 0.2
 #define PA_KP_PILLAR_HIGH 0.3
 #define PA_KP_PILLAR_LOW 0.3
 
 #define PA_KN 0.08
 #define PA_KT 0.35
+#define PA_KT_RATIO 0.85
 
 #define PA_YAW_RATE 10
 #define PA_ANGLE_WITH_DIRECT_LINE_THRESHOLD 25
 #define PA_ANGLE_THRESHOLD 10
 
-#define PA_CAMERA_DISPLACE 0.15
+#define PA_CAMERA_DISPLACE 0.153
+#define PA_CAMERA_F 507.75
+
+#define PA_START 0
+#define PA_PILLAR_1 1
+#define PA_PILLAR_2 3
+#define PA_PILLAR_3 5
+#define PA_PILLAR_4 7
+#define PA_BASE_1 2
+#define PA_BASE_2 4
+#define PA_BASE_3 6
+#define PA_BASE_4 8
+#define PA_T_1 9
+#define PA_T_2 10
+
+#define PA_RELEASE_BALL_HEIGHT 0.6
+#define PA_RELEASE_BALL_HEIGHT_THRESHOLD 0.2
+#define PA_BASE_POSITION_THRESHOLD 0.25
+#define PA_RELEASE_BALL_VELOCITY 0.1
+#define PA_SLOW_DOWN_HEIGHT 0.5
+
+#define PA_BASE_HEIGHT 2.8
+#define PA_BASE_HEIGHT_THRESHOLD 0.1
+#define PA_T_DISPLACE 1.6
+#define PA_TARMAC_HEIGHT 0
+#define PA_PILLAR_HEIGHT 0.75
 
 #include <sstream>
 #include <ros/assert.h>
 #include <ros/ros.h>
 #include <std_msgs/Float32.h>
+#include "std_msgs/String.h"
 #include <geometry_msgs/Vector3Stamped.h>
 // C++标准库
 #include <fstream>
@@ -75,14 +109,17 @@ class RMChallengeFSM
 public:
   enum TASK_STATE
   {
-    TAKE_OFF,
+    TAKE_OFF,  // 0
     GO_UP,
     GO_TO_SETPOINT,
-    IDLE,
+    IDLE,  // 3
     TRACK_LINE,
     LAND,
-    CONTROL_GRASPPER,
+    GRAB_BALL,  // 6
     GO_TO_LAND_POINT,
+    GO_TO_PILLAR,
+    RELEASE_BALL,  // 9
+    CROSS_ARENA,
   };
   enum GRASPPER_STATE
   {
@@ -103,11 +140,13 @@ public:
   {
     PREPARE_AT_HIGH,
     PREPARE_AT_LOW,
+    PREPARE_AT_SUPER_LOW,
   };
   enum LINE_TYPE
   {
     YELLOW_LINE,
-    VIRTUAL_LINE,
+    VIRTUAL_LINE_SETPOINT,
+    VIRTUAL_LINE_LANDPOINT,
   };
   RMChallengeFSM()
   {
@@ -138,35 +177,55 @@ private:
   float m_setpoints[TAKEOFF_POINT_NUMBER + 1][2];
 
   /**subscribe from dji's nodes*/
-  UAV_STATE m_uav_state;
+  UAV_STATE m_uav_state= UAV_LAND;
   float m_current_height_from_guidance;
-  float m_current_position_from_guidance[2];  // initial
+  /**
+  raw_position=real_position+bias
+  bias=raw - real
+  */
+  float m_real_position[2];  // initial
   float m_guidance_bias[2];
+  float m_raw_guidance_position[2];
 
-  /**subscribe from vision node about circle and triangle*/
+  /**subscribe from vision node about circle,arc and triangle*/
   bool m_discover_pillar_circle;
-  float m_landpoint_position_error[2];
-  float m_current_height_from_vision;
+  bool m_discover_pillar_arc;
+  float m_circle_position_error[2];
+  float m_current_height_from_circle;
+  float m_arc_position_error[2];
+  float m_current_height_from_arc;
   int m_pillar_triangle[4];
 
   /**subscribe from  vision node about base*/
   bool m_discover_base;
+  float m_base_position_error[2];
 
   /**subscribe from vision node about detectLine*/
   float m_distance_to_line[2];
   float m_line_normal[2];
+  bool m_discover_T;
+
+  /**internal variables related to uav state*/
   LAND_POINT_TYPE m_land_point_type;
   PREPARE_TO_LAND_TYPE m_prepare_to_land_type;  // initial
   int m_land_counter;                           // initial
   GRASPPER_STATE m_graspper_state= GRASPPER_CLOSE;
-  int m_graspper_control_time= 0;     // initial
-  int m_current_takeoff_point_id= 0;  // initial
+  int m_graspper_control_time= 0;             // initial
+  int m_current_takeoff_point_id= PA_BASE_1;  // initial
   ros::Time m_takeoff_time;
+  ros::Time m_checked_time;
 
+  /**publish debug message*/
   ros::Publisher m_velocity_pub;
   ros::Publisher m_position_pub;
+  /**change pillar detecting color*/
+  ros::Publisher m_color_change_pub;
+  /**change vision task*/
+  ros::Publisher m_pillar_change_pub;
+  ros::Publisher m_line_change_pub;
+  ros::Publisher m_base_change_pub;
 
-public:
+private:
   /**uav state checking method*/
   void transferToTask(TASK_STATE task_state);  // tested
   bool isTakeoffTimeout();                     // tested
@@ -179,16 +238,26 @@ public:
   bool discoverYellowLine();                   // tested
   bool closeToSetPoint();                      // tested
   bool readyToLand();                          // tested
-  bool finishGraspperTask();                   // tested
+  bool finishGrabBallTask();                   // tested
+  bool isCheckedTimeSuitable();
+  bool landPointIsPillar();
+  bool landPointIsBase();
+  bool isTheLastTravel();
+  bool stillFindLandPoint();
+  bool lowEnoughToReleaseBall();
+  bool discoverT();                //?
+  bool nextTargetIsClosePillar();  //?
+  bool nextTargetIsFarPillar();    //?
 
   /**uav control method*/
   void droneTakeoff();
   void droneLand();
   void controlDroneVelocity(float x, float y, float z, float yaw);
-  void controlGraspper();    // tested
+  void grabBall();           // tested
   void openGraspper();       // tested
   void closeGraspper();      // tested
   void updateTakeoffTime();  // tested
+  void updateCheckedTime();
   void droneGoUp();          // tested
   void droneGoToSetPoint();  // tested
   void droneTrackLine();     // tested
@@ -199,12 +268,31 @@ public:
                                LINE_TYPE lint_type);  // tested
   void calculateTangentialVelocity(float &x, float &y,
                                    LINE_TYPE lint_type);  // tested
-  void calculateYawRate(float &yaw);  // tested,confirm yaw
-                                      // direction
+  void calculateYawRate(float &yaw);                      // tested,confirm yaw
+                                                          // direction
   void transformCoordinate(float phi, float &x, float &y);
-  void unitifyVector(float &x, float &y);                 // tested
+  void unitifyVector(float &x, float &y);  // tested
+  void judgeLineDirection();
+  void calculateRealPositionError(float error[2]);
   void navigateByTriangle(float &x, float &y, float &z);  // tested
   void navigateByCircle(float &x, float &y, float &z);    // tested
+  void navigateByArc(float &x, float &y, float &z);
+  void publishVelocity(std::string id, float x, float y, float z);
+  void droneReleaseBall();
+  void droneGoDownToBase();
+  void droneGoToPillar();
+  void updateTakeoffPointId();
+  void droneUpdatePosition(int POSITION_ID= 0);
+
+  void printStateInfo();
+  void publishColorChange();
+  void publishPillarChange(std::string state);
+  void publishLineChange(std::string state);
+  void publishBaseChange(std::string state);
+  void updatePillarColor();
+  void updateVisionTask();
+
+  void calculateZVelocity(float &vz);
 
 public:
   /**update from dji's nodes*/
@@ -212,12 +300,13 @@ public:
   void setHeightFromGuidance(float height);
   void setPositionFromGuidance(float x, float y);  //考虑漂移，m_bias
   /**update from topic about circle and triangle*/
-  void setCircleVariables(bool is_circle_found,
-                          float position_error[2], float height);
+  void setCircleVariables(bool is_circle_found, float position_error[2],
+                          float height);
   void setTriangleVariables(int pillar_triangle[4]);
+  void setArcVariables(bool is_arc_found, float position_error[2]);
   /**update from topic about base */
   void setBaseVariables(bool is_base_found, float position_error[2]);
   /**update from topic about detectLine*/
-  void setLineVariables(float distance_to_line[2],
+  void setLineVariables(bool is_T_found, float distance_to_line[2],
                         float line_normal[2]);
 };

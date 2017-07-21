@@ -13,6 +13,7 @@ using namespace cv;
 #include <sstream>
 #include <cmath>
 #include <stdlib.h>
+#include <string>
 using namespace std;
 
 #include <ros/ros.h>
@@ -40,15 +41,17 @@ public:
     int triangle[4];
     bool circle_found;
     Point2f circle_center;
+    bool arc_found;
+    Point2f arc_center;
     float radius;
+    float arc_radius;
   };
   /**p0 angle point,return the cosine of angle*/
-  int detectPillar(Mat src, PILLAR_RESULT& pillar_result);
+  int detectPillar(Mat src, COLOR_TYPE color, PILLAR_RESULT& pillar_result);
   float angle(Point pt1, Point pt2, Point pt0);
   void detectTriangle(Mat src, Mat color_region, int triangle[4]);
-  void detectPillarCircle(Mat src, Mat color_region,
-                          bool& circle_found, Point2f& circle_center,
-                          float& rad);
+  void detectPillarCircle(Mat src, Mat color_region, bool& circle_found,
+                          Point2f& circle_center, float& rad);
   void detectPillarArc(Mat src, Mat color_region, bool& circle_found,
                        Point2f& circle_center, float& radius);
   void extractColor(Mat src, COLOR_TYPE color, Mat& colorRegion);
@@ -57,15 +60,13 @@ public:
   float imageToHeight(float imageLength, float realLength);
 
   /**yellow line related functions*/
-  void getYellowRegion(Mat& src, Mat& dst, int h_low= 30,
-                       int h_high= 75, int s_threshold= 80,
-                       int v_threshold= 80);
+  void getYellowRegion(Mat& src, Mat& dst, int h_low= 30, int h_high= 75,
+                       int s_threshold= 80, int v_threshold= 80);
   void detectLine(Mat& src, float& distance_x, float& distance_y,
                   float& line_vector_x, float& line_vector_y);
   bool detectLineWithT(Mat& src, float& distance_x, float& distance_y,
                        float& line_vector_x, float& line_vector_y);
-  bool getRectSide(Mat& src, vector<uchar>& side, int x, int y,
-                   int r);
+  bool getRectSide(Mat& src, vector<uchar>& side, int x, int y, int r);
   bool isTri(Mat& src, int x, int y, int r);
   bool hasTri(Mat& src, int r, int val_max);
 
@@ -82,9 +83,8 @@ class LeastSquare
 public:
   bool is_kxb;
   float tx, ty;
-  LeastSquare(
-      const vector<int>& x,
-      const vector<int>& y)  //构造函数，输入x，y坐标，得到斜率和截距
+  LeastSquare(const vector<int>& x,
+              const vector<int>& y)  //构造函数，输入x，y坐标，得到斜率和截距
   {
     float t1= 0, t2= 0, t3= 0, t4= 0, t5= 0;
     for(int i= 0; i < (int)x.size(); ++i)
@@ -147,14 +147,12 @@ public:
 
   float
   error_plan1(const vector<int>& x,
-              const vector<int>&
-                  y)  // y=kx+b方程误差计算（点到直线距离平方和）
+              const vector<int>& y)  // y=kx+b方程误差计算（点到直线距离平方和）
   {
     float error= 0.0;
     for(int i= 0; i < (int)x.size(); ++i)
     {
-      error+=
-          (a * x[i] + b - y[i]) * (a * x[i] + b - y[i]) / (a * a + 1);
+      error+= (a * x[i] + b - y[i]) * (a * x[i] + b - y[i]) / (a * a + 1);
     }
     return error;
   }
@@ -165,8 +163,7 @@ public:
     float error= 0.0;
     for(int i= 0; i < (int)x.size(); ++i)
     {
-      error+= (ah * y[i] + bh - x[i]) * (ah * y[i] + bh - x[i]) /
-              (ah * ah + 1);
+      error+= (ah * y[i] + bh - x[i]) * (ah * y[i] + bh - x[i]) / (ah * ah + 1);
     }
     return error;
   }

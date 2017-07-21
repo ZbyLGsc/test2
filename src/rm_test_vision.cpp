@@ -19,10 +19,9 @@ int main(int argc, char **argv)
   vision.setVisability(true);
 
   /*write image to local file*/
-
   cv::VideoWriter writer;
-  writer.open("/home/ubuntu/ros_bags/arc1.avi",
-              CV_FOURCC('P', 'I', 'M', '1'), 30, cv::Size(640, 480));
+  writer.open("/home/zby/ros_bags/7.19/T.avi", CV_FOURCC('P', 'I', 'M', '1'),
+              30, cv::Size(640, 480));
   ROS_INFO_STREAM("begin main loop:");
   while(ros::ok())
   {
@@ -37,7 +36,9 @@ int main(int argc, char **argv)
       //                        line_vector_x, line_vector_y);
       /*test find pillar*/
       RMChallengeVision::PILLAR_RESULT pillar_result;
-      vision.detectPillar(g_m100_image, pillar_result);
+      vision.detectPillar(g_m100_image, RMChallengeVision::BLUE, pillar_result);
+      float x, y, x1, y1;
+      vision.detectLineWithT(g_m100_image, x, y, x1, y1);
     }
     cv::waitKey(1);
   }
@@ -52,8 +53,7 @@ void m100ImageCallback(const sensor_msgs::Image::ConstPtr msg)
   cv_bridge::CvImagePtr cv_ptr;
   try
   {
-    cv_ptr=
-        cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
+    cv_ptr= cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
   }
   catch(cv_bridge::Exception &e)
   {
