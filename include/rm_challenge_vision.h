@@ -46,7 +46,7 @@ public:
     float arc_radius;
   };
   /**p0 angle point,return the cosine of angle*/
-  int detectPillar(Mat src, PILLAR_RESULT& pillar_result);
+  int detectPillar(Mat src, COLOR_TYPE color, PILLAR_RESULT& pillar_result);
   float angle(Point pt1, Point pt2, Point pt0);
   void detectTriangle(Mat src, Mat color_region, int triangle[4]);
   void detectPillarCircle(Mat src, Mat color_region, bool& circle_found,

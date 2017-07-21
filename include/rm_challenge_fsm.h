@@ -1,8 +1,8 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-// #define CURRENT_COMPUTER ZBY_PC
-#define CURRENT_COMPUTER MANIFOLD
+#define CURRENT_COMPUTER ZBY_PC
+// #define CURRENT_COMPUTER MANIFOLD
 
 #define TAKEOFF_POINT_NUMBER 7
 // parameters of uav
@@ -83,6 +83,7 @@
 #include <ros/assert.h>
 #include <ros/ros.h>
 #include <std_msgs/Float32.h>
+#include "std_msgs/String.h"
 #include <geometry_msgs/Vector3Stamped.h>
 // C++标准库
 #include <fstream>
@@ -208,7 +209,7 @@ private:
   PREPARE_TO_LAND_TYPE m_prepare_to_land_type;  // initial
   int m_land_counter;                           // initial
   GRASPPER_STATE m_graspper_state= GRASPPER_CLOSE;
-  int m_graspper_control_time= 0;               // initial
+  int m_graspper_control_time= 0;             // initial
   int m_current_takeoff_point_id= PA_BASE_1;  // initial
   ros::Time m_takeoff_time;
   ros::Time m_checked_time;
@@ -216,6 +217,10 @@ private:
   /**publish debug message*/
   ros::Publisher m_velocity_pub;
   ros::Publisher m_position_pub;
+  /**change pillar detecting color*/
+  ros::Publisher m_color_change_pub;
+  /**change vision task*/
+  ros::Publisher m_task_change_pub;
 
 private:
   /**uav state checking method*/
@@ -277,6 +282,8 @@ private:
   void droneUpdatePosition(int POSITION_ID= 0);
 
   void printStateInfo();
+  void publishColorChange();
+  void publishTaskChange();
 
 public:
   /**update from dji's nodes*/

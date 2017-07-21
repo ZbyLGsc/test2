@@ -33,6 +33,31 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
       node_handle.advertise<geometry_msgs::Vector3Stamped>("/m100/position", 1);
   m_velocity_pub=
       node_handle.advertise<geometry_msgs::Vector3Stamped>("/m100/velocity", 1);
+  m_color_change_pub=
+      node_handle.advertise<std_msgs::String>("/tpp/color_change", 1);
+  m_task_change_pub=
+      node_handle.advertise<std_msgs::String>("/tpp/task_change", 1);
+
+  /*test color change and task change*/
+  ros::Duration(5.0).sleep();
+
+  publishColorChange();
+  publishTaskChange();
+  ros::Duration(5.0).sleep();
+
+  publishColorChange();
+  publishTaskChange();
+  ros::Duration(5.0).sleep();
+
+  publishColorChange();
+  publishTaskChange();
+  ros::Duration(5.0).sleep();
+
+  publishColorChange();
+  publishTaskChange();
+  ros::Duration(5.0).sleep();
+
+  /**/
 
   /*initialize setpoint, takeoffpoint and takeoff height,
    only set for one time, takeoff positions are absolute position,
@@ -1685,4 +1710,24 @@ void RMChallengeFSM::judgeLineDirection()
     m_line_normal[0]= -m_line_normal[0];
     m_line_normal[1]= -m_line_normal[1];
   }
+}
+
+void RMChallengeFSM::publishColorChange()
+{
+  std::stringstream ss;
+  std_msgs::String msg;
+  ss << "";
+  msg.data= ss.str();
+  m_color_change_pub.publish(msg);
+  ROS_INFO_STREAM("inform camera pillar color change");
+}
+
+void RMChallengeFSM::publishTaskChange()
+{
+  std::stringstream ss;
+  std_msgs::String msg;
+  ss << "change";
+  msg.data= ss.str();
+  m_task_change_pub.publish(msg);
+  ROS_INFO_STREAM("info camera task change");
 }

@@ -520,17 +520,18 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
 }
 
 /**detect all possible pillar in contest field*/
-int RMChallengeVision::detectPillar(Mat src, PILLAR_RESULT& pillar_result)
+int RMChallengeVision::detectPillar(Mat src, COLOR_TYPE color,
+                                    PILLAR_RESULT& pillar_result)
 {
   // first detect red pillar
-  Mat red_region;
-  extractColor(src, RMChallengeVision::BLUE, red_region);
-  detectPillarCircle(src, red_region, pillar_result.circle_found,
+  Mat color_region;
+  extractColor(src, color, color_region);
+  detectPillarCircle(src, color_region, pillar_result.circle_found,
                      pillar_result.circle_center, pillar_result.radius);
 
-  detectTriangle(src, red_region, pillar_result.triangle);
+  detectTriangle(src, color_region, pillar_result.triangle);
 
-  detectPillarArc(src, red_region, pillar_result.arc_found,
+  detectPillarArc(src, color_region, pillar_result.arc_found,
                   pillar_result.arc_center, pillar_result.arc_radius);
 
   ROS_INFO_STREAM("circle center is:" << pillar_result.circle_center);
@@ -540,7 +541,7 @@ int RMChallengeVision::detectPillar(Mat src, PILLAR_RESULT& pillar_result)
                     pillar_result.triangle[2] + pillar_result.triangle[3];
   if(triangle_sum != 0)
   {
-    detectPillarCircle(src, red_region, pillar_result.circle_found,
+    detectPillarCircle(src, color_region, pillar_result.circle_found,
                        pillar_result.circle_center, pillar_result.radius);
     ROS_INFO_STREAM("red pillar");
     return 1;

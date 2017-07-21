@@ -36,7 +36,7 @@ int main(int argc, char **argv)
       //                        line_vector_x, line_vector_y);
       /*test find pillar*/
       RMChallengeVision::PILLAR_RESULT pillar_result;
-      vision.detectPillar(g_m100_image, pillar_result);
+      vision.detectPillar(g_m100_image, RMChallengeVision::BLUE,pillar_result);
       float x, y, x1, y1;
       vision.detectLineWithT(g_m100_image, x, y, x1, y1);
     }
