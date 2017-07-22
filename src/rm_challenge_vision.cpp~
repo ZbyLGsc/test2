@@ -631,7 +631,7 @@ void RMChallengeVision::getYellowRegion(Mat& src, Mat& dst, int LowH, int HighH,
   threshold(abs, abs, 27, 255, THRESH_BINARY);
   bitwise_and(abs, large, region2);
   absdiff(bgrSplit[2], bgrSplit[1], abs);
-  threshold(abs, region3, 35, 255, THRESH_BINARY_INV);
+  threshold(abs, region3, 25, 255, THRESH_BINARY_INV);
 
   bitwise_and(region1, region2, bgrColorRegion);
   bitwise_and(bgrColorRegion, region3, bgrColorRegion);

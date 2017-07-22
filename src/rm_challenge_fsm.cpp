@@ -125,7 +125,7 @@ void RMChallengeFSM::resetAllState()
   m_prepare_to_land_type= PREPARE_AT_HIGH;
   m_graspper_control_time= 0;
   /*if want to test different task,change id here as well as .h*/
-  m_current_takeoff_point_id= PA_BASE_1;
+  m_current_takeoff_point_id= PA_PILLAR_1;
   /**/
   droneUpdatePosition();
 
@@ -743,10 +743,10 @@ void RMChallengeFSM::droneGoUp()
 
 void RMChallengeFSM::droneGoToSetPoint()
 {
-  float vt_x, vt_y;
+  float vt_x=0, vt_y=0;
   calculateTangentialVelocity(vt_x, vt_y, VIRTUAL_LINE_SETPOINT);
   ROS_INFO_STREAM("vtx:" << vt_x << " vt_y:" << vt_y);
-  float vn_x, vn_y;
+  float vn_x=0, vn_y=0;
   calculateNormalVelocity(vn_x, vn_y, VIRTUAL_LINE_SETPOINT);
   ROS_INFO_STREAM("vnx:" << vn_x << " vn_y:" << vn_y);
   controlDroneVelocity(vt_x + vn_x, vt_y + vn_y, 0.0, 0.0);
@@ -1534,7 +1534,7 @@ bool RMChallengeFSM::discoverT()
 void RMChallengeFSM::droneGoToPillar()
 {
   /*go to takeoff point +1*/
-  float vt_x, vt_y;
+  float vt_x=0, vt_y=0;
   calculateTangentialVelocity(vt_x, vt_y, VIRTUAL_LINE_LANDPOINT);
   controlDroneVelocity(vt_x, vt_y, 0.0, 0.0);
 }

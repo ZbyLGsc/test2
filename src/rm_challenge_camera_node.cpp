@@ -4,7 +4,7 @@
 #define VIDEO_STREAM 2
 //#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
 #define CURRENT_IMAGE_SOURCE M100_CAMERA
-#define VISABILITY true
+#define VISABILITY false
 #define QRCODE_VISABLE false
 
 /**global publisher*/
@@ -56,7 +56,7 @@ int main(int argc, char **argv)
   cv::VideoCapture g_cap;
   cv::VideoWriter g_writer;
 #if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
-  // g_cap.open("/home/ubuntu/rosbag/Tttt.avi");
+  //g_cap.open("/home/ubuntu/rosbag/Tttt.avi");
   g_cap.open("/home/zby/ros_bags/7.19/TTT.avi");
 #else
   g_cap.open(0);
@@ -101,14 +101,11 @@ int main(int argc, char **argv)
   std::cin >> want_record_video;
   if(want_record_video == 'y')
   {
-    // std::string file_name=
-    //     "/home/ubuntu/rosbag/m100_" + int(ros::Time::now().toSec()) + ".avi";
-    //  int(ros::Time::now().toSec())
     std::string file_name;
     ROS_INFO_STREAM("Begin record video to file,please give a file name");
     std::cin >> file_name;
-    file_name= "/home/zby/ros_bags/" + file_name + ".avi";
-    // file_name= "/home/ubuntu/rosbag/" + file_name + ".avi";
+    //file_name= "/home/zby/ros_bags/" + file_name + ".avi";
+     file_name= "/home/ubuntu/rosbag/" + file_name + ".avi";
     g_writer.open(file_name, CV_FOURCC('P', 'I', 'M', '1'), 30,
                   cv::Size(640, 480));
   }

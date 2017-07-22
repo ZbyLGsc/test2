@@ -1,8 +1,8 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-#define CURRENT_COMPUTER ZBY_PC
-// #define CURRENT_COMPUTER MANIFOLD
+//#define CURRENT_COMPUTER ZBY_PC
+#define CURRENT_COMPUTER MANIFOLD
 
 #define TAKEOFF_POINT_NUMBER 7
 // parameters of uav
@@ -212,7 +212,7 @@ private:
   int m_land_counter;                           // initial
   GRASPPER_STATE m_graspper_state= GRASPPER_CLOSE;
   int m_graspper_control_time= 0;             // initial
-  int m_current_takeoff_point_id= PA_BASE_1;  // initial
+  int m_current_takeoff_point_id= PA_PILLAR_1;  // initial
   ros::Time m_takeoff_time;
   ros::Time m_checked_time;
 
