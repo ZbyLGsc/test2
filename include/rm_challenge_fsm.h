@@ -47,7 +47,7 @@
 
 #define PA_KN 0.08
 #define PA_KT 0.35
-#define PA_KT_RATIO 0.85
+#define PA_KT_RATIO 1
 
 #define PA_YAW_RATE 10
 #define PA_ANGLE_WITH_DIRECT_LINE_THRESHOLD 25
@@ -212,7 +212,7 @@ private:
   int m_land_counter;                           // initial
   GRASPPER_STATE m_graspper_state= GRASPPER_CLOSE;
   int m_graspper_control_time= 0;             // initial
-  int m_current_takeoff_point_id= PA_PILLAR_1;  // initial
+  int m_current_takeoff_point_id= PA_START;  // initial
   ros::Time m_takeoff_time;
   ros::Time m_checked_time;
 
