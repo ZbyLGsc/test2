@@ -1,5 +1,5 @@
-#include "rm_challenge_vision.h"
 #include "AprilTags/QRCode.h"
+#include "rm_challenge_vision.h"
 #define M100_CAMERA 1
 #define VIDEO_STREAM 2
 //#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
@@ -18,12 +18,12 @@ ros::Subscriber pillar_change_sub;
 ros::Subscriber line_change_sub;
 /**color and task flag*/
 RMChallengeVision::COLOR_TYPE g_color= RMChallengeVision::RED;
-bool g_is_pillar_running= false;
-bool g_is_line_running= false;
+bool g_is_pillar_running= true;
+bool g_is_line_running= true;
 
 /**global video capture and image*/
 // cv::Mat g_pillar_image;
-// cv::Mat g_line_image;  
+// cv::Mat g_line_image;
 // cv::Mat g_base_image;
 // int g_processed_time = 0;
 /**callback of timer*/
@@ -53,22 +53,8 @@ int main(int argc, char **argv)
   image_transport::ImageTransport image_transport(node);
   vision_image_pub= image_transport.advertise("m100/image", 1);
 
-  // ros::Timer cap_timer =
-  //     node.createTimer( ros::Duration( 1.0 / 100.0 ),
-  //     cap_timer_callback );
-  // ros::Timer pillar_timer =
-  //     node.createTimer( ros::Duration( 1.0 / 100.0 ),
-  //     pillar_timer_callback );
-  // ros::Timer line_timer =
-  //     node.createTimer( ros::Duration( 1.0 / 100.0 ),
-  //     line_timer_callback );
-  // ros::Timer base_timer =
-  //     node.createTimer( ros::Duration( 1.0 / 100.0 ),
-  //     base_timer_callback );
-  // cv::VideoCapture cap(
-  // "/home/zby/uav_slam_ws/src/rm_uav/res/color_ball4.avi"
-  // );
   cv::VideoCapture g_cap;
+  cv::VideoWriter g_writer;
 #if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
   // g_cap.open("/home/ubuntu/rosbag/Tttt.avi");
   g_cap.open("/home/zby/ros_bags/7.19/TTT.avi");
@@ -91,9 +77,10 @@ int main(int argc, char **argv)
   Mat frame, image_gray;
   sensor_msgs::ImagePtr image_ptr;
 
-  /*get first pillar's color*/
+  /*get first pillar's color from user*/
   ROS_INFO_STREAM("Please give the first pillar's color(r/b):");
-  char first_pillar_color= getchar();
+  char first_pillar_color;
+  std::cin >> first_pillar_color;
   if(first_pillar_color == 'r')
   {
     g_color= RMChallengeVision::RED;
@@ -105,6 +92,33 @@ int main(int argc, char **argv)
   else
   {
     ROS_INFO_STREAM("not a available color!");
+    return -2;
+  }
+
+  /*get want to record video or no  t*/
+  ROS_INFO_STREAM("Want to record video or not?(y/n):");
+  char want_record_video;
+  std::cin >> want_record_video;
+  if(want_record_video == 'y')
+  {
+    // std::string file_name=
+    //     "/home/ubuntu/rosbag/m100_" + int(ros::Time::now().toSec()) + ".avi";
+    //  int(ros::Time::now().toSec())
+    std::string file_name;
+    ROS_INFO_STREAM("Begin record video to file,please give a file name");
+    std::cin >> file_name;
+    file_name= "/home/zby/ros_bags/" + file_name + ".avi";
+    // file_name= "/home/ubuntu/rosbag/" + file_name + ".avi";
+    g_writer.open(file_name, CV_FOURCC('P', 'I', 'M', '1'), 30,
+                  cv::Size(640, 480));
+  }
+  else if(want_record_video == 'n')
+  {
+    ROS_INFO_STREAM("Will not record video ");
+  }
+  else
+  {
+    ROS_INFO_STREAM("not a available selection!");
     return -2;
   }
 
@@ -206,32 +220,16 @@ int main(int argc, char **argv)
       vision_line_pub.publish(line_msg);
     }
 
-    /*detect QRCode*/
-   /* bool base_found;
-    if(qr_code.getBasePosition(frame, 2.4))
+    /*record image to file*/
+    if(want_record_video == 'y')
     {
-      ROS_INFO_STREAM("base position :" << qr_code.getBaseX() << " "
-                                        << qr_code.getBaseY());
-      base_found= true;
+      g_writer.write(frame);
     }
-    else
-    {
-      ROS_INFO_STREAM("can't find base");
-      ROS_INFO_STREAM("base position :" << qr_code.getBaseX() << " "
-                                        << qr_code.getBaseY());
-      base_found= false;
-    }
-    ss.str("");
-    std_msgs::String base_msg;
-    ss << base_found << " " << qr_code.getBaseX() << " " << qr_code.getBaseY();
-    base_msg.data= ss.str();
-    vision_base_pub.publish(base_msg);*/
 
     ros::spinOnce();
-
     cv::waitKey(1);
   }
-
+  g_writer.release();
   return 1;
 }
 
@@ -245,21 +243,21 @@ void colorChangeCallback(const std_msgs::String::ConstPtr &msg)
 void pillarChangeCallback(const std_msgs::String::ConstPtr &msg)
 {
   ROS_INFO_STREAM("receive base change info");
-  if(msg->data=="pause")
+  if(msg->data == "pause")
     g_is_pillar_running= false;
-  else if(msg->data=="resume")
-    g_is_pillar_running=true;
-  else  
+  else if(msg->data == "resume")
+    g_is_pillar_running= true;
+  else
     ROS_INFO_STREAM("invalid state");
 }
 
 void lineChangeCallback(const std_msgs::String::ConstPtr &msg)
 {
   ROS_INFO_STREAM("receive base change info");
-  if(msg->data=="pause")
+  if(msg->data == "pause")
     g_is_line_running= false;
-  else if(msg->data=="resume")
-    g_is_line_running=true;
-  else  
+  else if(msg->data == "resume")
+    g_is_line_running= true;
+  else
     ROS_INFO_STREAM("invalid state");
 }
