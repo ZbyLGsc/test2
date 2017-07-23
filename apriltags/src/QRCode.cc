@@ -15,6 +15,7 @@
 
 #define M_DRAW true
 #define PI 3.14159265358
+#define radiusThreshold 0.2
 #include "AprilTags/QRCode.h"
 const char* windowName= "apriltags_demo";
 
@@ -52,15 +53,15 @@ bool calculateCenterPointFrom3Circles(cv::Point2f Point1, float radius1,
                                       cv::Point2f Point3, float radius3,
                                       cv::Point2f& centerPoint)
 {
-  if(calculateDistance2Points(Point1, Point2)>
-      radius1 + radius2)
+  /*if(fabs(calculateDistance2Points(Point1, Point2)-
+      radius1 - radius2) > radiusThreshold)
     return false;
-  if(calculateDistance2Points(Point2, Point3)>
-      radius2 + radius3)
+  if(fabs(calculateDistance2Points(Point2, Point3)-
+      radius2 - radius3) > radiusThreshold)
     return false;
-  if(calculateDistance2Points(Point1, Point3)>
-      radius1 + radius3)
-    return false;
+  if(fabs(calculateDistance2Points(Point1, Point3)-
+      radius1 - radius3) > radiusThreshold)
+    return false;*/
 
   float x1= Point1.x, x2= Point2.x, x3= Point3.x;
   float y1= Point1.y, y2= Point2.y, y3= Point3.y;
@@ -111,11 +112,11 @@ QRCode::QRCode()
 
   m_width(640)
   , m_height(480)
-  , m_tagSize(0.250)
-  , m_fx(569)
-  , m_fy(568)
-  , m_px(311.035)
-  , m_py(248.974)
+  , m_tagSize(0.2286)
+  , m_fx(508.013)
+  , m_fy(507.49)
+  , m_px(322.632)
+  , m_py(231.39)
   ,
 
   m_exposure(-1)
