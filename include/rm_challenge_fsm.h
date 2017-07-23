@@ -1,11 +1,15 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-//#define CURRENT_COMPUTER ZBY_PC
+// #define CURRENT_COMPUTER ZBY_PC
 #define CURRENT_COMPUTER MANIFOLD
 
-#define TAKEOFF_POINT_NUMBER 7
-// parameters of uav
+/**parameters of uav*/
+/*
+start1,pillar1-4,base1-4,(formal),9
+start2,base5,pillar5,(qulification),3
+*/
+#define TAKEOFF_POINT_NUMBER 12
 #define PA_DEGREE_TO_RADIAN (3.1415926 / 180.0)
 #define PA_COORDINATE_TRANSFORM_DEGREE (-90)
 #define PA_COORDINATE_TRANSFORM_ANGLE                                          \
@@ -19,9 +23,11 @@
 #define PA_GRASPPER_CONTROL_TIME 6
 #define PA_GO_UP_VELOCITY 0.3
 
+#define PA_BRIDGE_HEIGHT 0.8 //set to lower than real
 #define PA_FLYING_HEIGHT 2.7
+#define PA_FLYING_HEIGHT_LOW (PA_FLYING_HEIGHT-PA_BRIDGE_HEIGHT)
 #define PA_FLYING_HEIGHT_THRESHOLD 0.2
-#define PA_FLYING_Z_VELOCITY 0.1
+#define PA_FLYING_Z_VELOCITY 0.15
 
 #define PA_LAND_COUNT 1
 #define PA_TIME_MIN 1.5
@@ -56,6 +62,7 @@
 #define PA_CAMERA_DISPLACE 0.153
 #define PA_CAMERA_F 507.75
 
+/*formal contest takeoff point id*/
 #define PA_START 0
 #define PA_PILLAR_1 1
 #define PA_PILLAR_2 3
@@ -65,8 +72,12 @@
 #define PA_BASE_2 4
 #define PA_BASE_3 6
 #define PA_BASE_4 8
-#define PA_T_1 9
-#define PA_T_2 10
+// #define PA_T_1 9
+// #define PA_T_2 10
+/*qulification contest takeoff point id*/
+#define PA_START_Q 9
+#define PA_BASE_Q 10
+#define PA_PILLAR_Q 11
 
 #define PA_RELEASE_BALL_HEIGHT 0.6
 #define PA_RELEASE_BALL_HEIGHT_THRESHOLD 0.2
@@ -80,6 +91,8 @@
 #define PA_T_DISPLACE 1.6
 #define PA_TARMAC_HEIGHT 0
 #define PA_PILLAR_HEIGHT 0.75
+
+#define PA_FORWARD_THRESHOLD 3.0
 
 #include <sstream>
 #include <ros/assert.h>
@@ -121,6 +134,7 @@ public:
     GO_TO_PILLAR,
     RELEASE_BALL,  // 9
     CROSS_ARENA,
+    TRACK_LINE_FORWARD,
   };
   enum GRASPPER_STATE
   {
@@ -173,9 +187,9 @@ private:
                        *takeoff point id,0 is start point
                        *1,2,4,5 are pillar,3, 6 are base
                        */
-  float m_goal_height[TAKEOFF_POINT_NUMBER];
-  float m_takeoff_points[TAKEOFF_POINT_NUMBER + 1][2];
-  float m_setpoints[TAKEOFF_POINT_NUMBER + 1][2];
+  float m_goal_height[TAKEOFF_POINT_NUMBER+1];
+  float m_takeoff_points[TAKEOFF_POINT_NUMBER+1][2];
+  float m_setpoints[TAKEOFF_POINT_NUMBER+1][2];
 
   /**subscribe from dji's nodes*/
   UAV_STATE m_uav_state= UAV_LAND;
@@ -215,6 +229,7 @@ private:
   int m_current_takeoff_point_id= PA_START;  // initial
   ros::Time m_takeoff_time;
   ros::Time m_checked_time;
+  float m_T_position_x;
 
   /**publish debug message*/
   ros::Publisher m_velocity_pub;
@@ -249,6 +264,8 @@ private:
   bool discoverT();                //?
   bool nextTargetIsClosePillar();  //?
   bool nextTargetIsFarPillar();    //?
+  bool forwardFarEnough();
+  bool isQulifying();
 
   /**uav control method*/
   void droneTakeoff();
@@ -294,6 +311,7 @@ private:
   void updateVisionTask();
 
   void calculateZVelocity(float &vz);
+  void updateTPosition();
 
 public:
   /**update from dji's nodes*/

@@ -2,9 +2,9 @@
 #include "rm_challenge_vision.h"
 #define M100_CAMERA 1
 #define VIDEO_STREAM 2
-//#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
-#define CURRENT_IMAGE_SOURCE M100_CAMERA
-#define VISABILITY false
+#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
+// #define CURRENT_IMAGE_SOURCE M100_CAMERA
+#define VISABILITY true
 #define QRCODE_VISABLE false
 
 /**global publisher*/
@@ -56,8 +56,9 @@ int main(int argc, char **argv)
   cv::VideoCapture g_cap;
   cv::VideoWriter g_writer;
 #if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
-  //g_cap.open("/home/ubuntu/rosbag/Tttt.avi");
-  g_cap.open("/home/zby/ros_bags/7.19/TTT.avi");
+  // g_cap.open("/home/ubuntu/rosbag/Tttt.avi");
+  g_cap.open("/home/zby/ros_bags/7.22/start1.avi");
+  g_cap.set(CV_CAP_PROP_POS_FRAMES, g_cap.get(CV_CAP_PROP_FRAME_COUNT) / 2);
 #else
   g_cap.open(0);
 #endif
@@ -104,8 +105,8 @@ int main(int argc, char **argv)
     std::string file_name;
     ROS_INFO_STREAM("Begin record video to file,please give a file name");
     std::cin >> file_name;
-    //file_name= "/home/zby/ros_bags/" + file_name + ".avi";
-     file_name= "/home/ubuntu/rosbag/" + file_name + ".avi";
+    // file_name= "/home/zby/ros_bags/" + file_name + ".avi";
+    file_name= "/home/ubuntu/rosbag/" + file_name + ".avi";
     g_writer.open(file_name, CV_FOURCC('P', 'I', 'M', '1'), 30,
                   cv::Size(640, 480));
   }
@@ -129,7 +130,7 @@ int main(int argc, char **argv)
     if(g_cap.get(CV_CAP_PROP_POS_FRAMES) >
        g_cap.get(CV_CAP_PROP_FRAME_COUNT) / 2)
     {
-      g_cap.set(CV_CAP_PROP_POS_FRAMES, 10);
+      g_cap.set(CV_CAP_PROP_POS_FRAMES, g_cap.get(CV_CAP_PROP_FRAME_COUNT) / 2);
     }
 #endif
 
