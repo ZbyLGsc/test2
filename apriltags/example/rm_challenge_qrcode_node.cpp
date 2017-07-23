@@ -121,6 +121,7 @@ int main(int argc, char** argv)
       }
       // ROS_INFO_STREAM("after");
       qr_code.getBaseDirection(base_direction_degree);
+      ROS_INFO_STREAM("base direction:"<<base_direction_degree);
       
       ss.str("");
       std_msgs::String base_msg;
