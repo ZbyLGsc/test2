@@ -315,7 +315,7 @@ void RMChallengeFSM::run()
               // transferToTask(LAND);
               updateTakeoffPointId();
               droneUpdatePosition();
-              transferToTask(GO_TO_SETPOINT);
+              transferToTask(GO_UP);
             }
             else
             {
@@ -1457,7 +1457,7 @@ bool RMChallengeFSM::landPointIsPillar()
      m_current_takeoff_point_id == PA_BASE_1 ||
      m_current_takeoff_point_id == PA_BASE_2 ||
      m_current_takeoff_point_id == PA_BASE_3 ||
-     m_current_takeoff_point_id == PA_PILLAR_Q)
+     m_current_takeoff_point_id == PA_BASE_Q)
   {
     return true;
   }
