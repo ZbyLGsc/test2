@@ -150,7 +150,7 @@ void RMChallengeFSM::resetAllState()
   m_prepare_to_land_type= PREPARE_AT_HIGH;
   m_graspper_control_time= 0;
   /*if want to test different task,change id here as well as .h*/
-  m_current_takeoff_point_id= PA_START;
+  m_current_takeoff_point_id= PA_BASE_1;
   /**/
   droneUpdatePosition();
 

@@ -2,9 +2,9 @@
 #include "rm_challenge_vision.h"
 #define M100_CAMERA 1
 #define VIDEO_STREAM 2
-#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
-// #define CURRENT_IMAGE_SOURCE M100_CAMERA
-#define VISABILITY true
+//#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
+ #define CURRENT_IMAGE_SOURCE M100_CAMERA
+#define VISABILITY false
 #define QRCODE_VISABLE false
 
 /**global publisher*/
@@ -240,7 +240,7 @@ void colorChangeCallback(const std_msgs::String::ConstPtr &msg)
 
 void pillarChangeCallback(const std_msgs::String::ConstPtr &msg)
 {
-  ROS_INFO_STREAM("receive base change info");
+  ROS_INFO_STREAM("receive pillar change info");
   if(msg->data == "pause")
     g_is_pillar_running= false;
   else if(msg->data == "resume")
@@ -251,7 +251,7 @@ void pillarChangeCallback(const std_msgs::String::ConstPtr &msg)
 
 void lineChangeCallback(const std_msgs::String::ConstPtr &msg)
 {
-  ROS_INFO_STREAM("receive base change info");
+  ROS_INFO_STREAM("receive line change info");
   if(msg->data == "pause")
     g_is_line_running= false;
   else if(msg->data == "resume")
