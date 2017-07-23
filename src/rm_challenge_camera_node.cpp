@@ -18,8 +18,8 @@ ros::Subscriber pillar_change_sub;
 ros::Subscriber line_change_sub;
 /**color and task flag*/
 RMChallengeVision::COLOR_TYPE g_color= RMChallengeVision::RED;
-bool g_is_pillar_running= true;
-bool g_is_line_running= true;
+bool g_is_pillar_running= false;
+bool g_is_line_running= false;
 
 /**global video capture and image*/
 // cv::Mat g_pillar_image;

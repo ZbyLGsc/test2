@@ -150,7 +150,7 @@ void RMChallengeFSM::resetAllState()
   m_prepare_to_land_type= PREPARE_AT_HIGH;
   m_graspper_control_time= 0;
   /*if want to test different task,change id here as well as .h*/
-  m_current_takeoff_point_id= PA_BASE_1;
+  m_current_takeoff_point_id= PA_BASE_2;
   /**/
   droneUpdatePosition();
 
@@ -426,7 +426,9 @@ void RMChallengeFSM::run()
     {
       if(!forwardFarEnough())
       {
-        droneTrackLine();
+        //droneTrackLine();
+		controlDroneVelocity(PA_KT,0.0,0.0,0.0);
+		ROS_INFO("forward!");
       }
       else
       {
