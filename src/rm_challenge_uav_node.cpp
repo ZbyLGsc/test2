@@ -179,7 +179,7 @@ void vision_base_callback(const std_msgs::String::ConstPtr &msg)
   std::stringstream ss(msg->data.c_str());
   ss >> base_found >> pos[0] >> pos[1];
 
-  g_fsm.setBaseVariables(base_found, pos);
+  g_fsm.setBaseVariables(base_found, pos,0.0);
 }
 
 void vision_line_callback(const std_msgs::String::ConstPtr &msg)

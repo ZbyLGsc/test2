@@ -1,8 +1,8 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-//#define CURRENT_COMPUTER ZBY_PC
- #define CURRENT_COMPUTER MANIFOLD
+#define CURRENT_COMPUTER ZBY_PC
+//  #define CURRENT_COMPUTER MANIFOLD
 
 /**parameters of uav*/
 /*
@@ -135,6 +135,7 @@ public:
     RELEASE_BALL,  // 9
     CROSS_ARENA,
     TRACK_LINE_FORWARD,
+    TRACK_LINE_BACKWARD,
   };
   enum GRASPPER_STATE
   {
@@ -214,6 +215,7 @@ private:
   /**subscribe from  vision node about base*/
   bool m_discover_base;
   float m_base_position_error[2];
+  float m_base_angle;
 
   /**subscribe from vision node about detectLine*/
   float m_distance_to_line[2];
@@ -264,7 +266,9 @@ private:
   bool discoverT();                //?
   bool nextTargetIsClosePillar();  //?
   bool nextTargetIsFarPillar();    //?
+  bool nextTargetIsBase();
   bool forwardFarEnough();
+  bool backwardFarEnough();
   bool isQulifying();
 
   /**uav control method*/
@@ -324,7 +328,7 @@ public:
   void setTriangleVariables(int pillar_triangle[4]);
   void setArcVariables(bool is_arc_found, float position_error[2]);
   /**update from topic about base */
-  void setBaseVariables(bool is_base_found, float position_error[2]);
+  void setBaseVariables(bool is_base_found, float position_error[2],float base_angle);
   /**update from topic about detectLine*/
   void setLineVariables(bool is_T_found, float distance_to_line[2],
                         float line_normal[2]);

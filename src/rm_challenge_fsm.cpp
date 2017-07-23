@@ -96,11 +96,11 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
   m_setpoints[PA_PILLAR_2][0]= -1.8;
   m_setpoints[PA_PILLAR_2][1]= 1.8;
 
-  m_setpoints[PA_BASE_2][0]= 0.0;  //
+  m_setpoints[PA_BASE_2][0]= 4.2;  //
   m_setpoints[PA_BASE_2][1]= 0.0;
 
-  m_setpoints[PA_PILLAR_3][0]= 0.0;  //
-  m_setpoints[PA_PILLAR_3][1]= 0.0;
+  m_setpoints[PA_PILLAR_3][0]= -1.8;  //
+  m_setpoints[PA_PILLAR_3][1]= 1.8;
 
   m_setpoints[PA_BASE_3][0]= 0.0;  //
   m_setpoints[PA_BASE_3][1]= 0.0;
@@ -253,6 +253,11 @@ void RMChallengeFSM::run()
               /*go forward for a while*/
               updateTPosition();
               transferToTask(TRACK_LINE_FORWARD);
+            }
+            else if(nextTargetIsBase())
+            {
+              updateTPosition();
+              transferToTask(TRACK_LINE_BACKWARD);
             }
           }
           /*
@@ -426,9 +431,23 @@ void RMChallengeFSM::run()
     {
       if(!forwardFarEnough())
       {
-        //droneTrackLine();
-		controlDroneVelocity(PA_KT,0.0,0.0,0.0);
-		ROS_INFO("forward!");
+        // droneTrackLine();
+        controlDroneVelocity(PA_KT, 0.0, 0.0, 0.0);
+        ROS_INFO("forward!");
+      }
+      else
+      {
+        transferToTask(TRACK_LINE);
+      }
+      break;
+    }
+
+    case TRACK_LINE_BACKWARD:
+    {
+      if(!backwardFarEnough())
+      {
+        controlDroneVelocity(-PA_KT, 0.0, 0.0, 0.0);
+        ROS_INFO("backward!");
       }
       else
       {
@@ -488,6 +507,10 @@ void RMChallengeFSM::transferToTask(TASK_STATE task_state)
   else if(task_state == TRACK_LINE_FORWARD)
   {
     m_state= TRACK_LINE_FORWARD;
+  }
+  else if(task_state == TRACK_LINE_BACKWARD)
+  {
+    m_state= TRACK_LINE_BACKWARD;
   }
 }
 
@@ -1421,18 +1444,20 @@ void RMChallengeFSM::calculateRealPositionError(float error[2])
 }
 
 void RMChallengeFSM::setBaseVariables(bool is_base_found,
-                                      float position_error[2])
+                                      float position_error[2], float base_angle)
 {
   m_discover_base= is_base_found;
   if(is_base_found)
   {
     m_base_position_error[0]= position_error[0] - PA_CAMERA_DISPLACE;
     m_base_position_error[1]= position_error[1];
+    m_base_angle=base_angle;
   }
   else
   {
     m_base_position_error[0]= 0;
     m_base_position_error[1]= 0;
+    m_base_angle=base_angle;
   }
   // ROS_INFO_STREAM("base var is:" << m_discover_base << ","
   //                                << m_base_position_error[0] << ","
@@ -1707,6 +1732,11 @@ void RMChallengeFSM::printStateInfo()
     case TRACK_LINE_FORWARD:
     {
       s= "TRACK LINE FORWARD";
+      break;
+    }
+    case TRACK_LINE_BACKWARD:
+    {
+      s= "TRACK LINE BACKWARD";
       break;
     }
   }
@@ -1990,4 +2020,20 @@ bool RMChallengeFSM::isQulifying()
     return true;
   else
     return false;
+}
+
+bool RMChallengeFSM::backwardFarEnough()
+{
+  if((m_T_position_x - m_real_position[0]) > PA_FORWARD_THRESHOLD)
+    return true;
+  else
+    return false;
+}
+
+bool RMChallengeFSM::nextTargetIsBase()
+{
+  if(m_current_takeoff_point_id == PA_PILLAR_3)
+    return true;
+  else
+    return false;  
 }
