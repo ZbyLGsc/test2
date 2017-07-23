@@ -104,6 +104,7 @@ int main(int argc, char** argv)
     if(g_is_base_running)
     {
       bool base_found;
+      float base_direction_degree=0;
       // ROS_INFO_STREAM("before");
       if(qr_code.getBasePosition(g_image, g_height))
       {
@@ -119,10 +120,13 @@ int main(int argc, char** argv)
         base_found= false;
       }
       // ROS_INFO_STREAM("after");
+      qr_code.getBaseDirection(base_direction_degree);
+      
       ss.str("");
       std_msgs::String base_msg;
       ss << base_found << " " << qr_code.getBaseX() << " "
-         << qr_code.getBaseY();
+         << qr_code.getBaseY() << " "
+         << base_direction_degree;
       base_msg.data= ss.str();
       vision_base_pub.publish(base_msg);
 

@@ -193,7 +193,6 @@ class QRCode {
 
     bool getBaseDirection(float& baseDirectionCita);
 
-
 }; // Demo
 
 
