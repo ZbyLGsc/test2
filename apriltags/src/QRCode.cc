@@ -14,6 +14,8 @@
  */
 
 #define M_DRAW true
+#define PI 3.14159265358
+#define radiusThreshold 0.2
 #include "AprilTags/QRCode.h"
 const char* windowName= "apriltags_demo";
 
@@ -40,15 +42,31 @@ void wRo_to_euler(const Eigen::Matrix3d& wRo, double& yaw, double& pitch,
       atan2(wRo(0, 2) * s - wRo(1, 2) * c, -wRo(0, 1) * s + wRo(1, 1) * c));
 }
 
+float calculateDistance2Points(cv::Point2f Point1, cv::Point2f Point2)
+{
+  return sqrt( pow( Point1.x-Point2.x, 2) + 
+               pow( Point1.y-Point2.y, 2)); 
+}
+
 bool calculateCenterPointFrom3Circles(cv::Point2f Point1, float radius1,
                                       cv::Point2f Point2, float radius2,
                                       cv::Point2f Point3, float radius3,
                                       cv::Point2f& centerPoint)
 {
+  /*if(fabs(calculateDistance2Points(Point1, Point2)-
+      radius1 - radius2) > radiusThreshold)
+    return false;
+  if(fabs(calculateDistance2Points(Point2, Point3)-
+      radius2 - radius3) > radiusThreshold)
+    return false;
+  if(fabs(calculateDistance2Points(Point1, Point3)-
+      radius1 - radius3) > radiusThreshold)
+    return false;*/
+
   float x1= Point1.x, x2= Point2.x, x3= Point3.x;
   float y1= Point1.y, y2= Point2.y, y3= Point3.y;
   float D= 2 * ((x2 - x1) * (y3 - y2) - (y2 - y1) * (x3 - x2));
-  if(abs(D) < 1e-15)
+  if(abs(D) < 1e-7)
     return false;
   float C1= radius1 * radius1 - radius2 * radius2 + x2 * x2 - x1 * x1 +
             y2 * y2 - y1 * y1;
@@ -57,8 +75,8 @@ bool calculateCenterPointFrom3Circles(cv::Point2f Point1, float radius1,
   float Dx= C1 * (y3 - y2) - C2 * (y2 - y1);
   float Dy= C2 * (x2 - x1) - C1 * (x3 - x2);
   float centerPoint_x= Dx / D, centerPoint_y= Dy / D;
-   if(centerPoint_x > 2.10 || centerPoint_x < 0.0 ||
-     centerPoint_y > 2.10 || centerPoint_y < 0.0)
+   if(centerPoint_x > 0.85 || centerPoint_x < -0.85 ||
+     centerPoint_y > 0.85 || centerPoint_y < -0.85)
       return false;
   centerPoint= cv::Point2f(centerPoint_x, centerPoint_y);
   return true;
@@ -94,11 +112,11 @@ QRCode::QRCode()
 
   m_width(640)
   , m_height(480)
-  , m_tagSize(0.250)
-  , m_fx(569)
-  , m_fy(568)
-  , m_px(311.035)
-  , m_py(248.974)
+  , m_tagSize(0.2286)
+  , m_fx(508.013)
+  , m_fy(507.49)
+  , m_px(322.632)
+  , m_py(231.39)
   ,
 
   m_exposure(-1)
@@ -109,8 +127,8 @@ QRCode::QRCode()
   m_deviceId(1)
   ,
 
-  base_position_x(1.05)
-  , base_position_y(1.05)
+  base_position_x(0.0)
+  , base_position_y(0.0)
 {
 }
 
@@ -337,14 +355,13 @@ void QRCode::print_detection(AprilTags::TagDetection& detection) const
 
 void QRCode::getDetectionLocationAndDistance(
     vector<cv::Point2f>& detections_location,
-    vector<float>& detections_distance, float detections_height,
-    vector<AprilTags::TagDetection>& detections)
+    vector<float>& detections_distance, float detections_height)
 {
   static cv::Point2f id2location[12]= {
-    cv::Point2f(0.2, 0.2),   cv::Point2f(0.2, 1.05),  cv::Point2f(0.2, 1.90),
-    cv::Point2f(1.05, 0.2),  cv::Point2f(1.05, 1.90), cv::Point2f(1.90, 0.2),
-    cv::Point2f(1.90, 1.05), cv::Point2f(0.0, 0.0),   cv::Point2f(0.0, 0.0),
-    cv::Point2f(0.0, 0.0),   cv::Point2f(1.90, 1.90)
+    cv::Point2f(-0.85, -0.85),   cv::Point2f(0.0, -0.85),  cv::Point2f(0.85, -0.85),
+    cv::Point2f(-0.85, 0.0),  cv::Point2f(0.85, 0.0), cv::Point2f(-0.85, 0.85),
+    cv::Point2f(0.0, 0.85), cv::Point2f(0.0, 0.0),   cv::Point2f(0.0, 0.0),
+    cv::Point2f(0.0, 0.0),   cv::Point2f(0.85, 0.85)
   };
 
   for(int i= 0; i < detections.size(); i++)
@@ -381,8 +398,8 @@ bool QRCode::calculateBasePostion(vector<cv::Point2f>& detections_location,
   int detections_cnt= detections_location.size();
   if(detections_cnt == 0)
   {
-    base_position_x= 1.05;
-    base_position_y= 1.05;
+    base_position_x= 0.0;
+    base_position_y= 0.0;
     return false;
   }
   if(detections_cnt == 1)
@@ -414,7 +431,7 @@ bool QRCode::calculateBasePostion(vector<cv::Point2f>& detections_location,
                  detections_location[j], detections_distance[j],
                  detections_location[k], detections_distance[k], centerPoint))
           {
-            // cout<<"x:"<<centerPoint.x<<" y:"<<centerPoint.y<<endl;
+            //cout<<"x:"<<centerPoint.x<<" y:"<<centerPoint.y<<endl;
             centerPoints.push_back(centerPoint);
           }
         }
@@ -451,8 +468,7 @@ bool QRCode::calculateBasePostion(vector<cv::Point2f>& detections_location,
   }
 }
 
-void QRCode::processImage(const cv::Mat& image, cv::Mat& image_gray,
-                          vector<AprilTags::TagDetection>& detections)
+void QRCode::processImage(const cv::Mat& image, cv::Mat& image_gray)
 {
   // alternative way is to grab, then retrieve; allows for
   // multiple grab when processing below frame rate - v4l keeps a
@@ -644,25 +660,84 @@ bool QRCode::getBasePosition(const cv::Mat& src, float detections_height)
   cv::Mat image_gray;
   vector<cv::Point2f> detections_location;
   vector<float> detections_distance;
-  vector<AprilTags::TagDetection> detections;
 
-  processImage(src, image_gray, detections);
+  detections.clear();
+  processImage(src, image_gray);
+  if(detections.size()==0)
+    return false;
   getDetectionLocationAndDistance(detections_location, detections_distance,
-                                  detections_height, detections);
+                                 detections_height);
   return calculateBasePostion(detections_location, detections_distance);
+  
 }
 
 float QRCode::getBaseX()
 {
-  return base_position_x - 1.05;
+  return base_position_x;
 }
 
 float QRCode::getBaseY()
 {
-  return 1.05 - base_position_y;
+  return base_position_y;
 }
 
 void QRCode::setVisability(bool visable)
 {
   m_draw= visable;
+}
+
+bool QRCode::getBaseDirection(float& baseDirectionCita)
+{
+  if( detections.size() < 2)
+  {
+    baseDirectionCita = 0;
+    return false;
+  }
+  static cv::Point2f id2location[12]= {
+    cv::Point2f(0.2, 1.9),   cv::Point2f(0.2, 1.05),  cv::Point2f(0.2, 0.2),
+    cv::Point2f(1.05, 1.9),  cv::Point2f(1.05, 0.2), cv::Point2f(1.90, 1.9),
+    cv::Point2f(1.9, 1.05), cv::Point2f(0.0, 0.0),   cv::Point2f(0.0, 0.0),
+    cv::Point2f(0.0, 0.0),   cv::Point2f(1.9, 0.2)
+  };
+  float base_vector_x, base_vector_y, base_alpha,
+        img_vector_x, img_vector_y, img_beta;
+  float degree;
+  vector< float > degrees;
+  float degree_sum = 0;
+  for( int i=0; i<detections.size()-1; i++)
+  {
+    if(detections[i].hammingDistance != 0 ||
+        !( (detections[i].id>=0 &&
+            detections[i].id<=6) ||
+           detections[i].id==10) )
+      continue;
+    for(int j=i+1; j<detections.size(); j++)
+    {
+      if(detections[j].hammingDistance != 0 ||
+          !( (detections[j].id>=0 &&
+              detections[j].id<=6) ||
+            detections[j].id==10) )
+        continue;
+
+      base_vector_x = id2location[detections[j].id].x
+        - id2location[detections[i].id].x;
+      base_vector_y = id2location[detections[j].id].y
+        - id2location[detections[i].id].y;
+      img_vector_x = detections[j].cxy.first 
+        - detections[i].cxy.first;
+      img_vector_y = detections[j].cxy.second 
+        - detections[i].cxy.second;
+      base_alpha = atan2(base_vector_x, base_vector_y)*180/PI;
+      img_beta = atan2(img_vector_x, img_vector_y)*180/PI;
+      degree = img_beta - base_alpha;
+      degrees.push_back(degree);
+    }
+  }
+  for(int i=0; i<degrees.size(); i++)
+  {
+
+    degree_sum += degrees[i];
+  }
+  baseDirectionCita = degree_sum / degrees.size();
+  return true;
 }
