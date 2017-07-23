@@ -1,8 +1,8 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-#define CURRENT_COMPUTER ZBY_PC
-// #define CURRENT_COMPUTER MANIFOLD
+//#define CURRENT_COMPUTER ZBY_PC
+ #define CURRENT_COMPUTER MANIFOLD
 
 /**parameters of uav*/
 /*
@@ -92,7 +92,7 @@ start2,base5,pillar5,(qulification),3
 #define PA_TARMAC_HEIGHT 0
 #define PA_PILLAR_HEIGHT 0.75
 
-#define PA_FORWARD_THRESHOLD 3.0
+#define PA_FORWARD_THRESHOLD 2.5
 
 #include <sstream>
 #include <ros/assert.h>

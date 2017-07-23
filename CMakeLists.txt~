@@ -166,21 +166,21 @@ target_link_libraries(rm_challenge_uav_node ${OpenCV_LIBRARIES} ${catkin_LIBRARI
 add_executable(rm_challenge_camera_node
 	${PROJECT_SOURCE_DIR}/src/rm_challenge_vision.cpp
 	${PROJECT_SOURCE_DIR}/src/rm_challenge_camera_node.cpp
-#	${PROJECT_SOURCE_DIR}/src/apriltags/Edge.cc
-#	${PROJECT_SOURCE_DIR}/src/apriltags/FloatImage.cc
-#	${PROJECT_SOURCE_DIR}/src/apriltags/Gaussian.cc
-#	${PROJECT_SOURCE_DIR}/src/apriltags/GLine2D.cc
-#	${PROJECT_SOURCE_DIR}/src/apriltags/GLineSegment2D.cc
-#	${PROJECT_SOURCE_DIR}/src/apriltags/GrayModel.cc
-#	${PROJECT_SOURCE_DIR}/src/apriltags/Homography33.cc
-#	${PROJECT_SOURCE_DIR}/src/apriltags/MathUtil.cc
-#	${PROJECT_SOURCE_DIR}/src/apriltags/Quad.cc
-#	${PROJECT_SOURCE_DIR}/src/apriltags/Segment.cc
-#	${PROJECT_SOURCE_DIR}/src/apriltags/TagDetection.cc
-#	${PROJECT_SOURCE_DIR}/src/apriltags/TagDetector.cc
-#	${PROJECT_SOURCE_DIR}/src/apriltags/TagFamily.cc
-#	${PROJECT_SOURCE_DIR}/src/apriltags/UnionFindSimple.cc
-#	${PROJECT_SOURCE_DIR}/src/QRCode.cpp
+	${PROJECT_SOURCE_DIR}/src/apriltags/Edge.cc
+	${PROJECT_SOURCE_DIR}/src/apriltags/FloatImage.cc
+	${PROJECT_SOURCE_DIR}/src/apriltags/Gaussian.cc
+	${PROJECT_SOURCE_DIR}/src/apriltags/GLine2D.cc
+	${PROJECT_SOURCE_DIR}/src/apriltags/GLineSegment2D.cc
+	${PROJECT_SOURCE_DIR}/src/apriltags/GrayModel.cc
+	${PROJECT_SOURCE_DIR}/src/apriltags/Homography33.cc
+	${PROJECT_SOURCE_DIR}/src/apriltags/MathUtil.cc
+	${PROJECT_SOURCE_DIR}/src/apriltags/Quad.cc
+	${PROJECT_SOURCE_DIR}/src/apriltags/Segment.cc
+	${PROJECT_SOURCE_DIR}/src/apriltags/TagDetection.cc
+	${PROJECT_SOURCE_DIR}/src/apriltags/TagDetector.cc
+	${PROJECT_SOURCE_DIR}/src/apriltags/TagFamily.cc
+	${PROJECT_SOURCE_DIR}/src/apriltags/UnionFindSimple.cc
+	${PROJECT_SOURCE_DIR}/src/QRCode.cpp
 	)
 target_link_libraries(rm_challenge_camera_node ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 
@@ -189,6 +189,11 @@ add_executable(rm_test_vision
 	${PROJECT_SOURCE_DIR}/src/rm_test_vision.cpp
 	)
 target_link_libraries(rm_test_vision ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+
+add_executable(rm_confront_bomb_node
+	${PROJECT_SOURCE_DIR}/src/rm_confront_bomb_node.cpp
+	)
+target_link_libraries(rm_confront_bomb_node ${catkin_LIBRARIES})
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(test2_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -250,6 +255,12 @@ install(TARGETS rm_challenge_camera_node
 )
 
 install(TARGETS rm_test_vision
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(TARGETS rm_confront_bomb_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

@@ -189,6 +189,10 @@ add_executable(rm_test_vision
 	${PROJECT_SOURCE_DIR}/src/rm_test_vision.cpp
 	)
 target_link_libraries(rm_test_vision ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+
+add_executable(rm_confront_bomb_node
+	${PROJECT_SOURCE_DIR}/src/rm_confront_bomb_node.cpp)
+target_link_libraries(rm_confront_bomb_node ${catkin_LIBRARIES})
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(test2_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -250,6 +254,12 @@ install(TARGETS rm_challenge_camera_node
 )
 
 install(TARGETS rm_test_vision
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(TARGETS rm_confront_bomb_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

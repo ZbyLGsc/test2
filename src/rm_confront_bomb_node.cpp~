@@ -11,12 +11,22 @@
 #define RC_A_UP 4
 #define RC_A_DOWN 5
 
-#include <sstream>
+// ros
 #include <ros/assert.h>
 #include <ros/ros.h>
-#include <std_msgs/Float32.h>
-#include "std_msgs/String.h"
+#include <actionlib/client/simple_action_client.h>
+#include <actionlib/client/terminal_state.h>
+#include <cv_bridge/cv_bridge.h>
+#include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Vector3Stamped.h>
+#include <image_transport/image_transport.h>
+#include <sensor_msgs/LaserScan.h>
+#include <sensor_msgs/image_encodings.h>
+#include <std_msgs/Empty.h>
+#include <std_msgs/Int16.h>
+#include <std_msgs/UInt8.h>
+#include "std_msgs/String.h"
+
 // C++标准库
 #include <fstream>
 #include <iostream>
@@ -24,16 +34,17 @@
 #include <sstream>
 #include <vector>
 #include <math.h>
+using namespace std;
+
 // boost asio
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
+using namespace boost::asio;
+
 #if CURRENT_COMPUTER == MANIFOLD
 #include <dji_sdk/dji_drone.h>
 using namespace DJI::onboardSDK;
 #endif
-
-using namespace std;
-using namespace boost::asio;
 
 #if CURRENT_COMPUTER == MANIFOLD
 dji_sdk::RCChannels g_rc_channels;
