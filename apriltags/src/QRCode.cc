@@ -14,6 +14,7 @@
  */
 
 #define M_DRAW true
+#define PI 3.14159265358
 #include "AprilTags/QRCode.h"
 const char* windowName= "apriltags_demo";
 
@@ -48,7 +49,7 @@ bool calculateCenterPointFrom3Circles(cv::Point2f Point1, float radius1,
   float x1= Point1.x, x2= Point2.x, x3= Point3.x;
   float y1= Point1.y, y2= Point2.y, y3= Point3.y;
   float D= 2 * ((x2 - x1) * (y3 - y2) - (y2 - y1) * (x3 - x2));
-  if(abs(D) < 1e-15)
+  if(abs(D) < 1e-7)
     return false;
   float C1= radius1 * radius1 - radius2 * radius2 + x2 * x2 - x1 * x1 +
             y2 * y2 - y1 * y1;
@@ -337,14 +338,13 @@ void QRCode::print_detection(AprilTags::TagDetection& detection) const
 
 void QRCode::getDetectionLocationAndDistance(
     vector<cv::Point2f>& detections_location,
-    vector<float>& detections_distance, float detections_height,
-    vector<AprilTags::TagDetection>& detections)
+    vector<float>& detections_distance, float detections_height)
 {
   static cv::Point2f id2location[12]= {
-    cv::Point2f(0.2, 0.2),   cv::Point2f(0.2, 1.05),  cv::Point2f(0.2, 1.90),
-    cv::Point2f(1.05, 0.2),  cv::Point2f(1.05, 1.90), cv::Point2f(1.90, 0.2),
-    cv::Point2f(1.90, 1.05), cv::Point2f(0.0, 0.0),   cv::Point2f(0.0, 0.0),
-    cv::Point2f(0.0, 0.0),   cv::Point2f(1.90, 1.90)
+    cv::Point2f(0.2, 1.9),   cv::Point2f(1.05, 1.9),  cv::Point2f(1.9, 1.90),
+    cv::Point2f(0.2, 1.05),  cv::Point2f(1.9, 1.05), cv::Point2f(0.20, 0.2),
+    cv::Point2f(1.05, 0.2), cv::Point2f(0.0, 0.0),   cv::Point2f(0.0, 0.0),
+    cv::Point2f(0.0, 0.0),   cv::Point2f(1.90, 0.2)
   };
 
   for(int i= 0; i < detections.size(); i++)
@@ -451,8 +451,7 @@ bool QRCode::calculateBasePostion(vector<cv::Point2f>& detections_location,
   }
 }
 
-void QRCode::processImage(const cv::Mat& image, cv::Mat& image_gray,
-                          vector<AprilTags::TagDetection>& detections)
+void QRCode::processImage(const cv::Mat& image, cv::Mat& image_gray)
 {
   // alternative way is to grab, then retrieve; allows for
   // multiple grab when processing below frame rate - v4l keeps a
@@ -644,11 +643,11 @@ bool QRCode::getBasePosition(const cv::Mat& src, float detections_height)
   cv::Mat image_gray;
   vector<cv::Point2f> detections_location;
   vector<float> detections_distance;
-  vector<AprilTags::TagDetection> detections;
 
-  processImage(src, image_gray, detections);
+  detections.clear();
+  processImage(src, image_gray);
   getDetectionLocationAndDistance(detections_location, detections_distance,
-                                  detections_height, detections);
+                                  detections_height);
   return calculateBasePostion(detections_location, detections_distance);
 }
 
@@ -665,4 +664,58 @@ float QRCode::getBaseY()
 void QRCode::setVisability(bool visable)
 {
   m_draw= visable;
+}
+
+bool QRCode::getBaseDirection(float& baseDirectionCita)
+{
+  if( detections.size() == 0)
+    return false;
+  static cv::Point2f id2location[12]= {
+    cv::Point2f(0.2, 1.9),   cv::Point2f(0.2, 1.05),  cv::Point2f(0.2, 0.2),
+    cv::Point2f(1.05, 1.9),  cv::Point2f(1.05, 0.2), cv::Point2f(1.90, 1.9),
+    cv::Point2f(1.9, 1.05), cv::Point2f(0.0, 0.0),   cv::Point2f(0.0, 0.0),
+    cv::Point2f(0.0, 0.0),   cv::Point2f(1.9, 0.2)
+  };
+  float base_vector_x, base_vector_y, base_alpha,
+        img_vector_x, img_vector_y, img_beta;
+  float degree;
+  vector< float > degrees;
+  float degree_sum = 0;
+  for( int i=0; i<detections.size()-1; i++)
+  {
+    if(detections[i].hammingDistance != 0 ||
+        !( (detections[i].id>=0 &&
+            detections[i].id<=6) ||
+           detections[i].id==10) )
+      continue;
+    for(int j=i+1; j<detections.size(); j++)
+    {
+      if(detections[j].hammingDistance != 0 ||
+          !( (detections[j].id>=0 &&
+              detections[j].id<=6) ||
+            detections[j].id==10) )
+        continue;
+
+      base_vector_x = id2location[detections[j].id].x
+        - id2location[detections[i].id].x;
+      base_vector_y = id2location[detections[j].id].y
+        - id2location[detections[i].id].y;
+      img_vector_x = detections[j].cxy.first 
+        - detections[i].cxy.first;
+      img_vector_y = detections[j].cxy.second 
+        - detections[i].cxy.second;
+      base_alpha = atan2(base_vector_x, base_vector_y)*180/PI;
+      img_beta = atan2(img_vector_x, img_vector_y)*180/PI;
+      degree = img_beta - base_alpha;
+      degrees.push_back(degree);
+    }
+  }
+  for(int i=0; i<degrees.size(); i++)
+  {
+
+    degree_sum += degrees[i];
+  }
+  baseDirectionCita = degree_sum / degrees.size();
+  cout << "baseDirection"<<baseDirectionCita <<endl;
+  return true;
 }

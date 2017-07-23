@@ -153,6 +153,7 @@ class QRCode {
     float base_position_x;
     float base_position_y;
 
+    vector<AprilTags::TagDetection> detections;
 
     // default constructor
     QRCode();
@@ -170,14 +171,12 @@ class QRCode {
     void print_detection(AprilTags::TagDetection& detection) const ;
     void getDetectionLocationAndDistance(vector< cv::Point2f >& detections_location,
                                        vector< float >& detections_distance,
-                                       float detections_height,
-                                       vector<AprilTags::TagDetection>& detections);
+                                       float detections_height);
                                        
     bool calculateBasePostion(vector< cv::Point2f >& detections_location,
                               vector< float >& detections_distance);
 
-    void processImage(const cv::Mat& image, cv::Mat& image_gray,
-                      vector<AprilTags::TagDetection>& detections);
+    void processImage(const cv::Mat& image, cv::Mat& image_gray);
     // Load and process a single image
     //void loadImages();
     // Video or image processing?
@@ -191,6 +190,8 @@ class QRCode {
 
     float getBaseX();
     float getBaseY();
+
+    bool getBaseDirection(float& baseDirectionCita);
 
 
 }; // Demo
