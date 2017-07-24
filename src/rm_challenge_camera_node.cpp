@@ -2,9 +2,9 @@
 #include "rm_challenge_vision.h"
 #define M100_CAMERA 1
 #define VIDEO_STREAM 2
-#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
-//#define CURRENT_IMAGE_SOURCE M100_CAMERA
-#define VISABILITY true
+//#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
+#define CURRENT_IMAGE_SOURCE M100_CAMERA
+#define VISABILITY false
 #define QRCODE_VISABLE false
 
 /**global publisher*/
