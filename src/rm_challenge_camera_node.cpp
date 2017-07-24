@@ -150,6 +150,13 @@ int main(int argc, char **argv)
     /*test detect pillar circle and triangles*/
     if(g_is_pillar_running)
     {
+      /*show current color*/
+      std::string color;
+      if(g_color==RMChallengeVision::RED)
+        color="Red";
+      else if(g_color==RMChallengeVision::BLUE)
+        color="Blue";
+      ROS_INFO_STREAM("Color is: "<<color);
       //    ROS_INFO_STREAM("detect pillar");
       RMChallengeVision::PILLAR_RESULT pillar_result;
       float pos_err_x= 0, pos_err_y= 0, height= 0;
