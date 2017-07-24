@@ -79,7 +79,7 @@ start2,base5,pillar5,(qulification),3
 #define PA_BASE_Q 10
 #define PA_PILLAR_Q 11
 
-#define PA_RELEASE_BALL_HEIGHT 2.0
+#define PA_RELEASE_BALL_HEIGHT 1.8
 #define PA_RELEASE_BALL_HEIGHT_THRESHOLD 0.2
 #define PA_BASE_POSITION_THRESHOLD 0.15
 #define PA_RELEASE_BALL_VELOCITY 0.1
@@ -138,7 +138,8 @@ public:
     RELEASE_BALL,  // 9
     CROSS_ARENA,
     TRACK_LINE_FORWARD,
-    TRACK_LINE_BACKWARD,
+    TRACK_LINE_BACKWARD,  // 12
+    FINAL,
   };
   enum GRASPPER_STATE
   {
@@ -326,7 +327,7 @@ private:
 
   void calculateZVelocity(float &vz);
   void updateTPosition();
-  void navigateByQRCode(float &x,float &y,float &z,float &yaw);
+  void navigateByQRCode(float &x, float &y, float &z, float &yaw);
 
 public:
   /**update from dji's nodes*/

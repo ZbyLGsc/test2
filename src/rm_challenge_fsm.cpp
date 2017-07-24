@@ -68,8 +68,8 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
   m_takeoff_points[PA_BASE_3][0]= 2.0;  //
   m_takeoff_points[PA_BASE_3][1]= 5.2;
 
-  m_takeoff_points[PA_PILLAR_4][0]= 0.0;  //
-  m_takeoff_points[PA_PILLAR_4][1]= 0.0;
+  m_takeoff_points[PA_PILLAR_4][0]= 7.5;  //
+  m_takeoff_points[PA_PILLAR_4][1]= 0.7;
 
   m_takeoff_points[PA_BASE_4][0]= 2.0;  //
   m_takeoff_points[PA_BASE_4][1]= 5.2;
@@ -102,11 +102,11 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
   m_setpoints[PA_PILLAR_3][0]= -1.8;  //
   m_setpoints[PA_PILLAR_3][1]= 1.8;
 
-  m_setpoints[PA_BASE_3][0]= 0.0;  //
-  m_setpoints[PA_BASE_3][1]= 0.0;
+  m_setpoints[PA_BASE_3][0]= 0.6;  //
+  m_setpoints[PA_BASE_3][1]= -3.0;
 
-  m_setpoints[PA_PILLAR_4][0]= 0.0;  //
-  m_setpoints[PA_PILLAR_4][1]= 0.0;
+  m_setpoints[PA_PILLAR_4][0]=-2.0;  //
+  m_setpoints[PA_PILLAR_4][1]= -1.2;
 
   m_setpoints[PA_BASE_4][0]= 0.0;  //
   m_setpoints[PA_BASE_4][1]= 0.0;
@@ -127,7 +127,7 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
       PA_TAKEOFF_HEIGHT - PA_PILLAR_HEIGHT - PA_BRIDGE_HEIGHT;
   m_goal_height[PA_PILLAR_2]= PA_TAKEOFF_HEIGHT - PA_PILLAR_HEIGHT;
   m_goal_height[PA_PILLAR_3]= PA_TAKEOFF_HEIGHT - PA_PILLAR_HEIGHT;
-  m_goal_height[PA_PILLAR_4]= PA_TAKEOFF_HEIGHT - PA_PILLAR_HEIGHT;
+  m_goal_height[PA_PILLAR_4]= PA_TAKEOFF_HEIGHT - PA_PILLAR_HEIGHT-PA_BRIDGE_HEIGHT;
   m_goal_height[PA_BASE_1]= PA_TAKEOFF_HEIGHT;
   m_goal_height[PA_BASE_2]= PA_TAKEOFF_HEIGHT;
   m_goal_height[PA_BASE_3]= PA_TAKEOFF_HEIGHT - PA_BRIDGE_HEIGHT;
@@ -151,7 +151,7 @@ void RMChallengeFSM::resetAllState()
   m_base_state= BASE_POSITION;
   m_graspper_control_time= 0;
   /*if want to test different task,change id here as well as .h*/
-  m_current_takeoff_point_id= PA_START;
+  m_current_takeoff_point_id= PA_PILLAR_3;
   m_already_find_T= false;
   /**/
   droneUpdatePosition();
@@ -1531,7 +1531,7 @@ id==5:only fly to 3 pillar
 
 bool RMChallengeFSM::isTheLastTravel()
 {
-  if(m_current_takeoff_point_id == PA_PILLAR_3)
+  if(m_current_takeoff_point_id == PA_PILLAR_4)
   {
     return true;
   }
@@ -1807,8 +1807,8 @@ void RMChallengeFSM::judgeLineDirection()
     }
     case PA_BASE_3:
     {
-      x= 1;
-      y= 0;
+      x= sqrt(3) / 2;
+      y= -1 / 2;
       break;
     }
     case PA_PILLAR_4:
