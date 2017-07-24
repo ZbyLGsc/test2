@@ -16,12 +16,12 @@ using namespace cv;
 using namespace std;
 
 #include <cv_bridge/cv_bridge.h>
+#include <geometry_msgs/Vector3Stamped.h>
 #include <image_transport/image_transport.h>
 #include <ros/ros.h>
+#include <sensor_msgs/LaserScan.h>
 #include "AprilTags/QRCode.h"
 #include "std_msgs/String.h"
-#include <geometry_msgs/Vector3Stamped.h>
-#include <sensor_msgs/LaserScan.h>
 #define M100_CAMERA 1
 #define VIDEO_STREAM 2
 #define CURRENT_IMAGE_SOURCE VIDEO_STREAM
@@ -38,10 +38,10 @@ std::stringstream ss;
 cv::Mat g_image;
 bool g_is_new_image= false;
 bool g_is_base_running= true;
-float g_height=2.4;
+float g_height= 2.4;
 
 void baseChangeCallback(const std_msgs::String::ConstPtr& msg);
-void guidance_distance_callback(const sensor_msgs::LaserScan &g_oa);
+void guidance_distance_callback(const sensor_msgs::LaserScan& g_oa);
 /**global video capture and image*/
 // cv::Mat g_pillar_image;
 // cv::Mat g_line_image;
@@ -104,7 +104,7 @@ int main(int argc, char** argv)
     if(g_is_base_running)
     {
       bool base_found;
-      float base_direction_degree=0;
+      float base_direction_degree= 0;
       // ROS_INFO_STREAM("before");
       if(qr_code.getBasePosition(g_image, g_height))
       {
@@ -121,13 +121,12 @@ int main(int argc, char** argv)
       }
       // ROS_INFO_STREAM("after");
       qr_code.getBaseDirection(base_direction_degree);
-      ROS_INFO_STREAM("base direction:"<<base_direction_degree);
-      
+      ROS_INFO_STREAM("base direction:" << base_direction_degree);
+
       ss.str("");
       std_msgs::String base_msg;
-      ss << base_found << " " << qr_code.getBaseX() << " "
-         << qr_code.getBaseY() << " "
-         << base_direction_degree;
+      ss << base_found << " " << qr_code.getBaseX() << " " << qr_code.getBaseY()
+         << " " << base_direction_degree;
       base_msg.data= ss.str();
       vision_base_pub.publish(base_msg);
 
@@ -151,11 +150,11 @@ void baseChangeCallback(const std_msgs::String::ConstPtr& msg)
     ROS_INFO_STREAM("invalid state");
 }
 
-void guidance_distance_callback(const sensor_msgs::LaserScan &g_oa)
+void guidance_distance_callback(const sensor_msgs::LaserScan& g_oa)
 {
   ROS_INFO("frame_id: %s stamp: %d\n", g_oa.header.frame_id.c_str(),
            g_oa.header.stamp.sec);
   ROS_INFO("obstacle distance: [%f %f %f %f %f]\n", g_oa.ranges[0],
            g_oa.ranges[1], g_oa.ranges[2], g_oa.ranges[3], g_oa.ranges[4]);
-  g_height=g_oa.ranges[0];
+  g_height= g_oa.ranges[0];
 }

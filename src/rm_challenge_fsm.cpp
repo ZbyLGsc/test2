@@ -50,8 +50,8 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
   m_takeoff_points[PA_START][0]= 0.0;
   m_takeoff_points[PA_START][1]= 0.0;
 
-  m_takeoff_points[PA_PILLAR_1][0]= 8.5;
-  m_takeoff_points[PA_PILLAR_1][1]= 0.0;
+  m_takeoff_points[PA_PILLAR_1][0]= 7.5;
+  m_takeoff_points[PA_PILLAR_1][1]= 0.7;
 
   m_takeoff_points[PA_BASE_1][0]= 2.0;
   m_takeoff_points[PA_BASE_1][1]= 5.2;
@@ -80,8 +80,8 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
   m_takeoff_points[PA_BASE_Q][0]= 2.0;  //
   m_takeoff_points[PA_BASE_Q][1]= 5.2;
 
-  m_takeoff_points[PA_PILLAR_Q][0]= 8.5;  //
-  m_takeoff_points[PA_PILLAR_Q][1]= 3.0;
+  m_takeoff_points[PA_PILLAR_Q][0]= 7.2;  //
+  m_takeoff_points[PA_PILLAR_Q][1]= 4.0;
 
   /*set point RELATIVE position*/
   m_setpoints[PA_START][0]= 8.5;
@@ -148,6 +148,7 @@ void RMChallengeFSM::resetAllState()
   m_state= TAKE_OFF;
   m_uav_state= UAV_LAND;
   m_prepare_to_land_type= PREPARE_AT_HIGH;
+  m_base_state= BASE_POSITION;
   m_graspper_control_time= 0;
   /*if want to test different task,change id here as well as .h*/
   m_current_takeoff_point_id= PA_START_Q;
@@ -312,7 +313,7 @@ void RMChallengeFSM::run()
           }
           else if(landPointIsBase())
           {
-	    if(isQulifying())
+            if(isQulifying())
             {
               // transferToTask(LAND);
               updateTakeoffPointId();
@@ -320,13 +321,13 @@ void RMChallengeFSM::run()
               transferToTask(GO_UP);
             }
             else
-	    { 
+            {
               if(!isTheLastTravel())
               {
                 transferToTask(RELEASE_BALL);
               }
-              else         
-	      {
+              else
+              {
                 transferToTask(LAND);
               }
             }
@@ -895,10 +896,8 @@ bool RMChallengeFSM::readyToLand()
   float height_error;
   if(m_land_point_type == BASE_LAND_POINT)
   {
-    /*only calculate position error*/
-    float pos_error= sqrt(pow(m_base_position_error[0], 2) +
-                          pow(m_base_position_error[1], 2));
-    if(pos_error < PA_BASE_POSITION_THRESHOLD && m_discover_base)
+    if(fabs(m_base_angle) < PA_BASE_ANGLE_THRESHOLD &&
+       (m_base_state == BASE_ANGLE) && m_discover_base)
     {
       // ROS_INFO_STREAM("ready to land at base," << land_err << ","
       //                                          << height_error);
@@ -927,6 +926,7 @@ bool RMChallengeFSM::readyToLand()
       droneHover();
       if(isCheckedTimeSuitable())
       {
+        m_prepare_to_land_type= PREPARE_AT_HIGH;
         return true;
       }
       else
@@ -963,28 +963,13 @@ void RMChallengeFSM::updateCheckedTime()
 
 void RMChallengeFSM::dronePrepareToLand()
 {
-  float vx= 0, vy= 0, vz= 0;
+  float vx= 0.0, vy= 0.0, vz= 0.0, yaw= 0.0;
   std::string velocity_id;
   if(m_land_point_type == BASE_LAND_POINT)
   {
-    /*adjust position to center of base
-      height and position
-    */
-    if(fabs(m_current_height_from_guidance - PA_BASE_HEIGHT) >
-       PA_BASE_HEIGHT_THRESHOLD)
-    {
-      vz= PA_BASE_HEIGHT > m_current_height_from_guidance ?
-              PA_FLYING_Z_VELOCITY :
-              -PA_FLYING_Z_VELOCITY;
-      // vx= vy= 0;
-    }
-    else
-    {
-      vz= 0;
-    }
-    vx= -PA_KP_BASE * m_base_position_error[0];
-    vy= -PA_KP_BASE * m_base_position_error[1];
-    ROS_INFO_STREAM("landing at base v are:" << vx << "," << vy << "," << vz);
+    navigateByQRCode(vx, vy, vz, yaw);
+    ROS_INFO_STREAM("landing at base v are:" << vx << "," << vy << "," << vz
+                                             << "," << yaw);
   }
   else if(m_land_point_type == PILLAR_LAND_POINT)
   {
@@ -1069,7 +1054,7 @@ void RMChallengeFSM::navigateByCircle(float &vx, float &vy, float &vz)
         vz= 0.0;
         droneHover();
         m_prepare_to_land_type= PREPARE_AT_LOW;
-        publishLineChange("pause");        
+        publishLineChange("pause");
       }
     }
   }
@@ -1460,7 +1445,7 @@ void RMChallengeFSM::setBaseVariables(bool is_base_found,
   {
     m_base_position_error[0]= 0;
     m_base_position_error[1]= 0;
-    m_base_angle= base_angle;
+    m_base_angle= 0.0;
   }
   // ROS_INFO_STREAM("base var is:" << m_discover_base << ","
   //                                << m_base_position_error[0] << ","
@@ -1848,7 +1833,7 @@ void RMChallengeFSM::publishPillarChange(std::string state)
   {
     std_msgs::String msg;
     msg.data= state;
-    for(int i=0;i<5;i++)
+    for(int i= 0; i < 5; i++)
       m_pillar_change_pub.publish(msg);
     ROS_INFO_STREAM("info pillar task change");
   }
@@ -1864,7 +1849,7 @@ void RMChallengeFSM::publishLineChange(std::string state)
   {
     std_msgs::String msg;
     msg.data= state;
-    for(int i=0;i<5;i++)
+    for(int i= 0; i < 5; i++)
       m_line_change_pub.publish(msg);
     ROS_INFO_STREAM("info line task change");
   }
@@ -1880,7 +1865,7 @@ void RMChallengeFSM::publishBaseChange(std::string state)
   {
     std_msgs::String msg;
     msg.data= state;
-	for(int i=0;i<5;i++)
+    for(int i= 0; i < 5; i++)
       m_base_change_pub.publish(msg);
     ROS_INFO_STREAM("info base task change");
   }
@@ -1896,7 +1881,7 @@ void RMChallengeFSM::updatePillarColor()
   if(m_current_takeoff_point_id == PA_PILLAR_1 ||
      m_current_takeoff_point_id == PA_PILLAR_3)
   {
-	for(int i=0;i<5;i++)
+    for(int i= 0; i < 5; i++)
       publishColorChange();
   }
 }
@@ -2047,4 +2032,41 @@ bool RMChallengeFSM::nextTargetIsBase()
     return true;
   else
     return false;
+}
+
+void RMChallengeFSM::navigateByQRCode(float &vx, float &vy, float &vz, float &yaw)
+{
+  /*adjust position to center of base
+  height and position
+*/
+  if(m_base_state == BASE_POSITION)
+  {
+    yaw= 0;
+    if(fabs(m_current_height_from_guidance - PA_BASE_HEIGHT) >
+       PA_BASE_HEIGHT_THRESHOLD)
+    {
+      vz= PA_BASE_HEIGHT > m_current_height_from_guidance ?
+              PA_FLYING_Z_VELOCITY :
+              -PA_FLYING_Z_VELOCITY;
+    }
+    else
+    {
+      vz= 0;
+    }
+    vx= -PA_KP_BASE * m_base_position_error[0];
+    vy= -PA_KP_BASE * m_base_position_error[1];
+
+    /*adjust angle error when pos error small*/
+    float pos_error= sqrt(pow(m_base_position_error[0], 2) +
+                          pow(m_base_position_error[1], 2));
+    if(pos_error < PA_BASE_POSITION_THRESHOLD)
+    {
+      m_base_state= BASE_ANGLE;
+    }
+  }
+  else if(m_base_state == BASE_ANGLE)
+  {
+    vx= vy= vz= 0;
+    yaw= -PA_BASE_YAW_RATE * (fabs(m_base_angle) / (m_base_angle + 0.000001));
+  }
 }

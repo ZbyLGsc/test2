@@ -1,4 +1,6 @@
 // ros
+#include <actionlib/client/simple_action_client.h>
+#include <actionlib/client/terminal_state.h>
 #include <cv_bridge/cv_bridge.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Vector3Stamped.h>
@@ -9,8 +11,6 @@
 #include <std_msgs/Int16.h>
 #include <std_msgs/UInt8.h>
 #include "std_msgs/String.h"
-#include <actionlib/client/simple_action_client.h>
-#include <actionlib/client/terminal_state.h>
 
 // my file
 #include "rm_challenge_fsm.h"
@@ -92,7 +92,7 @@ int main(int argc, char **argv)
   // g_fsm.setCircleVariables( true, pos_err, 1.1 );
   // g_fsm.setCircleVariables( false, pos_err, 1.1 );
   // int tri[4] = { 1, 1, 0, 0 };
-  // g_fsm.setTriangleVariables( tri );
+  // g_fsm.setTribase_Variables( tri );
   //    g_fsm.setBaseVariables( true, pos_err );
   //    g_fsm.setBaseVariables( false, pos_err );
   // float dis[2] = { 0.3, 0.3 };
@@ -174,12 +174,12 @@ void vision_pillar_callback(const std_msgs::String::ConstPtr &msg)
 
 void vision_base_callback(const std_msgs::String::ConstPtr &msg)
 {
-  float pos[2];
+  float pos[2], base_angle;
   bool base_found;
   std::stringstream ss(msg->data.c_str());
-  ss >> base_found >> pos[0] >> pos[1];
+  ss >> base_found >> pos[0] >> pos[1] >> base_angle;
 
-  g_fsm.setBaseVariables(base_found, pos,0.0);
+  g_fsm.setBaseVariables(base_found, pos, base_angle);
 }
 
 void vision_line_callback(const std_msgs::String::ConstPtr &msg)
