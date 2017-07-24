@@ -1,24 +1,24 @@
 Determining if the pthread_create exist failed with the following output:
 Change Dir: /home/ubuntu/dji_fly/src/test2/apriltags/pod-build/CMakeFiles/CMakeTmp
 
-Run Build Command:/usr/bin/make "cmTryCompileExec358281959/fast"
+Run Build Command:/usr/bin/make "cmTryCompileExec2933061344/fast"
 make[2]: Entering directory `/home/ubuntu/dji_fly/src/test2/apriltags/pod-build/CMakeFiles/CMakeTmp'
-/usr/bin/make -f CMakeFiles/cmTryCompileExec358281959.dir/build.make CMakeFiles/cmTryCompileExec358281959.dir/build
+/usr/bin/make -f CMakeFiles/cmTryCompileExec2933061344.dir/build.make CMakeFiles/cmTryCompileExec2933061344.dir/build
 make[3]: Entering directory `/home/ubuntu/dji_fly/src/test2/apriltags/pod-build/CMakeFiles/CMakeTmp'
 /usr/bin/cmake -E cmake_progress_report /home/ubuntu/dji_fly/src/test2/apriltags/pod-build/CMakeFiles/CMakeTmp/CMakeFiles 1
-Building C object CMakeFiles/cmTryCompileExec358281959.dir/CheckSymbolExists.c.o
-/usr/bin/cc    -o CMakeFiles/cmTryCompileExec358281959.dir/CheckSymbolExists.c.o   -c /home/ubuntu/dji_fly/src/test2/apriltags/pod-build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
-Linking C executable cmTryCompileExec358281959
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec358281959.dir/link.txt --verbose=1
-/usr/bin/cc       CMakeFiles/cmTryCompileExec358281959.dir/CheckSymbolExists.c.o  -o cmTryCompileExec358281959 -rdynamic 
-CMakeFiles/cmTryCompileExec358281959.dir/CheckSymbolExists.c.o: In function `main':
+Building C object CMakeFiles/cmTryCompileExec2933061344.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTryCompileExec2933061344.dir/CheckSymbolExists.c.o   -c /home/ubuntu/dji_fly/src/test2/apriltags/pod-build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTryCompileExec2933061344
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec2933061344.dir/link.txt --verbose=1
+/usr/bin/cc       CMakeFiles/cmTryCompileExec2933061344.dir/CheckSymbolExists.c.o  -o cmTryCompileExec2933061344 -rdynamic 
+CMakeFiles/cmTryCompileExec2933061344.dir/CheckSymbolExists.c.o: In function `main':
 CheckSymbolExists.c:(.text+0xe): undefined reference to `pthread_create'
 CheckSymbolExists.c:(.text+0x12): undefined reference to `pthread_create'
-collect2: error: ld returned 1 exit status
 make[3]: Leaving directory `/home/ubuntu/dji_fly/src/test2/apriltags/pod-build/CMakeFiles/CMakeTmp'
-make[3]: *** [cmTryCompileExec358281959] Error 1
-make[2]: *** [cmTryCompileExec358281959/fast] Error 2
 make[2]: Leaving directory `/home/ubuntu/dji_fly/src/test2/apriltags/pod-build/CMakeFiles/CMakeTmp'
+collect2: error: ld returned 1 exit status
+make[3]: *** [cmTryCompileExec2933061344] Error 1
+make[2]: *** [cmTryCompileExec2933061344/fast] Error 2
 
 File /home/ubuntu/dji_fly/src/test2/apriltags/pod-build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
 /* */
@@ -38,21 +38,21 @@ int main(int argc, char** argv)
 Determining if the function pthread_create exists in the pthreads failed with the following output:
 Change Dir: /home/ubuntu/dji_fly/src/test2/apriltags/pod-build/CMakeFiles/CMakeTmp
 
-Run Build Command:/usr/bin/make "cmTryCompileExec2382769816/fast"
+Run Build Command:/usr/bin/make "cmTryCompileExec510104146/fast"
 make[2]: Entering directory `/home/ubuntu/dji_fly/src/test2/apriltags/pod-build/CMakeFiles/CMakeTmp'
-/usr/bin/make -f CMakeFiles/cmTryCompileExec2382769816.dir/build.make CMakeFiles/cmTryCompileExec2382769816.dir/build
+/usr/bin/make -f CMakeFiles/cmTryCompileExec510104146.dir/build.make CMakeFiles/cmTryCompileExec510104146.dir/build
 make[3]: Entering directory `/home/ubuntu/dji_fly/src/test2/apriltags/pod-build/CMakeFiles/CMakeTmp'
 /usr/bin/cmake -E cmake_progress_report /home/ubuntu/dji_fly/src/test2/apriltags/pod-build/CMakeFiles/CMakeTmp/CMakeFiles 1
-Building C object CMakeFiles/cmTryCompileExec2382769816.dir/CheckFunctionExists.c.o
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTryCompileExec2382769816.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-2.8/Modules/CheckFunctionExists.c
-Linking C executable cmTryCompileExec2382769816
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec2382769816.dir/link.txt --verbose=1
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTryCompileExec2382769816.dir/CheckFunctionExists.c.o  -o cmTryCompileExec2382769816 -rdynamic -lpthreads 
+Building C object CMakeFiles/cmTryCompileExec510104146.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTryCompileExec510104146.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-2.8/Modules/CheckFunctionExists.c
+Linking C executable cmTryCompileExec510104146
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec510104146.dir/link.txt --verbose=1
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTryCompileExec510104146.dir/CheckFunctionExists.c.o  -o cmTryCompileExec510104146 -rdynamic -lpthreads 
 /usr/bin/ld: cannot find -lpthreads
 collect2: error: ld returned 1 exit status
 make[3]: Leaving directory `/home/ubuntu/dji_fly/src/test2/apriltags/pod-build/CMakeFiles/CMakeTmp'
-make[3]: *** [cmTryCompileExec2382769816] Error 1
-make[2]: *** [cmTryCompileExec2382769816/fast] Error 2
+make[3]: *** [cmTryCompileExec510104146] Error 1
 make[2]: Leaving directory `/home/ubuntu/dji_fly/src/test2/apriltags/pod-build/CMakeFiles/CMakeTmp'
+make[2]: *** [cmTryCompileExec510104146/fast] Error 2
 
 

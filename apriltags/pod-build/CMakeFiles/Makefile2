@@ -1203,7 +1203,7 @@ example/clean: example/CMakeFiles/rm_challenge_qrcode_node.dir/clean
 .PHONY : example/clean
 
 # Convenience name for "preinstall" pass in the directory.
-example/preinstall: example/CMakeFiles/rm_challenge_qrcode_node.dir/preinstall
+example/preinstall:
 .PHONY : example/preinstall
 
 #=============================================================================
@@ -1231,15 +1231,6 @@ example/CMakeFiles/rm_challenge_qrcode_node.dir/rule: cmake_check_build_system
 # Convenience name for target.
 rm_challenge_qrcode_node: example/CMakeFiles/rm_challenge_qrcode_node.dir/rule
 .PHONY : rm_challenge_qrcode_node
-
-# Pre-install relink rule for target.
-example/CMakeFiles/rm_challenge_qrcode_node.dir/preinstall:
-	$(MAKE) -f example/CMakeFiles/rm_challenge_qrcode_node.dir/build.make example/CMakeFiles/rm_challenge_qrcode_node.dir/preinstall
-.PHONY : example/CMakeFiles/rm_challenge_qrcode_node.dir/preinstall
-
-# Prepare target for install.
-preinstall: example/CMakeFiles/rm_challenge_qrcode_node.dir/preinstall
-.PHONY : preinstall
 
 # clean rule for target.
 example/CMakeFiles/rm_challenge_qrcode_node.dir/clean:

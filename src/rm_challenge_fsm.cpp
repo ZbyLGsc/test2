@@ -56,14 +56,14 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
   m_takeoff_points[PA_BASE_1][0]= 2.0;
   m_takeoff_points[PA_BASE_1][1]= 5.2;
 
-  m_takeoff_points[PA_PILLAR_2][0]= 8.5;
+  m_takeoff_points[PA_PILLAR_2][0]= 4.2;
   m_takeoff_points[PA_PILLAR_2][1]= 3.0;
 
   m_takeoff_points[PA_BASE_2][0]= 2.0;
   m_takeoff_points[PA_BASE_2][1]= 5.2;
 
-  m_takeoff_points[PA_PILLAR_3][0]= 0.0;  //
-  m_takeoff_points[PA_PILLAR_3][1]= 0.0;
+  m_takeoff_points[PA_PILLAR_3][0]= 7.2;  //
+  m_takeoff_points[PA_PILLAR_3][1]= 4.0;
 
   m_takeoff_points[PA_BASE_3][0]= 2.0;  //
   m_takeoff_points[PA_BASE_3][1]= 5.2;
@@ -1612,10 +1612,10 @@ bool RMChallengeFSM::discoverT()
 
   float pos_error=
       sqrt(pow(m_real_position[0] -
-                   m_takeoff_points[m_current_takeoff_point_id + 1][0],
+                   m_takeoff_points[PA_PILLAR_2][0],
                2) +
            pow(m_real_position[1] -
-                   m_takeoff_points[m_current_takeoff_point_id + 1][1] -
+                   m_takeoff_points[PA_PILLAR_2][1] -
                    PA_T_DISPLACE,
                2));
   bool is_close_to_target=
@@ -2035,5 +2035,5 @@ bool RMChallengeFSM::nextTargetIsBase()
   if(m_current_takeoff_point_id == PA_PILLAR_3)
     return true;
   else
-    return false;  
+    return false;
 }

@@ -82,6 +82,16 @@ install/local: preinstall
 install/local/fast: install/local
 .PHONY : install/local/fast
 
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: install/strip
+.PHONY : install/strip/fast
+
 # Special rule for the target list_install_components
 list_install_components:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
@@ -623,11 +633,6 @@ rm_challenge_qrcode_node/fast:
 	$(MAKE) -f example/CMakeFiles/rm_challenge_qrcode_node.dir/build.make example/CMakeFiles/rm_challenge_qrcode_node.dir/build
 .PHONY : rm_challenge_qrcode_node/fast
 
-# Manual pre-install relink rule for target.
-rm_challenge_qrcode_node/preinstall:
-	$(MAKE) -f example/CMakeFiles/rm_challenge_qrcode_node.dir/build.make example/CMakeFiles/rm_challenge_qrcode_node.dir/preinstall
-.PHONY : rm_challenge_qrcode_node/preinstall
-
 src/Edge.o: src/Edge.cc.o
 .PHONY : src/Edge.o
 
@@ -1010,6 +1015,7 @@ help:
 	@echo "... geometry_msgs_generate_messages_py"
 	@echo "... install"
 	@echo "... install/local"
+	@echo "... install/strip"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... roscpp_generate_messages_cpp"
