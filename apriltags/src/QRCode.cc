@@ -708,7 +708,8 @@ bool QRCode::getBaseDirection(float& baseDirectionCita)
       continue;
     if(!((detections[i].id >= 0 && detections[i].id <= 6) ||
           detections[i].id == 10))
-      continue;    for(int j=i+1; j<detections.size(); j++)
+      continue;    
+    for(int j=i+1; j<detections.size(); j++)
     {
       if(detections[j].hammingDistance != 0 ||
           !( (detections[j].id>=0 &&
