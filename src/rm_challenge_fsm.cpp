@@ -151,6 +151,7 @@ void RMChallengeFSM::resetAllState()
   m_graspper_control_time= 0;
   /*if want to test different task,change id here as well as .h*/
   m_current_takeoff_point_id= PA_BASE_2;
+  m_already_find_T= false;
   /**/
   droneUpdatePosition();
 
@@ -988,13 +989,11 @@ void RMChallengeFSM::dronePrepareToLand()
     {
       navigateByArc(vx, vy, vz);
       velocity_id= "by arc";
-      publishLineChange("pause");
     }
     else if(m_discover_pillar_circle)
     {
       navigateByCircle(vx, vy, vz);
       velocity_id= "by circle";
-      publishLineChange("pause");
     }
     else if(discoverTriangle())
     {
@@ -1067,6 +1066,8 @@ void RMChallengeFSM::navigateByCircle(float &vx, float &vy, float &vz)
         vz= 0.0;
         droneHover();
         m_prepare_to_land_type= PREPARE_AT_LOW;
+        for(int i=0;i<5;i++)
+          publishLineChange("pause");        
       }
     }
   }
@@ -1451,13 +1452,13 @@ void RMChallengeFSM::setBaseVariables(bool is_base_found,
   {
     m_base_position_error[0]= position_error[0] - PA_CAMERA_DISPLACE;
     m_base_position_error[1]= position_error[1];
-    m_base_angle=base_angle;
+    m_base_angle= base_angle;
   }
   else
   {
     m_base_position_error[0]= 0;
     m_base_position_error[1]= 0;
-    m_base_angle=base_angle;
+    m_base_angle= base_angle;
   }
   // ROS_INFO_STREAM("base var is:" << m_discover_base << ","
   //                                << m_base_position_error[0] << ","
@@ -1595,10 +1596,15 @@ bool RMChallengeFSM::discoverT()
     distance to landpoint close enough
   */
   ROS_INFO_STREAM("looking for T");
+  if(m_already_find_T)
+  {
+    ROS_INFO_STREAM("Already find T");
+    return false;
+  }
   bool is_takeoff_id_correct= m_current_takeoff_point_id == PA_BASE_1 ||
                               m_current_takeoff_point_id == PA_BASE_2 ||
                               m_current_takeoff_point_id == PA_BASE_Q ||
-			      m_current_takeoff_point_id == PA_PILLAR_3;
+                              m_current_takeoff_point_id == PA_PILLAR_3;
   if(!is_takeoff_id_correct)
   {
     ROS_INFO_STREAM("ID wrong");
@@ -1611,20 +1617,17 @@ bool RMChallengeFSM::discoverT()
     return false;
   }
 
-  float pos_error=
-      sqrt(pow(m_real_position[0] -
-                   m_takeoff_points[PA_PILLAR_2][0],
-               2) +
-           pow(m_real_position[1] -
-                   m_takeoff_points[PA_PILLAR_2][1] -
-                   PA_T_DISPLACE,
-               2));
+  float pos_error= sqrt(
+      pow(m_real_position[0] - m_takeoff_points[PA_PILLAR_2][0], 2) +
+      pow(m_real_position[1] - m_takeoff_points[PA_PILLAR_2][1] - PA_T_DISPLACE,
+          2));
   bool is_close_to_target=
       pos_error < PA_LANDPOINT_POSITION_ERROR ? true : false;
 
   if(is_close_to_target)
   {
     ROS_INFO_STREAM("TTTTTTTTTTTTTTTTTTTT");
+    m_already_find_T= true;
     return true;
   }
   else
@@ -2000,6 +2003,7 @@ void RMChallengeFSM::updateVisionTask()
     publishLineChange("resume");
     publishBaseChange("pause");
   }
+  m_already_find_T= false;
 }
 
 void RMChallengeFSM::updateTPosition()
