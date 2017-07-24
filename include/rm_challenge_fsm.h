@@ -92,7 +92,7 @@ start2,base5,pillar5,(qulification),3
 #define PA_TARMAC_HEIGHT 0
 #define PA_PILLAR_HEIGHT 0.75
 
-#define PA_FORWARD_THRESHOLD 1.0
+#define PA_FORWARD_THRESHOLD 0.6
 
 #include <sstream>
 #include <ros/assert.h>

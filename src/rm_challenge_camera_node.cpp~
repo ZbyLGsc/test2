@@ -56,7 +56,7 @@ int main(int argc, char **argv)
   cv::VideoCapture g_cap;
   cv::VideoWriter g_writer;
 #if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
-   g_cap.open("/home/ubuntu/rosbag/3332.avi");
+   g_cap.open("/home/ubuntu/rosbag/3333.avi");
   //g_cap.open("/home/zby/ros_bags/7.22/start1.avi");
   //g_cap.set(CV_CAP_PROP_POS_FRAMES, g_cap.get(CV_CAP_PROP_FRAME_COUNT) / 2);
   g_cap.set(CV_CAP_PROP_POS_FRAMES,100);

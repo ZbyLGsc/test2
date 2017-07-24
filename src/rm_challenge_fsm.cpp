@@ -1597,7 +1597,8 @@ bool RMChallengeFSM::discoverT()
   ROS_INFO_STREAM("looking for T");
   bool is_takeoff_id_correct= m_current_takeoff_point_id == PA_BASE_1 ||
                               m_current_takeoff_point_id == PA_BASE_2 ||
-                              m_current_takeoff_point_id == PA_BASE_Q;
+                              m_current_takeoff_point_id == PA_BASE_Q ||
+			      m_current_takeoff_point_id == PA_PILLAR_3;
   if(!is_takeoff_id_correct)
   {
     ROS_INFO_STREAM("ID wrong");
