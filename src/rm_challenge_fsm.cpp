@@ -1623,7 +1623,7 @@ bool RMChallengeFSM::discoverT()
 
   if(is_close_to_target)
   {
-    ROS_INFO_STREAM("TTT");
+    ROS_INFO_STREAM("TTTTTTTTTTTTTTTTTTTT");
     return true;
   }
   else
@@ -1648,7 +1648,7 @@ void RMChallengeFSM::droneUpdatePosition(int POSITION_ID)
     POSITION_ID= m_current_takeoff_point_id;
   }
   /*set pisition from guidance to according point,then update bias */
-  if(POSITION_ID <= PA_BASE_4)
+  if(POSITION_ID <= PA_PILLAR_Q)
   {
     m_real_position[0]= m_takeoff_points[POSITION_ID][0];
     m_real_position[1]= m_takeoff_points[POSITION_ID][1];

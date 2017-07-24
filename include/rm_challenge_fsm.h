@@ -19,7 +19,7 @@ start2,base5,pillar5,(qulification),3
 #define PA_TAKEOFF_HEIGHT_THRESHOLD 0.1
 #define PA_TAKEOFF_POSITION_ERROR 1.5
 #define PA_SETPOINT_POSITION_ERROR 0.5
-#define PA_LANDPOINT_POSITION_ERROR 3.0
+#define PA_LANDPOINT_POSITION_ERROR 5.0
 #define PA_GRASPPER_CONTROL_TIME 6
 #define PA_GO_UP_VELOCITY 0.3
 
@@ -65,12 +65,12 @@ start2,base5,pillar5,(qulification),3
 /*formal contest takeoff point id*/
 #define PA_START 0
 #define PA_PILLAR_1 1
-#define PA_PILLAR_2 3
-#define PA_PILLAR_3 5
-#define PA_PILLAR_4 7
 #define PA_BASE_1 2
+#define PA_PILLAR_2 3
 #define PA_BASE_2 4
+#define PA_PILLAR_3 5
 #define PA_BASE_3 6
+#define PA_PILLAR_4 7
 #define PA_BASE_4 8
 // #define PA_T_1 9
 // #define PA_T_2 10
