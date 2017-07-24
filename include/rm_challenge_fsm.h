@@ -89,6 +89,7 @@ start2,base5,pillar5,(qulification),3
 #define PA_BASE_Z_VELOCITY 0.2
 #define PA_BASE_ANGLE_THRESHOLD 10
 #define PA_BASE_YAW_RATE 10
+#define PA_BASE_MIN_V 0.1
 
 #define PA_T_DISPLACE 1.6
 #define PA_TARMAC_HEIGHT 0

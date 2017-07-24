@@ -2055,6 +2055,8 @@ void RMChallengeFSM::navigateByQRCode(float &vx, float &vy, float &vz, float &ya
     }
     vx= -PA_KP_BASE * m_base_position_error[0];
     vy= -PA_KP_BASE * m_base_position_error[1];
+    vx=fabs(vx)<PA_BASE_MIN_V? (fabs(vx)/(vx+0.00001))*PA_BASE_MIN_V :vx;
+    vy=fabs(vy)<PA_BASE_MIN_V? (fabs(vy)/(vy+0.00001))*PA_BASE_MIN_V :vy;
 
     /*adjust angle error when pos error small*/
     float pos_error= sqrt(pow(m_base_position_error[0], 2) +
