@@ -686,9 +686,9 @@ void QRCode::setVisability(bool visable)
 
 bool QRCode::getBaseDirection(float& baseDirectionCita)
 {
-  if( detections.size() < 2)
+  if( detections.size() <= 2)
   {
-    baseDirectionCita = 0;
+    baseDirectionCita = 0.0;
     return false;
   }
   static cv::Point2f id2location[12]= {
@@ -730,6 +730,11 @@ bool QRCode::getBaseDirection(float& baseDirectionCita)
       degree = img_beta - base_alpha;
       degrees.push_back(degree);
     }
+  }
+  if(degrees.size()==0)
+  {
+  	baseDirectionCita = 0.0;
+  	return false;
   }
   for(int i=0; i<degrees.size(); i++)
   {
