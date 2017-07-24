@@ -1,7 +1,7 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-//#define CURRENT_COMPUTER ZBY_PC
+// #define CURRENT_COMPUTER ZBY_PC
 #define CURRENT_COMPUTER MANIFOLD
 
 /**parameters of uav*/
@@ -47,7 +47,7 @@ start2,base5,pillar5,(qulification),3
 #define PA_LAND_Z_VELOCITY 0.15
 #define PA_LAND_TRIANGLE_VELOCITY_HIGH 0.15
 #define PA_LAND_TRIANGLE_VELOCITY_LOW 0.07
-#define PA_KP_BASE 0.2
+#define PA_KP_BASE 0.35
 #define PA_KP_PILLAR_HIGH 0.3
 #define PA_KP_PILLAR_LOW 0.3
 
@@ -81,13 +81,16 @@ start2,base5,pillar5,(qulification),3
 
 #define PA_RELEASE_BALL_HEIGHT 0.6
 #define PA_RELEASE_BALL_HEIGHT_THRESHOLD 0.2
-#define PA_BASE_POSITION_THRESHOLD 0.3
+#define PA_BASE_POSITION_THRESHOLD 0.2
 #define PA_RELEASE_BALL_VELOCITY 0.1
 #define PA_SLOW_DOWN_HEIGHT 0.5
-
-#define PA_BASE_HEIGHT 2.8
+#define PA_BASE_HEIGHT 2.7
 #define PA_BASE_HEIGHT_THRESHOLD 0.2
 #define PA_BASE_Z_VELOCITY 0.2
+#define PA_BASE_ANGLE_THRESHOLD 5
+#define PA_BASE_YAW_RATE 10
+#define PA_BASE_MIN_V 0.1
+
 #define PA_T_DISPLACE 1.6
 #define PA_TARMAC_HEIGHT 0
 #define PA_PILLAR_HEIGHT 0.75
@@ -164,6 +167,11 @@ public:
     VIRTUAL_LINE_SETPOINT,
     VIRTUAL_LINE_LANDPOINT,
   };
+  enum BASE_STATE
+  {
+    BASE_POSITION,
+    BASE_ANGLE,
+  };
   RMChallengeFSM()
   {
   }
@@ -216,6 +224,7 @@ private:
   bool m_discover_base;
   float m_base_position_error[2];
   float m_base_angle;
+  BASE_STATE m_base_state;
 
   /**subscribe from vision node about detectLine*/
   float m_distance_to_line[2];
@@ -317,6 +326,7 @@ private:
 
   void calculateZVelocity(float &vz);
   void updateTPosition();
+  void navigateByQRCode(float &x,float &y,float &z,float &yaw);
 
 public:
   /**update from dji's nodes*/

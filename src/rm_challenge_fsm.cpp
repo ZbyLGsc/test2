@@ -151,7 +151,7 @@ void RMChallengeFSM::resetAllState()
   m_base_state= BASE_POSITION;
   m_graspper_control_time= 0;
   /*if want to test different task,change id here as well as .h*/
-  m_current_takeoff_point_id= PA_START_Q;
+  m_current_takeoff_point_id= PA_START;
   m_already_find_T= false;
   /**/
   droneUpdatePosition();
@@ -313,6 +313,7 @@ void RMChallengeFSM::run()
           }
           else if(landPointIsBase())
           {
+	    droneHover();
             if(isQulifying())
             {
               // transferToTask(LAND);
@@ -997,7 +998,7 @@ void RMChallengeFSM::dronePrepareToLand()
     // ROS_INFO_STREAM("landing v at pillar are:" << vx << "," << vy
     //                                            << "," << vz);
   }
-  controlDroneVelocity(vx, vy, vz, 0.0);
+  controlDroneVelocity(vx, vy, vz, yaw);
 
   /*publish velocity*/
   publishVelocity(velocity_id, vx, vy, vz);
@@ -1437,7 +1438,7 @@ void RMChallengeFSM::setBaseVariables(bool is_base_found,
   m_discover_base= is_base_found;
   if(is_base_found)
   {
-    m_base_position_error[0]= position_error[0] - PA_CAMERA_DISPLACE;
+    m_base_position_error[0]= position_error[0] + PA_CAMERA_DISPLACE;
     m_base_position_error[1]= position_error[1];
     m_base_angle= base_angle;
   }
@@ -2041,6 +2042,7 @@ void RMChallengeFSM::navigateByQRCode(float &vx, float &vy, float &vz, float &ya
 */
   if(m_base_state == BASE_POSITION)
   {
+	ROS_INFO("base position");
     yaw= 0;
     if(fabs(m_current_height_from_guidance - PA_BASE_HEIGHT) >
        PA_BASE_HEIGHT_THRESHOLD)
@@ -2068,6 +2070,7 @@ void RMChallengeFSM::navigateByQRCode(float &vx, float &vy, float &vz, float &ya
   }
   else if(m_base_state == BASE_ANGLE)
   {
+	ROS_INFO("base angle");
     vx= vy= vz= 0;
     yaw= -PA_BASE_YAW_RATE * (fabs(m_base_angle) / (m_base_angle + 0.000001));
   }
