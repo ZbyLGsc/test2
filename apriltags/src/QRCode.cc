@@ -366,14 +366,12 @@ void QRCode::getDetectionLocationAndDistance(
 
   for(int i= 0; i < detections.size(); i++)
   {
-    if(detections[i].hammingDistance == 0)
-    {
-      if((detections[i].id >= 0 && detections[i].id <= 6) ||
-         detections[i].id == 10)
-      {
-        detections_location.push_back(id2location[detections[i].id]);
-      }
-    }
+    if(detections[i].hammingDistance != 0)
+      continue;
+    if(!((detections[i].id >= 0 && detections[i].id <= 6) ||
+          detections[i].id == 10))
+      continue;
+    detections_location.push_back(id2location[detections[i].id]);
 
     Eigen::Vector3d translation;
     Eigen::Matrix3d rotation;
@@ -688,9 +686,9 @@ void QRCode::setVisability(bool visable)
 
 bool QRCode::getBaseDirection(float& baseDirectionCita)
 {
-  if( detections.size() < 2)
+  if( detections.size() <= 2)
   {
-    baseDirectionCita = 0;
+    baseDirectionCita = 0.0;
     return false;
   }
   static cv::Point2f id2location[12]= {
@@ -706,11 +704,11 @@ bool QRCode::getBaseDirection(float& baseDirectionCita)
   float degree_sum = 0;
   for( int i=0; i<detections.size()-1; i++)
   {
-    if(detections[i].hammingDistance != 0 ||
-        !( (detections[i].id>=0 &&
-            detections[i].id<=6) ||
-           detections[i].id==10) )
+    if(detections[i].hammingDistance != 0)
       continue;
+    if(!((detections[i].id >= 0 && detections[i].id <= 6) ||
+          detections[i].id == 10))
+      continue;    
     for(int j=i+1; j<detections.size(); j++)
     {
       if(detections[j].hammingDistance != 0 ||
@@ -732,6 +730,11 @@ bool QRCode::getBaseDirection(float& baseDirectionCita)
       degree = img_beta - base_alpha;
       degrees.push_back(degree);
     }
+  }
+  if(degrees.size()==0)
+  {
+  	baseDirectionCita = 0.0;
+  	return false;
   }
   for(int i=0; i<degrees.size(); i++)
   {
