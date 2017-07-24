@@ -330,7 +330,7 @@ void RMChallengeFSM::run()
               }
               else
               {
-                transferToTask(LAND);
+                transferToTask(FINAL);
               }
             }
           }
@@ -462,6 +462,20 @@ void RMChallengeFSM::run()
       }
       break;
     }
+
+    case FINAL:
+    {
+      if(!isOnLand())
+      {
+        droneLand();
+      }
+      else if(isOnLand())
+      {
+        openGraspper();
+        ros::Duration(1.0).sleep();
+      }
+      break;
+    }
   }
 }
 
@@ -518,6 +532,10 @@ void RMChallengeFSM::transferToTask(TASK_STATE task_state)
   else if(task_state == TRACK_LINE_BACKWARD)
   {
     m_state= TRACK_LINE_BACKWARD;
+  }
+  else if(task_state == FINAL)
+  {
+    m_state= FINAL;
   }
 }
 
@@ -906,6 +924,7 @@ bool RMChallengeFSM::readyToLand()
     {
       // ROS_INFO_STREAM("ready to land at base," << land_err << ","
       //                                          << height_error);
+      m_base_state= BASE_POSITION;
       return true;
     }
     else
@@ -1733,6 +1752,11 @@ void RMChallengeFSM::printStateInfo()
     case TRACK_LINE_BACKWARD:
     {
       s= "TRACK LINE BACKWARD";
+      break;
+    }
+    case FINAL:
+    {
+      s= "FINAL";
       break;
     }
   }

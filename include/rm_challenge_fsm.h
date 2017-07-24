@@ -138,7 +138,8 @@ public:
     RELEASE_BALL,  // 9
     CROSS_ARENA,
     TRACK_LINE_FORWARD,
-    TRACK_LINE_BACKWARD,
+    TRACK_LINE_BACKWARD,  // 12
+    FINAL,
   };
   enum GRASPPER_STATE
   {
@@ -326,7 +327,7 @@ private:
 
   void calculateZVelocity(float &vz);
   void updateTPosition();
-  void navigateByQRCode(float &x,float &y,float &z,float &yaw);
+  void navigateByQRCode(float &x, float &y, float &z, float &yaw);
 
 public:
   /**update from dji's nodes*/
