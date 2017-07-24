@@ -308,12 +308,13 @@ void RMChallengeFSM::run()
         {
           if(landPointIsPillar())
           {
+            openGraspper();
             droneDropDown();
             transferToTask(LAND);
           }
           else if(landPointIsBase())
           {
-	    droneHover();
+            droneHover();
             if(isQulifying())
             {
               // transferToTask(LAND);
@@ -779,14 +780,16 @@ void RMChallengeFSM::droneLand()
 }
 void RMChallengeFSM::openGraspper()
 {
-  boost::asio::write(*m_serial_port, boost::asio::buffer("b"),
-                     m_err_code);  // open graspper
+  for(int i= 0; i < 10; i++)
+    boost::asio::write(*m_serial_port, boost::asio::buffer("b"),
+                       m_err_code);  // open graspper
   m_graspper_state= GRASPPER_OPEN;
 }
 void RMChallengeFSM::closeGraspper()
 {
-  boost::asio::write(*m_serial_port, boost::asio::buffer("a"),
-                     m_err_code);  // close graspper
+  for(int i= 0; i < 10; i++)
+    boost::asio::write(*m_serial_port, boost::asio::buffer("a"),
+                       m_err_code);  // close graspper
   m_graspper_state= GRASPPER_CLOSE;
 }
 
@@ -801,6 +804,7 @@ void RMChallengeFSM::grabBall()
   {
     closeGraspper();
   }
+  ros::Duration(2.0).sleep();
   ROS_INFO_STREAM("graspper state is:" << m_graspper_state);
 }
 
@@ -2035,14 +2039,15 @@ bool RMChallengeFSM::nextTargetIsBase()
     return false;
 }
 
-void RMChallengeFSM::navigateByQRCode(float &vx, float &vy, float &vz, float &yaw)
+void RMChallengeFSM::navigateByQRCode(float &vx, float &vy, float &vz,
+                                      float &yaw)
 {
   /*adjust position to center of base
   height and position
 */
   if(m_base_state == BASE_POSITION)
   {
-	ROS_INFO("base position");
+    ROS_INFO("base position");
     yaw= 0;
     if(fabs(m_current_height_from_guidance - PA_BASE_HEIGHT) >
        PA_BASE_HEIGHT_THRESHOLD)
@@ -2057,8 +2062,10 @@ void RMChallengeFSM::navigateByQRCode(float &vx, float &vy, float &vz, float &ya
     }
     vx= -PA_KP_BASE * m_base_position_error[0];
     vy= -PA_KP_BASE * m_base_position_error[1];
-    vx=fabs(vx)<PA_BASE_MIN_V? (fabs(vx)/(vx+0.00001))*PA_BASE_MIN_V :vx;
-    vy=fabs(vy)<PA_BASE_MIN_V? (fabs(vy)/(vy+0.00001))*PA_BASE_MIN_V :vy;
+    vx= fabs(vx) < PA_BASE_MIN_V ? (fabs(vx) / (vx + 0.00001)) * PA_BASE_MIN_V :
+                                   vx;
+    vy= fabs(vy) < PA_BASE_MIN_V ? (fabs(vy) / (vy + 0.00001)) * PA_BASE_MIN_V :
+                                   vy;
 
     /*adjust angle error when pos error small*/
     float pos_error= sqrt(pow(m_base_position_error[0], 2) +
@@ -2070,7 +2077,7 @@ void RMChallengeFSM::navigateByQRCode(float &vx, float &vy, float &vz, float &ya
   }
   else if(m_base_state == BASE_ANGLE)
   {
-	ROS_INFO("base angle");
+    ROS_INFO("base angle");
     vx= vy= vz= 0;
     yaw= -PA_BASE_YAW_RATE * (fabs(m_base_angle) / (m_base_angle + 0.000001));
   }
