@@ -1,8 +1,8 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-#define CURRENT_COMPUTER ZBY_PC
-//  #define CURRENT_COMPUTER MANIFOLD
+//#define CURRENT_COMPUTER ZBY_PC
+#define CURRENT_COMPUTER MANIFOLD
 
 /**parameters of uav*/
 /*
@@ -19,13 +19,13 @@ start2,base5,pillar5,(qulification),3
 #define PA_TAKEOFF_HEIGHT_THRESHOLD 0.1
 #define PA_TAKEOFF_POSITION_ERROR 1.5
 #define PA_SETPOINT_POSITION_ERROR 0.5
-#define PA_LANDPOINT_POSITION_ERROR 2.5
+#define PA_LANDPOINT_POSITION_ERROR 4.0
 #define PA_GRASPPER_CONTROL_TIME 6
 #define PA_GO_UP_VELOCITY 0.3
 
-#define PA_BRIDGE_HEIGHT 0.8 //set to lower than real
+#define PA_BRIDGE_HEIGHT 0.8  // set to lower than real
 #define PA_FLYING_HEIGHT 2.7
-#define PA_FLYING_HEIGHT_LOW (PA_FLYING_HEIGHT-PA_BRIDGE_HEIGHT)
+#define PA_FLYING_HEIGHT_LOW (PA_FLYING_HEIGHT - PA_BRIDGE_HEIGHT)
 #define PA_FLYING_HEIGHT_THRESHOLD 0.2
 #define PA_FLYING_Z_VELOCITY 0.15
 
@@ -65,12 +65,12 @@ start2,base5,pillar5,(qulification),3
 /*formal contest takeoff point id*/
 #define PA_START 0
 #define PA_PILLAR_1 1
-#define PA_PILLAR_2 3
-#define PA_PILLAR_3 5
-#define PA_PILLAR_4 7
 #define PA_BASE_1 2
+#define PA_PILLAR_2 3
 #define PA_BASE_2 4
+#define PA_PILLAR_3 5
 #define PA_BASE_3 6
+#define PA_PILLAR_4 7
 #define PA_BASE_4 8
 // #define PA_T_1 9
 // #define PA_T_2 10
@@ -92,21 +92,21 @@ start2,base5,pillar5,(qulification),3
 #define PA_TARMAC_HEIGHT 0
 #define PA_PILLAR_HEIGHT 0.75
 
-#define PA_FORWARD_THRESHOLD 2.5
+#define PA_FORWARD_THRESHOLD 0.6
 
-#include <sstream>
+#include <geometry_msgs/Vector3Stamped.h>
 #include <ros/assert.h>
 #include <ros/ros.h>
 #include <std_msgs/Float32.h>
+#include <sstream>
 #include "std_msgs/String.h"
-#include <geometry_msgs/Vector3Stamped.h>
 // C++标准库
+#include <math.h>
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <sstream>
 #include <vector>
-#include <math.h>
 // boost asio
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
@@ -188,9 +188,9 @@ private:
                        *takeoff point id,0 is start point
                        *1,2,4,5 are pillar,3, 6 are base
                        */
-  float m_goal_height[TAKEOFF_POINT_NUMBER+1];
-  float m_takeoff_points[TAKEOFF_POINT_NUMBER+1][2];
-  float m_setpoints[TAKEOFF_POINT_NUMBER+1][2];
+  float m_goal_height[TAKEOFF_POINT_NUMBER + 1];
+  float m_takeoff_points[TAKEOFF_POINT_NUMBER + 1][2];
+  float m_setpoints[TAKEOFF_POINT_NUMBER + 1][2];
 
   /**subscribe from dji's nodes*/
   UAV_STATE m_uav_state= UAV_LAND;
@@ -221,13 +221,14 @@ private:
   float m_distance_to_line[2];
   float m_line_normal[2];
   bool m_discover_T;
+  bool m_already_find_T;
 
   /**internal variables related to uav state*/
   LAND_POINT_TYPE m_land_point_type;
   PREPARE_TO_LAND_TYPE m_prepare_to_land_type;  // initial
   int m_land_counter;                           // initial
   GRASPPER_STATE m_graspper_state= GRASPPER_CLOSE;
-  int m_graspper_control_time= 0;             // initial
+  int m_graspper_control_time= 0;            // initial
   int m_current_takeoff_point_id= PA_START;  // initial
   ros::Time m_takeoff_time;
   ros::Time m_checked_time;
@@ -328,7 +329,8 @@ public:
   void setTriangleVariables(int pillar_triangle[4]);
   void setArcVariables(bool is_arc_found, float position_error[2]);
   /**update from topic about base */
-  void setBaseVariables(bool is_base_found, float position_error[2],float base_angle);
+  void setBaseVariables(bool is_base_found, float position_error[2],
+                        float base_angle);
   /**update from topic about detectLine*/
   void setLineVariables(bool is_T_found, float distance_to_line[2],
                         float line_normal[2]);

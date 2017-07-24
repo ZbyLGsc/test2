@@ -150,7 +150,7 @@ void RMChallengeFSM::resetAllState()
   m_prepare_to_land_type= PREPARE_AT_HIGH;
   m_graspper_control_time= 0;
   /*if want to test different task,change id here as well as .h*/
-  m_current_takeoff_point_id= PA_BASE_2;
+  m_current_takeoff_point_id= PA_START_Q;
   m_already_find_T= false;
   /**/
   droneUpdatePosition();
@@ -312,11 +312,7 @@ void RMChallengeFSM::run()
           }
           else if(landPointIsBase())
           {
-            if(!isTheLastTravel())
-            {
-              transferToTask(RELEASE_BALL);
-            }
-            else if(isQulifying())
+	    if(isQulifying())
             {
               // transferToTask(LAND);
               updateTakeoffPointId();
@@ -324,8 +320,15 @@ void RMChallengeFSM::run()
               transferToTask(GO_UP);
             }
             else
-            {
-              transferToTask(LAND);
+	    { 
+              if(!isTheLastTravel())
+              {
+                transferToTask(RELEASE_BALL);
+              }
+              else         
+	      {
+                transferToTask(LAND);
+              }
             }
           }
         }
@@ -1066,8 +1069,7 @@ void RMChallengeFSM::navigateByCircle(float &vx, float &vy, float &vz)
         vz= 0.0;
         droneHover();
         m_prepare_to_land_type= PREPARE_AT_LOW;
-        for(int i=0;i<5;i++)
-          publishLineChange("pause");        
+        publishLineChange("pause");        
       }
     }
   }
@@ -1846,7 +1848,8 @@ void RMChallengeFSM::publishPillarChange(std::string state)
   {
     std_msgs::String msg;
     msg.data= state;
-    m_pillar_change_pub.publish(msg);
+    for(int i=0;i<5;i++)
+      m_pillar_change_pub.publish(msg);
     ROS_INFO_STREAM("info pillar task change");
   }
   else
@@ -1861,7 +1864,8 @@ void RMChallengeFSM::publishLineChange(std::string state)
   {
     std_msgs::String msg;
     msg.data= state;
-    m_line_change_pub.publish(msg);
+    for(int i=0;i<5;i++)
+      m_line_change_pub.publish(msg);
     ROS_INFO_STREAM("info line task change");
   }
   else
@@ -1876,7 +1880,8 @@ void RMChallengeFSM::publishBaseChange(std::string state)
   {
     std_msgs::String msg;
     msg.data= state;
-    m_base_change_pub.publish(msg);
+	for(int i=0;i<5;i++)
+      m_base_change_pub.publish(msg);
     ROS_INFO_STREAM("info base task change");
   }
   else
@@ -1891,7 +1896,8 @@ void RMChallengeFSM::updatePillarColor()
   if(m_current_takeoff_point_id == PA_PILLAR_1 ||
      m_current_takeoff_point_id == PA_PILLAR_3)
   {
-    publishColorChange();
+	for(int i=0;i<5;i++)
+      publishColorChange();
   }
 }
 
@@ -2021,7 +2027,7 @@ bool RMChallengeFSM::forwardFarEnough()
 
 bool RMChallengeFSM::isQulifying()
 {
-  if(m_current_takeoff_point_id == PA_BASE_Q)
+  if(m_current_takeoff_point_id == PA_START_Q)
     return true;
   else
     return false;
