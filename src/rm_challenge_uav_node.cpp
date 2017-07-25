@@ -63,7 +63,18 @@ int main(int argc, char **argv)
   /*initialize fsm*/
   g_fsm.setPositionFromGuidance(5.2, -2);  // TEST
   g_fsm.initialize(node);
-  ROS_INFO_STREAM("initialize finish, start to run");
+  ROS_INFO_STREAM("initialize finish, please give the fisrt pillar color");
+  char first_pillar_color;
+  std::cin >> first_pillar_color;
+  if(first_pillar_color == 'r')
+    g_fsm.setFirstPillarColor(RMChallengeFSM::PILLAR_RED);
+  else if(first_pillar_color == 'b')
+    g_fsm.setFirstPillarColor(RMChallengeFSM::PILLAR_BLUE);
+  else
+  {
+    ROS_INFO_STREAM("Not a valid color, please restart");
+    return -2;
+  }
 
   /*test setter function of FSM*/
   g_fsm.setDroneState(3);

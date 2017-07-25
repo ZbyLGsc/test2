@@ -105,7 +105,7 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
   m_setpoints[PA_BASE_3][0]= 0.6;  //
   m_setpoints[PA_BASE_3][1]= -3.0;
 
-  m_setpoints[PA_PILLAR_4][0]=-2.0;  //
+  m_setpoints[PA_PILLAR_4][0]= -2.0;  //
   m_setpoints[PA_PILLAR_4][1]= -1.2;
 
   m_setpoints[PA_BASE_4][0]= 0.0;  //
@@ -127,7 +127,8 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
       PA_TAKEOFF_HEIGHT - PA_PILLAR_HEIGHT - PA_BRIDGE_HEIGHT;
   m_goal_height[PA_PILLAR_2]= PA_TAKEOFF_HEIGHT - PA_PILLAR_HEIGHT;
   m_goal_height[PA_PILLAR_3]= PA_TAKEOFF_HEIGHT - PA_PILLAR_HEIGHT;
-  m_goal_height[PA_PILLAR_4]= PA_TAKEOFF_HEIGHT - PA_PILLAR_HEIGHT-PA_BRIDGE_HEIGHT;
+  m_goal_height[PA_PILLAR_4]=
+      PA_TAKEOFF_HEIGHT - PA_PILLAR_HEIGHT - PA_BRIDGE_HEIGHT;
   m_goal_height[PA_BASE_1]= PA_TAKEOFF_HEIGHT;
   m_goal_height[PA_BASE_2]= PA_TAKEOFF_HEIGHT;
   m_goal_height[PA_BASE_3]= PA_TAKEOFF_HEIGHT - PA_BRIDGE_HEIGHT;
@@ -1851,9 +1852,15 @@ void RMChallengeFSM::judgeLineDirection()
 void RMChallengeFSM::publishColorChange()
 {
   std_msgs::String msg;
-  msg.data= "";
-  m_color_change_pub.publish(msg);
-  ROS_INFO_STREAM("inform camera pillar color change");
+  /*change pillar color to a different one*/
+  if(m_pillar_color == PILLAR_BLUE)
+    msg.data= "red";
+  else if(m_pillar_color == PILLAR_RED)
+    msg.data= "blue";
+
+  for(int i= 0; i < 5; i++)
+    m_color_change_pub.publish(msg);
+  ROS_INFO_STREAM("inform camera pillar color change:" << msg.data);
 }
 
 void RMChallengeFSM::publishPillarChange(std::string state)
@@ -1910,8 +1917,8 @@ void RMChallengeFSM::updatePillarColor()
   if(m_current_takeoff_point_id == PA_PILLAR_1 ||
      m_current_takeoff_point_id == PA_PILLAR_3)
   {
-    //for(int i= 0; i < 5; i++)
-      publishColorChange();
+    // for(int i= 0; i < 5; i++)
+    publishColorChange();
   }
 }
 
@@ -2105,4 +2112,9 @@ void RMChallengeFSM::navigateByQRCode(float &vx, float &vy, float &vz,
     vx= vy= vz= 0;
     yaw= -PA_BASE_YAW_RATE * (fabs(m_base_angle) / (m_base_angle + 0.000001));
   }
+}
+
+void RMChallengeFSM::setFirstPillarColor(PILLAR_COLOR color)
+{
+  m_pillar_color= color;
 }

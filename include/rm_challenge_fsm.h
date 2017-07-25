@@ -1,8 +1,8 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-//#define CURRENT_COMPUTER ZBY_PC
- #define CURRENT_COMPUTER MANIFOLD
+// #define CURRENT_COMPUTER ZBY_PC
+#define CURRENT_COMPUTER MANIFOLD
 
 /**parameters of uav*/
 /*
@@ -173,6 +173,11 @@ public:
     BASE_POSITION,
     BASE_ANGLE,
   };
+  enum PILLAR_COLOR
+  {
+    PILLAR_RED,
+    PILLAR_BLUE,
+  };
   RMChallengeFSM()
   {
   }
@@ -220,6 +225,7 @@ private:
   float m_arc_position_error[2];
   float m_current_height_from_arc;
   int m_pillar_triangle[4];
+  PILLAR_COLOR m_pillar_color;
 
   /**subscribe from  vision node about base*/
   bool m_discover_base;
@@ -345,4 +351,6 @@ public:
   /**update from topic about detectLine*/
   void setLineVariables(bool is_T_found, float distance_to_line[2],
                         float line_normal[2]);
+
+  void setFirstPillarColor(PILLAR_COLOR color);
 };
