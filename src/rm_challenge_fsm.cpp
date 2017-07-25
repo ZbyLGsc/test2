@@ -1910,7 +1910,7 @@ void RMChallengeFSM::updatePillarColor()
   if(m_current_takeoff_point_id == PA_PILLAR_1 ||
      m_current_takeoff_point_id == PA_PILLAR_3)
   {
-    for(int i= 0; i < 5; i++)
+    //for(int i= 0; i < 5; i++)
       publishColorChange();
   }
 }

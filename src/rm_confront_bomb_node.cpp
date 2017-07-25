@@ -1,7 +1,7 @@
 #define ZBY_PC 1
 #define MANIFOLD 2
-#define CURRENT_COMPUTER ZBY_PC
-//  #define CURRENT_COMPUTER MANIFOLD
+//#define CURRENT_COMPUTER ZBY_PC
+ #define CURRENT_COMPUTER MANIFOLD
 
 /**RC channel define*/
 #define RC_F_UP 0
@@ -92,6 +92,8 @@ int main(int argc, char **argv)
   ros::Timer timer= node.createTimer(ros::Duration(1.0 / 50.0), timer_callback);
 
   initilizeSerialPort();
+
+  m_drone = new DJIDrone(node);
 
   ros::spin();
   return 0;
@@ -225,6 +227,9 @@ void vision_base_callback(const std_msgs::String::ConstPtr &msg)
 {
   float vx, vy;
   bool can_bomb, discover_base;
+  g_vx=0;
+  g_vy=0;
+  g_can_bomb=false;
   std::stringstream ss(msg->data.c_str());
   ss >> g_vx >> g_vy >> g_discover_base >> g_can_bomb;
   /*limit the maximum of velocity*/
@@ -247,6 +252,7 @@ void controlDroneVelocity(float x, float y, float z, float yaw)
 void bombBase()
 {
   controlDroneVelocity(g_vx, g_vy, 0.0, 0.0);
+  ROS_INFO_STREAM("velocity is :"<<g_vx<<","<<g_vy);
   if(g_can_bomb)
   {
     informGraspperChange("open");

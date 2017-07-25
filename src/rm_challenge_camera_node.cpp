@@ -82,7 +82,9 @@ int main(int argc, char **argv)
   /*get first pillar's color from user*/
   ROS_INFO_STREAM("Please give the first pillar's color(r/b):");
   char first_pillar_color;
-  std::cin >> first_pillar_color;
+  //std::cin >> first_pillar_color;
+  cout<<argv[1]<<endl;
+  first_pillar_color = argv[1][0];
   if(first_pillar_color == 'r')
   {
     g_color= RMChallengeVision::RED;
@@ -100,7 +102,8 @@ int main(int argc, char **argv)
   /*get want to record video or no  t*/
   ROS_INFO_STREAM("Want to record video or not?(y/n):");
   char want_record_video;
-  std::cin >> want_record_video;
+  //std::cin >> want_record_video;
+  want_record_video = argv[1][1];
   if(want_record_video == 'y')
   {
     std::string file_name;

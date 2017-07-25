@@ -1,8 +1,8 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-// #define CURRENT_COMPUTER ZBY_PC
-#define CURRENT_COMPUTER MANIFOLD
+#define CURRENT_COMPUTER ZBY_PC
+// #define CURRENT_COMPUTER MANIFOLD
 
 /**parameters of uav*/
 /*
@@ -17,7 +17,7 @@ start2,base5,pillar5,(qulification),3
 #define PA_TAKEOFF_TIME 7
 #define PA_TAKEOFF_HEIGHT 2.4
 #define PA_TAKEOFF_HEIGHT_THRESHOLD 0.1
-#define PA_TAKEOFF_POSITION_ERROR 1.5
+#define PA_TAKEOFF_POSITION_ERROR 2.5
 #define PA_SETPOINT_POSITION_ERROR 0.5
 #define PA_LANDPOINT_POSITION_ERROR 4.0
 #define PA_GRASPPER_CONTROL_TIME 1
@@ -88,7 +88,7 @@ start2,base5,pillar5,(qulification),3
 #define PA_BASE_HEIGHT_THRESHOLD 0.2
 #define PA_BASE_Z_VELOCITY 0.2
 #define PA_BASE_ANGLE_THRESHOLD 5
-#define PA_BASE_YAW_RATE 9
+#define PA_BASE_YAW_RATE 7
 #define PA_BASE_MIN_V 0.1
 
 #define PA_T_DISPLACE 1.6

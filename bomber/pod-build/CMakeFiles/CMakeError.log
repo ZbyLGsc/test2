@@ -1,0 +1,58 @@
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec1976726331/fast"
+make[2]: Entering directory `/home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
+/usr/bin/make -f CMakeFiles/cmTryCompileExec1976726331.dir/build.make CMakeFiles/cmTryCompileExec1976726331.dir/build
+make[3]: Entering directory `/home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec1976726331.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTryCompileExec1976726331.dir/CheckSymbolExists.c.o   -c /home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTryCompileExec1976726331
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1976726331.dir/link.txt --verbose=1
+/usr/bin/cc       CMakeFiles/cmTryCompileExec1976726331.dir/CheckSymbolExists.c.o  -o cmTryCompileExec1976726331 -rdynamic 
+CMakeFiles/cmTryCompileExec1976726331.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0xe): undefined reference to `pthread_create'
+CheckSymbolExists.c:(.text+0x12): undefined reference to `pthread_create'
+make[3]: Leaving directory `/home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
+make[2]: Leaving directory `/home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
+collect2: error: ld returned 1 exit status
+make[3]: *** [cmTryCompileExec1976726331] Error 1
+make[2]: *** [cmTryCompileExec1976726331/fast] Error 2
+
+File /home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec1188297834/fast"
+make[2]: Entering directory `/home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
+/usr/bin/make -f CMakeFiles/cmTryCompileExec1188297834.dir/build.make CMakeFiles/cmTryCompileExec1188297834.dir/build
+make[3]: Entering directory `/home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec1188297834.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTryCompileExec1188297834.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-2.8/Modules/CheckFunctionExists.c
+Linking C executable cmTryCompileExec1188297834
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1188297834.dir/link.txt --verbose=1
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTryCompileExec1188297834.dir/CheckFunctionExists.c.o  -o cmTryCompileExec1188297834 -rdynamic -lpthreads 
+/usr/bin/ld: cannot find -lpthreads
+make[3]: Leaving directory `/home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
+collect2: error: ld returned 1 exit status
+make[3]: *** [cmTryCompileExec1188297834] Error 1
+make[2]: *** [cmTryCompileExec1188297834/fast] Error 2
+make[2]: Leaving directory `/home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
+
+
