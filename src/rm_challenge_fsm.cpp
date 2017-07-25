@@ -152,7 +152,7 @@ void RMChallengeFSM::resetAllState()
   m_base_state= BASE_POSITION;
   m_graspper_control_time= 0;
   /*if want to test different task,change id here as well as .h*/
-  m_current_takeoff_point_id= PA_PILLAR_3;
+  m_current_takeoff_point_id= PA_START;
   m_already_find_T= false;
   /**/
   droneUpdatePosition();
@@ -187,8 +187,7 @@ void RMChallengeFSM::run()
           ros::Duration(0.5).sleep();
         }
         else if(isTakeoffTimeout())
-        {
-          updatePillarColor();
+        {       
           transferToTask(GO_UP);
         }
       }
@@ -213,6 +212,7 @@ void RMChallengeFSM::run()
     case GO_TO_SETPOINT:
     {
       updateVisionTask();
+	  updatePillarColor();
       if(!farFromTakeoffPoint())
       {
         droneGoToSetPoint();
@@ -316,6 +316,7 @@ void RMChallengeFSM::run()
           else if(landPointIsBase())
           {
             droneHover();
+            droneHover();
             if(isQulifying())
             {
               // transferToTask(LAND);
@@ -411,6 +412,7 @@ void RMChallengeFSM::run()
         droneReleaseBall();
         updateTakeoffPointId();
         droneUpdatePosition();
+		ros::Duration(2.5).sleep();
         transferToTask(GO_UP);
       }
       else
@@ -903,8 +905,9 @@ void RMChallengeFSM::droneTrackLine()
 
 void RMChallengeFSM::droneHover()
 {
-  controlDroneVelocity(0, 0, 0, 0);
-  ros::Duration(0.5).sleep();
+  for(int i=0;i<25;i++)
+    controlDroneVelocity(0, 0, 0, 0);
+ // ros::Duration(0.5).sleep();
 }
 
 void RMChallengeFSM::droneDropDown()

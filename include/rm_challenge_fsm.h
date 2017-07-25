@@ -1,8 +1,8 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-#define CURRENT_COMPUTER ZBY_PC
-// #define CURRENT_COMPUTER MANIFOLD
+//#define CURRENT_COMPUTER ZBY_PC
+#define CURRENT_COMPUTER MANIFOLD
 
 /**parameters of uav*/
 /*
@@ -57,7 +57,7 @@ start2,base5,pillar5,(qulification),3
 
 #define PA_YAW_RATE 5
 #define PA_ANGLE_WITH_DIRECT_LINE_THRESHOLD 25
-#define PA_ANGLE_THRESHOLD 7
+#define PA_ANGLE_THRESHOLD 10
 
 #define PA_CAMERA_DISPLACE 0.16
 #define PA_CAMERA_F 507.75

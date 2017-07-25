@@ -1,8 +1,8 @@
 // compile on different computers
 #define ZBY_PC 1
 #define MANIFOLD 2
-#define CURRENT_COMPUTER ZBY_PC
-// #define CURRENT_COMPUTER MANIFOLD
+//#define CURRENT_COMPUTER ZBY_PC
+#define CURRENT_COMPUTER MANIFOLD
 
 /**parameters of uav*/
 /*
@@ -55,7 +55,7 @@ start2,base5,pillar5,(qulification),3
 #define PA_KT 0.35
 #define PA_KT_RATIO 1
 
-#define PA_YAW_RATE 10
+#define PA_YAW_RATE 7
 #define PA_ANGLE_WITH_DIRECT_LINE_THRESHOLD 25
 #define PA_ANGLE_THRESHOLD 10
 
@@ -173,6 +173,11 @@ public:
     BASE_POSITION,
     BASE_ANGLE,
   };
+  enum PILLAR_COLOR
+  {
+    PILLAR_RED,
+    PILLAR_BLUE,
+  };
   RMChallengeFSM()
   {
   }
@@ -220,6 +225,7 @@ private:
   float m_arc_position_error[2];
   float m_current_height_from_arc;
   int m_pillar_triangle[4];
+  PILLAR_COLOR m_first_pillar_color;
 
   /**subscribe from  vision node about base*/
   bool m_discover_base;
@@ -318,7 +324,7 @@ private:
   void droneUpdatePosition(int POSITION_ID= 0);
 
   void printStateInfo();
-  void publishColorChange();
+  void publishColorChange(std::string color);
   void publishPillarChange(std::string state);
   void publishLineChange(std::string state);
   void publishBaseChange(std::string state);
@@ -345,4 +351,6 @@ public:
   /**update from topic about detectLine*/
   void setLineVariables(bool is_T_found, float distance_to_line[2],
                         float line_normal[2]);
+
+  void setFirstPillarColor(PILLAR_COLOR color);
 };
