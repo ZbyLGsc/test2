@@ -1849,20 +1849,6 @@ void RMChallengeFSM::judgeLineDirection()
   }
 }
 
-void RMChallengeFSM::publishColorChange()
-{
-  std_msgs::String msg;
-  /*change pillar color to a different one*/
-  if(m_pillar_color == PILLAR_BLUE)
-    msg.data= "red";
-  else if(m_pillar_color == PILLAR_RED)
-    msg.data= "blue";
-
-  for(int i= 0; i < 5; i++)
-    m_color_change_pub.publish(msg);
-  ROS_INFO_STREAM("inform camera pillar color change:" << msg.data);
-}
-
 void RMChallengeFSM::publishPillarChange(std::string state)
 {
   if(state == "resume" || state == "pause")
@@ -1914,12 +1900,57 @@ void RMChallengeFSM::publishBaseChange(std::string state)
 void RMChallengeFSM::updatePillarColor()
 {
   /*when at pillar 1 and pillar 3,need to change pillar color*/
-  if(m_current_takeoff_point_id == PA_PILLAR_1 ||
-     m_current_takeoff_point_id == PA_PILLAR_3)
+  // if(m_current_takeoff_point_id == PA_PILLAR_1 ||
+  //    m_current_takeoff_point_id == PA_PILLAR_3)
+  // {
+  //   // for(int i= 0; i < 5; i++)
+  //   publishColorChange();
+  // }
+  switch(m_first_pillar_color)
   {
-    // for(int i= 0; i < 5; i++)
-    publishColorChange();
+    case PILLAR_RED:
+    {
+      if(m_current_takeoff_point_id == PA_START)
+        publishColorChange("red");
+      else if(m_current_takeoff_point_id == PA_BASE_1)
+        publishColorChange("blue");
+      else if(m_current_takeoff_point_id == PA_BASE_2)
+        publishColorChange("blue");
+      else if(m_current_takeoff_point_id == PA_BASE_3)
+        publishColorChange("red");
+      else if(m_current_takeoff_point_id == PA_BASE_Q)
+        publishColorChange("blue");
+      break;
+    }
+    case PILLAR_BLUE:
+    {
+      if(m_current_takeoff_point_id == PA_START)
+        publishColorChange("blue");
+      else if(m_current_takeoff_point_id == PA_BASE_1)
+        publishColorChange("red");
+      else if(m_current_takeoff_point_id == PA_BASE_2)
+        publishColorChange("red");
+      else if(m_current_takeoff_point_id == PA_BASE_3)
+        publishColorChange("blue");
+      else if(m_current_takeoff_point_id == PA_BASE_Q)
+        publishColorChange("red");
+      break;
+    }
   }
+}
+
+void RMChallengeFSM::publishColorChange(std::string color)
+{
+  if(color == "red" || color == "blue")
+  {
+    std_msgs::String msg;
+    msg.data= color;
+    for(int i= 0; i < 5; i++)
+      m_color_change_pub.publish(msg);
+    ROS_INFO_STREAM("inform camera pillar color change:" << msg.data);
+  }
+  else
+    ROS_INFO_STREAM("invalid color change");
 }
 
 void RMChallengeFSM::calculateZVelocity(float &vz)
@@ -2116,5 +2147,5 @@ void RMChallengeFSM::navigateByQRCode(float &vx, float &vy, float &vz,
 
 void RMChallengeFSM::setFirstPillarColor(PILLAR_COLOR color)
 {
-  m_pillar_color= color;
+  m_first_pillar_color= color;
 }
