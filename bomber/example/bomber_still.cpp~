@@ -123,7 +123,7 @@ class Demo
         // prepare window for drawing the camera images
         if (m_draw)
         {
-            cv::namedWindow("apriltags_demo", 1);
+            //cv::namedWindow("apriltags_demo", 1);
         }
     }
 

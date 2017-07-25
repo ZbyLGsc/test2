@@ -417,7 +417,7 @@ class Demo
             line(image,a1,a2,Scalar(0,255,0));
             line(image,b1,b2,Scalar(0,255,0));
             circle(image,center1,40,Scalar(0,255,0));
-         //   imshow("apriltags_demo", image); // OpenCV call
+            imshow("apriltags_demo", image); // OpenCV call
         }
 
     std_msgs::String bomber_msg;
