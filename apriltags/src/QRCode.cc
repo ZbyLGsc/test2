@@ -357,11 +357,17 @@ void QRCode::getDetectionLocationAndDistance(
     vector<cv::Point2f>& detections_location,
     vector<float>& detections_distance, float detections_height)
 {
-  static cv::Point2f id2location[12]= {
+  /*static cv::Point2f id2location[12]= {
     cv::Point2f(-0.85, -0.85),   cv::Point2f(0.0, -0.85),  cv::Point2f(0.85, -0.85),
     cv::Point2f(-0.85, 0.0),  cv::Point2f(0.85, 0.0), cv::Point2f(-0.85, 0.85),
     cv::Point2f(0.0, 0.85), cv::Point2f(0.0, 0.0),   cv::Point2f(0.0, 0.0),
     cv::Point2f(0.0, 0.0),   cv::Point2f(0.85, 0.85)
+  };*/
+  static cv::Point2f id2location[12]= {
+    cv::Point2f(-0.85, 0.85),   cv::Point2f(-0.85, 0.00),  cv::Point2f(-0.85, -0.85),
+    cv::Point2f(0.00, 0.85),  cv::Point2f(0.00, -0.85), cv::Point2f(0.85, 0.85),
+    cv::Point2f(0.85, 0.00), cv::Point2f(0.00, 0.00),   cv::Point2f(0.00, 0.00),
+    cv::Point2f(0.00, 0.00),   cv::Point2f(0.85, -0.85)
   };
 
   for(int i= 0; i < detections.size(); i++)
@@ -691,11 +697,17 @@ bool QRCode::getBaseDirection(float& baseDirectionCita)
     baseDirectionCita = 0.0;
     return false;
   }
-  static cv::Point2f id2location[12]= {
+  /*static cv::Point2f id2location[12]= {
     cv::Point2f(0.2, 1.9),   cv::Point2f(0.2, 1.05),  cv::Point2f(0.2, 0.2),
     cv::Point2f(1.05, 1.9),  cv::Point2f(1.05, 0.2), cv::Point2f(1.90, 1.9),
     cv::Point2f(1.9, 1.05), cv::Point2f(0.0, 0.0),   cv::Point2f(0.0, 0.0),
     cv::Point2f(0.0, 0.0),   cv::Point2f(1.9, 0.2)
+  };*/
+  static cv::Point2f id2location[12]= {
+    cv::Point2f(1.9, 1.9),   cv::Point2f(1.05, 1.9),  cv::Point2f(0.2, 1.9),
+    cv::Point2f(1.9, 1.05),  cv::Point2f(0.2, 1.05), cv::Point2f(1.90, 0.2),
+    cv::Point2f(1.05, 0.2), cv::Point2f(0.0, 0.0),   cv::Point2f(0.0, 0.0),
+    cv::Point2f(0.0, 0.0),   cv::Point2f(0.2, 0.2)
   };
   float base_vector_x, base_vector_y, base_alpha,
         img_vector_x, img_vector_y, img_beta;
