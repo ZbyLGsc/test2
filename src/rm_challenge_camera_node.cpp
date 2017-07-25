@@ -82,9 +82,9 @@ int main(int argc, char **argv)
   /*get first pillar's color from user*/
   ROS_INFO_STREAM("Please give the first pillar's color(r/b):");
   char first_pillar_color;
-  //std::cin >> first_pillar_color;
-  cout<<argv[1]<<endl;
-  first_pillar_color = argv[1][0];
+  std::cin >> first_pillar_color;
+  // cout<<argv[1]<<endl;
+  // first_pillar_color = argv[1][0];
   if(first_pillar_color == 'r')
   {
     g_color= RMChallengeVision::RED;
@@ -102,8 +102,8 @@ int main(int argc, char **argv)
   /*get want to record video or no  t*/
   ROS_INFO_STREAM("Want to record video or not?(y/n):");
   char want_record_video;
-  //std::cin >> want_record_video;
-  want_record_video = argv[1][1];
+  std::cin >> want_record_video;
+  // want_record_video = argv[1][1];
   if(want_record_video == 'y')
   {
     std::string file_name;
@@ -176,16 +176,6 @@ int main(int argc, char **argv)
       }
       if(pillar_result.arc_found)
       {
-        // calculate height and pos_error
-        // arc_height=
-        //     vision.imageToHeight(pillar_result.arc_radius, 200.0);
-        // arc_err_x= vision.imageToRealDistance(
-        //     pillar_result.arc_radius, pillar_result.arc_center.x,
-        //     200.0);
-        // arc_err_y= vision.imageToRealDistance(
-        //     pillar_result.arc_radius, pillar_result.arc_center.y,
-        //     200.0);
-
         /*send image pixel error to uav*/
         arc_err_x= pillar_result.arc_center.x;
         arc_err_y= pillar_result.arc_center.y;
@@ -245,8 +235,12 @@ int main(int argc, char **argv)
 void colorChangeCallback(const std_msgs::String::ConstPtr &msg)
 {
   ROS_INFO_STREAM("receive color change info");
-  g_color= g_color == RMChallengeVision::RED ? RMChallengeVision::BLUE :
-                                               RMChallengeVision::RED;
+  if(msg->data=="red")
+    g_color= RMChallengeVision::RED;
+  else if(msg->data=="blue")
+    g_color=RMChallengeVision::BLUE;
+  // g_color= g_color == RMChallengeVision::RED ? RMChallengeVision::BLUE :
+  //                                              RMChallengeVision::RED;
 }
 
 void pillarChangeCallback(const std_msgs::String::ConstPtr &msg)
