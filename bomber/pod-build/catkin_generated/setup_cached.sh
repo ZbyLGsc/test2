@@ -7,7 +7,7 @@
 # new environment variables
 
 # modified environment variables
-export CMAKE_PREFIX_PATH="/home/jake/test2/bomber/pod-build/devel:$CMAKE_PREFIX_PATH"
-export PKG_CONFIG_PATH="/opt/ros/indigo/lib/pkgconfig:/home/jake/test2/bomber/pod-build/lib/pkgconfig:/home/jake/test2/bomber/build/lib/pkgconfig"
-export ROSLISP_PACKAGE_DIRECTORIES="/home/jake/test2/bomber/pod-build/devel/share/common-lisp"
-export ROS_PACKAGE_PATH="/home/jake/test2/bomber:$ROS_PACKAGE_PATH"
+export CMAKE_PREFIX_PATH="/home/ubuntu/dji_fly/src/test2/bomber/pod-build/devel:$CMAKE_PREFIX_PATH"
+export PKG_CONFIG_PATH="/opt/ros/indigo/lib/pkgconfig:/home/ubuntu/dji_fly/src/test2/bomber/pod-build/lib/pkgconfig:/home/ubuntu/dji_fly/src/test2/bomber/build/lib/pkgconfig"
+export ROSLISP_PACKAGE_DIRECTORIES="/home/ubuntu/dji_fly/src/test2/bomber/pod-build/devel/share/common-lisp"
+export ROS_PACKAGE_PATH="/home/ubuntu/dji_fly/src/test2/bomber:$ROS_PACKAGE_PATH"

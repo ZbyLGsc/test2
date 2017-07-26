@@ -63,7 +63,45 @@ Eigen::Vector3d basetags[8] = {{corA, corA, 0}, {1, corA, 0}, {corB, corA, 0}, {
 #define m100_move 1 //1 is move;
 
 ros::Publisher bomber_pub;
+ros::Subscriber bomber_running_sub;
+image_transport::Subscriber vision_image_sub;
 
+std::stringstream ss;
+cv::Mat g_image;
+bool g_is_new_image= false;
+bool g_is_bomber_running= true;
+
+void bomberRunningCallback(const std_msgs::String::ConstPtr& msg)
+{
+  ROS_INFO_STREAM("receive bomber running info");
+  if(msg->data == "close")
+    g_is_bomber_running= false;
+  else if(msg->data == "open")
+    g_is_bomber_running= true;
+  else
+    ROS_INFO_STREAM("invalid state");
+}
+
+void imageCallBack(const sensor_msgs::ImageConstPtr& msg)
+{
+  cv_bridge::CvImagePtr cv_ptr;
+  try
+  {
+    cv_ptr= cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
+  }
+  catch(cv_bridge::Exception& e)
+  {
+    ROS_ERROR("cv_bridge exception: %s", e.what());
+    ROS_ERROR("Could not convert from '%s' to 'bgr8'.", msg->encoding.c_str());
+  }
+  g_image= cv_ptr->image;
+  g_is_new_image= true;
+}
+
+
+
+
+bool base_color;
 
 class Demo
 {
@@ -417,7 +455,7 @@ class Demo
             line(image,a1,a2,Scalar(0,255,0));
             line(image,b1,b2,Scalar(0,255,0));
             circle(image,center1,40,Scalar(0,255,0));
-         //   imshow("apriltags_demo", image); // OpenCV call
+            imshow("apriltags_demo", image); // OpenCV call
         }
 
     std_msgs::String bomber_msg;
@@ -447,10 +485,15 @@ class Demo
         {
             base_position.push_back(Point2f(0,0));
         }
-        while (true)
+        while (ros::ok())
         {
+            ros::spinOnce();
+            if(g_image.empty()||!g_is_new_image||!g_is_bomber_running)
+                continue;
+
             // capture frame
-            m_cap >> image;
+            // m_cap >> image;
+            image=g_image;
 
             processImage(image, image_gray);
 
@@ -463,6 +506,9 @@ class Demo
                 last_t = t;
             }
 
+
+
+            g_is_new_image= false;
             // exit if any key is pressed
             // if (cv::waitKey(1) >= 0)            break;
             cv::waitKey(1);
@@ -479,13 +525,33 @@ int main(int argc, char *argv[])
 
 
     bomber_pub = node.advertise<std_msgs::String>("tpp/bomber", 1);
+    image_transport::ImageTransport image_transport(node);
+    vision_image_sub=
+      image_transport.subscribe("/m100/image", 1, imageCallBack);
+   bomber_running_sub = node.subscribe("/tpp/base_task", 1, pillarChangeCallback);
+    int get_base_color;
+    // node.getParam("/bomber_node/rb_param",get_base_color);
+    get_base_color=1;
+    if (get_base_color==1)
+    {
+        base_color=1;//red
+    }
+    else if (get_base_color==0)
+    {
+        base_color=0;//blue
+    }
+    else
+    {
+    ROS_INFO_STREAM("not a valid color!");
+    return -2;
+    }
 
     Demo demo;
 
     demo.setup();
 
     // setup image source, window for drawing, serial port...
-    demo.setupVideo();
+    //demo.setupVideo();
 
     // the actual processing loop where tags are detected and visualized
     demo.loop();

@@ -34,11 +34,14 @@ RM = /usr/bin/cmake -E remove -f
 # Escaping for special characters.
 EQUALS = =
 
+# The program to use to edit the cache.
+CMAKE_EDIT_COMMAND = /usr/bin/ccmake
+
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/jake/test2/bomber
+CMAKE_SOURCE_DIR = /home/ubuntu/dji_fly/src/test2/bomber
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/jake/test2/bomber/pod-build
+CMAKE_BINARY_DIR = /home/ubuntu/dji_fly/src/test2/bomber/pod-build
 
 # Utility rule file for doxygen.
 
@@ -60,6 +63,6 @@ CMakeFiles/doxygen.dir/clean:
 .PHONY : CMakeFiles/doxygen.dir/clean
 
 CMakeFiles/doxygen.dir/depend:
-	cd /home/jake/test2/bomber/pod-build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/jake/test2/bomber /home/jake/test2/bomber /home/jake/test2/bomber/pod-build /home/jake/test2/bomber/pod-build /home/jake/test2/bomber/pod-build/CMakeFiles/doxygen.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/ubuntu/dji_fly/src/test2/bomber/pod-build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ubuntu/dji_fly/src/test2/bomber /home/ubuntu/dji_fly/src/test2/bomber /home/ubuntu/dji_fly/src/test2/bomber/pod-build /home/ubuntu/dji_fly/src/test2/bomber/pod-build /home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/doxygen.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/doxygen.dir/depend
 

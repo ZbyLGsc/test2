@@ -34,11 +34,14 @@ RM = /usr/bin/cmake -E remove -f
 # Escaping for special characters.
 EQUALS = =
 
+# The program to use to edit the cache.
+CMAKE_EDIT_COMMAND = /usr/bin/ccmake
+
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/jake/test2/bomber
+CMAKE_SOURCE_DIR = /home/ubuntu/dji_fly/src/test2/bomber
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/jake/test2/bomber/pod-build
+CMAKE_BINARY_DIR = /home/ubuntu/dji_fly/src/test2/bomber/pod-build
 
 # Include any dependencies generated for this target.
 include example/CMakeFiles/bomber_node.dir/depend.make
@@ -51,17 +54,17 @@ include example/CMakeFiles/bomber_node.dir/flags.make
 
 example/CMakeFiles/bomber_node.dir/bomber_still.cpp.o: example/CMakeFiles/bomber_node.dir/flags.make
 example/CMakeFiles/bomber_node.dir/bomber_still.cpp.o: ../example/bomber_still.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/jake/test2/bomber/pod-build/CMakeFiles $(CMAKE_PROGRESS_1)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles $(CMAKE_PROGRESS_1)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object example/CMakeFiles/bomber_node.dir/bomber_still.cpp.o"
-	cd /home/jake/test2/bomber/pod-build/example && /usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/bomber_node.dir/bomber_still.cpp.o -c /home/jake/test2/bomber/example/bomber_still.cpp
+	cd /home/ubuntu/dji_fly/src/test2/bomber/pod-build/example && /usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/bomber_node.dir/bomber_still.cpp.o -c /home/ubuntu/dji_fly/src/test2/bomber/example/bomber_still.cpp
 
 example/CMakeFiles/bomber_node.dir/bomber_still.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/bomber_node.dir/bomber_still.cpp.i"
-	cd /home/jake/test2/bomber/pod-build/example && /usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/jake/test2/bomber/example/bomber_still.cpp > CMakeFiles/bomber_node.dir/bomber_still.cpp.i
+	cd /home/ubuntu/dji_fly/src/test2/bomber/pod-build/example && /usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/ubuntu/dji_fly/src/test2/bomber/example/bomber_still.cpp > CMakeFiles/bomber_node.dir/bomber_still.cpp.i
 
 example/CMakeFiles/bomber_node.dir/bomber_still.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/bomber_node.dir/bomber_still.cpp.s"
-	cd /home/jake/test2/bomber/pod-build/example && /usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/jake/test2/bomber/example/bomber_still.cpp -o CMakeFiles/bomber_node.dir/bomber_still.cpp.s
+	cd /home/ubuntu/dji_fly/src/test2/bomber/pod-build/example && /usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/ubuntu/dji_fly/src/test2/bomber/example/bomber_still.cpp -o CMakeFiles/bomber_node.dir/bomber_still.cpp.s
 
 example/CMakeFiles/bomber_node.dir/bomber_still.cpp.o.requires:
 .PHONY : example/CMakeFiles/bomber_node.dir/bomber_still.cpp.o.requires
@@ -82,58 +85,56 @@ bomber_node_EXTERNAL_OBJECTS =
 bin/bomber_node: example/CMakeFiles/bomber_node.dir/bomber_still.cpp.o
 bin/bomber_node: example/CMakeFiles/bomber_node.dir/build.make
 bin/bomber_node: lib/libapriltags.a
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_videostab.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_ts.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_superres.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_stitching.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_ocl.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_gpu.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_photo.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_legacy.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_contrib.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_video.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_objdetect.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_ml.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_calib3d.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_features2d.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_highgui.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_imgproc.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_flann.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_core.so.2.4.8
+bin/bomber_node: /usr/local/lib/libopencv_videostab.so.2.4.10
+bin/bomber_node: /usr/local/lib/libopencv_ts.a
+bin/bomber_node: /usr/local/lib/libopencv_superres.so.2.4.10
+bin/bomber_node: /usr/local/lib/libopencv_stitching.so.2.4.10
+bin/bomber_node: /usr/local/lib/libopencv_contrib.so.2.4.10
+bin/bomber_node: /usr/local/lib/libopencv_nonfree.so.2.4.10
+bin/bomber_node: /usr/local/lib/libopencv_ocl.so.2.4.10
+bin/bomber_node: /usr/local/lib/libopencv_gpu.so.2.4.10
+bin/bomber_node: /usr/local/lib/libopencv_photo.so.2.4.10
+bin/bomber_node: /usr/local/lib/libopencv_objdetect.so.2.4.10
+bin/bomber_node: /usr/local/lib/libopencv_legacy.so.2.4.10
+bin/bomber_node: /usr/local/lib/libopencv_video.so.2.4.10
+bin/bomber_node: /usr/local/lib/libopencv_ml.so.2.4.10
+bin/bomber_node: /usr/local/lib/libopencv_calib3d.so.2.4.10
+bin/bomber_node: /usr/local/lib/libopencv_features2d.so.2.4.10
+bin/bomber_node: /usr/local/lib/libopencv_highgui.so.2.4.10
+bin/bomber_node: /usr/local/lib/libopencv_imgproc.so.2.4.10
+bin/bomber_node: /usr/local/lib/libopencv_flann.so.2.4.10
+bin/bomber_node: /usr/local/lib/libopencv_core.so.2.4.10
 bin/bomber_node: /opt/ros/indigo/lib/libimage_transport.so
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libtinyxml.so
 bin/bomber_node: /opt/ros/indigo/lib/libclass_loader.so
 bin/bomber_node: /usr/lib/libPocoFoundation.so
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libdl.so
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libdl.so
 bin/bomber_node: /opt/ros/indigo/lib/libroslib.so
-bin/bomber_node: /opt/ros/indigo/lib/librospack.so
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libpython2.7.so
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libboost_program_options.so
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libtinyxml.so
 bin/bomber_node: /opt/ros/indigo/lib/libcv_bridge.so
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_videostab.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_video.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_superres.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_stitching.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_photo.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_ocl.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_objdetect.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_ml.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_legacy.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_imgproc.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_highgui.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_gpu.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_flann.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_features2d.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_core.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_contrib.so.2.4.8
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libopencv_calib3d.so.2.4.8
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libopencv_videostab.so.2.4.8
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libopencv_video.so.2.4.8
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libopencv_superres.so.2.4.8
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libopencv_stitching.so.2.4.8
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libopencv_photo.so.2.4.8
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libopencv_ocl.so.2.4.8
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libopencv_objdetect.so.2.4.8
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libopencv_ml.so.2.4.8
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libopencv_legacy.so.2.4.8
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libopencv_imgproc.so.2.4.8
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libopencv_highgui.so.2.4.8
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libopencv_gpu.so.2.4.8
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libopencv_flann.so.2.4.8
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libopencv_features2d.so.2.4.8
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libopencv_core.so.2.4.8
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libopencv_contrib.so.2.4.8
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libopencv_calib3d.so.2.4.8
 bin/bomber_node: /opt/ros/indigo/lib/libtf.so
 bin/bomber_node: /opt/ros/indigo/lib/libtf2_ros.so
 bin/bomber_node: /opt/ros/indigo/lib/libactionlib.so
 bin/bomber_node: /opt/ros/indigo/lib/libmessage_filters.so
 bin/bomber_node: /opt/ros/indigo/lib/libroscpp.so
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libboost_signals.so
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libboost_filesystem.so
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libboost_signals.so
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libboost_filesystem.so
 bin/bomber_node: /opt/ros/indigo/lib/libxmlrpcpp.so
 bin/bomber_node: /opt/ros/indigo/lib/libtf2.so
 bin/bomber_node: /opt/ros/indigo/lib/libroscpp_serialization.so
@@ -141,17 +142,17 @@ bin/bomber_node: /opt/ros/indigo/lib/librosconsole.so
 bin/bomber_node: /opt/ros/indigo/lib/librosconsole_log4cxx.so
 bin/bomber_node: /opt/ros/indigo/lib/librosconsole_backend_interface.so
 bin/bomber_node: /usr/lib/liblog4cxx.so
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libboost_regex.so
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libboost_regex.so
 bin/bomber_node: /opt/ros/indigo/lib/librostime.so
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libboost_date_time.so
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libboost_date_time.so
 bin/bomber_node: /opt/ros/indigo/lib/libcpp_common.so
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libboost_system.so
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libboost_thread.so
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libpthread.so
-bin/bomber_node: /usr/lib/x86_64-linux-gnu/libconsole_bridge.so
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libboost_system.so
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libboost_thread.so
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libpthread.so
+bin/bomber_node: /usr/lib/arm-linux-gnueabihf/libconsole_bridge.so
 bin/bomber_node: example/CMakeFiles/bomber_node.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --red --bold "Linking CXX executable ../bin/bomber_node"
-	cd /home/jake/test2/bomber/pod-build/example && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/bomber_node.dir/link.txt --verbose=$(VERBOSE)
+	cd /home/ubuntu/dji_fly/src/test2/bomber/pod-build/example && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/bomber_node.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
 example/CMakeFiles/bomber_node.dir/build: bin/bomber_node
@@ -161,10 +162,10 @@ example/CMakeFiles/bomber_node.dir/requires: example/CMakeFiles/bomber_node.dir/
 .PHONY : example/CMakeFiles/bomber_node.dir/requires
 
 example/CMakeFiles/bomber_node.dir/clean:
-	cd /home/jake/test2/bomber/pod-build/example && $(CMAKE_COMMAND) -P CMakeFiles/bomber_node.dir/cmake_clean.cmake
+	cd /home/ubuntu/dji_fly/src/test2/bomber/pod-build/example && $(CMAKE_COMMAND) -P CMakeFiles/bomber_node.dir/cmake_clean.cmake
 .PHONY : example/CMakeFiles/bomber_node.dir/clean
 
 example/CMakeFiles/bomber_node.dir/depend:
-	cd /home/jake/test2/bomber/pod-build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/jake/test2/bomber /home/jake/test2/bomber/example /home/jake/test2/bomber/pod-build /home/jake/test2/bomber/pod-build/example /home/jake/test2/bomber/pod-build/example/CMakeFiles/bomber_node.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/ubuntu/dji_fly/src/test2/bomber/pod-build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ubuntu/dji_fly/src/test2/bomber /home/ubuntu/dji_fly/src/test2/bomber/example /home/ubuntu/dji_fly/src/test2/bomber/pod-build /home/ubuntu/dji_fly/src/test2/bomber/pod-build/example /home/ubuntu/dji_fly/src/test2/bomber/pod-build/example/CMakeFiles/bomber_node.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : example/CMakeFiles/bomber_node.dir/depend
 

@@ -48,8 +48,7 @@ int main(int argc, char **argv)
       if(g_m100_image.empty()||!g_is_new_image)
         continue;
 
-      if(VISABILITY)
-        cv::imshow("m100/image", g_m100_image);
+      cv::imshow("m100/image", g_m100_image);
 	  cv::waitKey(1);
       /*show current color*/
       std::string color;
