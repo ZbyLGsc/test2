@@ -99,8 +99,8 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
   m_setpoints[PA_BASE_2][0]= 4.2;  //
   m_setpoints[PA_BASE_2][1]= 0.0;
 
-  m_setpoints[PA_PILLAR_3][0]= -1.8;  //
-  m_setpoints[PA_PILLAR_3][1]= 1.8;
+  m_setpoints[PA_PILLAR_3][0]= -2.8;  //
+  m_setpoints[PA_PILLAR_3][1]= 1.0;
 
   m_setpoints[PA_BASE_3][0]= 0.6;  //
   m_setpoints[PA_BASE_3][1]= -3.0;
@@ -143,6 +143,7 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
   resetAllState();
 }
 
+
 void RMChallengeFSM::resetAllState()
 {
   ros::Duration(1.0).sleep();
@@ -152,7 +153,7 @@ void RMChallengeFSM::resetAllState()
   m_base_state= BASE_POSITION;
   m_graspper_control_time= 0;
   /*if want to test different task,change id here as well as .h*/
-  m_current_takeoff_point_id= PA_START_Q;
+  m_current_takeoff_point_id= PA_START;
   m_already_find_T= false;
   for(int i=0;i<4;i++)
     m_pillar_triangle[i]=0;

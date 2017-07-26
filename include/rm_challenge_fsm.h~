@@ -2,7 +2,7 @@
 #define ZBY_PC 1
 #define MANIFOLD 2
 //#define CURRENT_COMPUTER ZBY_PC
-#define CURRENT_COMPUTER MANIFOLD
+ #define CURRENT_COMPUTER MANIFOLD
 
 /**parameters of uav*/
 /*
@@ -38,11 +38,11 @@ start2,base5,pillar5,(qulification),3
 #define PA_LAND_HEIGHT_THRESHOLD_FINAL 0.2
 #define PA_LAND_POSITION_THRESHOLD_HIGH 0.3
 #define PA_LAND_POSITION_THRESHOLD_LOW 0.15
-#define PA_LAND_POSITION_THRESHOLD_SUPER_LOW 0.06
+#define PA_LAND_POSITION_THRESHOLD_SUPER_LOW 0.065
 #define PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG 0.12
 #define PA_V_MIN_HIGH 0.15
 #define PA_V_MIN_LOW 0.04
-#define PA_V_MIN_FINAL 0.025
+#define PA_V_MIN_FINAL 0.04
 #define PA_LAND_Z_VELOCITY_FINAL 0.15
 #define PA_LAND_Z_VELOCITY 0.15
 #define PA_LAND_TRIANGLE_VELOCITY_HIGH 0.15
@@ -55,9 +55,9 @@ start2,base5,pillar5,(qulification),3
 #define PA_KT 0.35
 #define PA_KT_RATIO 1
 
-#define PA_YAW_RATE 7
+#define PA_YAW_RATE 3
 #define PA_ANGLE_WITH_DIRECT_LINE_THRESHOLD 25
-#define PA_ANGLE_THRESHOLD 10
+#define PA_ANGLE_THRESHOLD 3
 
 #define PA_CAMERA_DISPLACE 0.16
 #define PA_CAMERA_F 507.75
@@ -95,7 +95,7 @@ start2,base5,pillar5,(qulification),3
 #define PA_TARMAC_HEIGHT 0
 #define PA_PILLAR_HEIGHT 0.75
 
-#define PA_FORWARD_THRESHOLD 0.6
+#define PA_FORWARD_THRESHOLD 1.2
 
 #include <geometry_msgs/Vector3Stamped.h>
 #include <ros/assert.h>
