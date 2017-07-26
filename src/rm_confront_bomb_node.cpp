@@ -1,13 +1,8 @@
 #define ZBY_PC 1
 #define MANIFOLD 2
-#define CURRENT_COMPUTER ZBY_PC
-//  #define CURRENT_COMPUTER MANIFOLD
+//#define CURRENT_COMPUTER ZBY_PC
+#define CURRENT_COMPUTER MANIFOLD
 
-#define M100_CAMERA 1
-#define VIDEO_STREAM 2
-#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
-//#define CURRENT_IMAGE_SOURCE M100_CAMERA
-#define VISABILITY true
 
 /**RC channel define*/
 #define RC_F_UP 0
@@ -204,7 +199,7 @@ int main(int argc, char **argv)
 
   ros::Timer led_timer=
       node.createTimer(ros::Duration(1.0 / 5.0), ledTimerCallback);
-      
+
   initilizeSerialPort();
 
 #if CURRENT_COMPUTER == MANIFOLD
@@ -482,7 +477,7 @@ void vision_pillar_callback(const std_msgs::String::ConstPtr &msg)
   float arc_pos[2];
   int tri[4];
   bool circle_found, arc_found;
-  // ROS_INFO_STREAM(msg->data);
+  ROS_INFO_STREAM(msg->data);
   std::stringstream ss(msg->data.c_str());
   ss >> tri[0] >> tri[1] >> tri[2] >> tri[3] >> circle_found >> circle_pos[1] >>
       circle_pos[0] >> h >> arc_pos[1] >> arc_pos[0] >> arc_found;
@@ -556,19 +551,21 @@ void droneGoToPillar()
   if(g_prepare_to_land_type == PREPARE_AT_SUPER_LOW)
   {
     navigateByArc(vx, vy, vz);
+    ROS_INFO_STREAM("navigate by arc");
   }
   else if(g_discover_pillar_circle)
   {
     navigateByCircle(vx, vy, vz);
+    ROS_INFO_STREAM("navigate by circle");
   }
   else if(discoverTriangle())
   {
     navigateByTriangle(vx, vy, vz);
-    // ROS_INFO_STREAM("navigate by triangle");
+    ROS_INFO_STREAM("navigate by triangle");
   }
   else
   {
-    // ROS_INFO_STREAM("Miss pillar!!!");
+    ROS_INFO_STREAM("Miss pillar!!!");
   }
   ROS_INFO_STREAM("landing v at pillar are:" << vx << "," << vy << "," << vz);
   controlDroneVelocity(vx, vy, vz, yaw);

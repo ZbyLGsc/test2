@@ -3,7 +3,7 @@
 #define VIDEO_STREAM 2
 //#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
 #define CURRENT_IMAGE_SOURCE M100_CAMERA
-#define VISABILITY true
+#define VISABILITY false
 
 /**global publisher*/
 ros::Publisher vision_pillar_pub;
@@ -69,6 +69,7 @@ int main(int argc, char **argv)
     if(frame.empty())
       continue;
 
+    ss.str("");
     /* publish this frame to ROS topic*/
     image_ptr=
         cv_bridge::CvImage(std_msgs::Header(), "bgr8", frame).toImageMsg();

@@ -1,12 +1,12 @@
 #define ZBY_PC 1
 #define MANIFOLD 2
-//#define CURRENT_COMPUTER ZBY_PC
- #define CURRENT_COMPUTER MANIFOLD
+#define CURRENT_COMPUTER ZBY_PC
+//  #define CURRENT_COMPUTER MANIFOLD
 
 #define M100_CAMERA 1
 #define VIDEO_STREAM 2
-//#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
-#define CURRENT_IMAGE_SOURCE M100_CAMERA
+#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
+//#define CURRENT_IMAGE_SOURCE M100_CAMERA
 #define VISABILITY true
 
 /**RC channel define*/
@@ -88,7 +88,7 @@ void vision_base_callback(const std_msgs::String::ConstPtr &msg);
 void vision_pillar_callback(const std_msgs::String::ConstPtr &msg);
 /**timer callback, control uav in a finite state machine*/
 void taskTimerCallback(const ros::TimerEvent &evt);
-void cameraTimerCallback(const ros::TimerEvent &evt);
+void ledTimerCallback(const ros::TimerEvent &evt);
 
 /**channel variables*/
 int g_RC_channel= RC_P_UP;
@@ -158,6 +158,8 @@ bool readyToLand();
 void droneDropDown();
 void droneLand();
 
+void updateLEDColor();
+
 /**vision task control*/
 void changePillarTask(std::string state);
 void changeBaseTask(std::string state);
@@ -167,8 +169,9 @@ enum LED_COLOR
   LED_RED,
   LED_BLUE,
   LED_GREEN,
+  LED_WHITE,
 };
-void changeLedColor(LED_COLOR color);
+void changeLEDColor(LED_COLOR color);
 void setCircleVariables(bool is_circle_found, float position_error[2],
                         float height);
 void setTriangleVariables(int pillar_triangle[4]);
@@ -191,31 +194,17 @@ int main(int argc, char **argv)
       node.subscribe("tpp/bomber", 1, vision_base_callback);
   ros::Subscriber vision_pillar_sub=
       node.subscribe("tpp/pillar", 1, vision_pillar_callback);
-  /*initialize camera and publish to pillar and base*/
-  image_transport::ImageTransport image_transport(node);
-  g_image_pub= image_transport.advertise("m100/image", 1);
 
-#if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
-  g_cap.open("/home/ubuntu/rosbag/3334.avi");
-  // g_cap.open("/home/zby/ros_bags/7.22/start1.avi");
-  // g_cap.set(CV_CAP_PROP_POS_FRAMES, g_cap.get(CV_CAP_PROP_FRAME_COUNT) / 2);
-  g_cap.set(CV_CAP_PROP_POS_FRAMES, 100);
-#else
-  g_cap.open(0);
-#endif
-  if(!g_cap.isOpened())
-  {
-	return -1;
-  }
   /*initialize vision task control publisher*/
   g_pillar_task_pub= node.advertise<std_msgs::String>("/tpp/pillar_task", 1);
   g_base_task_pub= node.advertise<std_msgs::String>("/tpp/base_task", 1);
   /*initialize timers*/
   ros::Timer task_timer=
       node.createTimer(ros::Duration(1.0 / 50.0), taskTimerCallback);
-  ros::Timer camera_timer=
-      node.createTimer(ros::Duration(1 / 50.0), cameraTimerCallback);
 
+  ros::Timer led_timer=
+      node.createTimer(ros::Duration(1.0 / 5.0), ledTimerCallback);
+      
   initilizeSerialPort();
 
 #if CURRENT_COMPUTER == MANIFOLD
@@ -235,9 +224,16 @@ int main(int argc, char **argv)
   return 0;
 }
 
+void ledTimerCallback(const ros::TimerEvent &evt)
+{
+  updateLEDColor();
+  ROS_INFO_STREAM("update color");
+}
+
 void taskTimerCallback(const ros::TimerEvent &evt)
 {
   ROS_INFO_STREAM("loop:");
+
   /*do different task according to mode*/
   switch(g_RC_channel)
   {
@@ -280,22 +276,6 @@ void taskTimerCallback(const ros::TimerEvent &evt)
     {
       break;
     }
-  }
-}
-
-void cameraTimerCallback(const ros::TimerEvent &evt)
-{
-  ROS_INFO("camera timer");
-  cv::Mat frame;
-  g_cap >> frame;
-  if(frame.empty())
-    return;
-  else
-  {
-    /*publish to pillar and base node*/
-    g_image_ptr=
-        cv_bridge::CvImage(std_msgs::Header(), "bgr8", frame).toImageMsg();
-    g_image_pub.publish(g_image_ptr);
   }
 }
 
@@ -460,7 +440,7 @@ void bombBase()
   }
 }
 
-void changeLedColor(LED_COLOR color)
+void changeLEDColor(LED_COLOR color)
 {
   switch(color)
   {
@@ -485,6 +465,13 @@ void changeLedColor(LED_COLOR color)
                            g_err_code);
       break;
     }
+    case LED_WHITE:
+    {
+      for(int i= 0; i < 10; i++)
+        boost::asio::write(*g_serial_port, boost::asio::buffer("h"),
+                           g_err_code);
+      break;
+    }
   }
 }
 
@@ -495,7 +482,7 @@ void vision_pillar_callback(const std_msgs::String::ConstPtr &msg)
   float arc_pos[2];
   int tri[4];
   bool circle_found, arc_found;
-  ROS_INFO_STREAM(msg->data);
+  // ROS_INFO_STREAM(msg->data);
   std::stringstream ss(msg->data.c_str());
   ss >> tri[0] >> tri[1] >> tri[2] >> tri[3] >> circle_found >> circle_pos[1] >>
       circle_pos[0] >> h >> arc_pos[1] >> arc_pos[0] >> arc_found;
@@ -583,8 +570,7 @@ void droneGoToPillar()
   {
     // ROS_INFO_STREAM("Miss pillar!!!");
   }
-  // ROS_INFO_STREAM("landing v at pillar are:" << vx << "," << vy
-  //                                            << "," << vz);
+  ROS_INFO_STREAM("landing v at pillar are:" << vx << "," << vy << "," << vz);
   controlDroneVelocity(vx, vy, vz, yaw);
 }
 
@@ -899,4 +885,16 @@ void changeVisionTask(VISION_STATE state)
       break;
     }
   }
+}
+
+void updateLEDColor()
+{
+  if(g_discover_pillar_circle || g_discover_pillar_arc)
+    changeLEDColor(LED_GREEN);
+  else if(discoverTriangle())
+    changeLEDColor(LED_BLUE);
+  else if(g_discover_base)
+    changeLEDColor(LED_WHITE);
+  else
+    changeLEDColor(LED_RED);
 }
