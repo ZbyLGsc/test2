@@ -18,7 +18,133 @@ using namespace std;
 
 extern bool base_color;//red:1 blue:0
 
-void FindArmorV(Mat src, vector<Point> &armors)
+void FindArmorR(Mat src, vector<Point> &armors)
+{
+    if (src.channels() != 3)
+        return;
+
+    //灰度图
+    Mat gray;
+    cvtColor(src, gray, COLOR_RGB2GRAY);
+    //二值化
+    Mat bin;
+    Mat sorted;
+    gray.reshape(1, 1).copyTo(sorted);
+    cv::sort(sorted, sorted, CV_SORT_EVERY_ROW + CV_SORT_DESCENDING);
+    int binThresh = sorted.ptr<uchar>(0)[10000]; //
+    // cout << binThresh << endl;
+    threshold(gray, bin, binThresh, 255, THRESH_BINARY);
+
+    Mat element2 = getStructuringElement(MORPH_CROSS, Size(2, 2));
+    Mat element3 = getStructuringElement(MORPH_CROSS, Size(3, 3));
+    //    腐蚀
+    erode(bin, bin, element2, Point(-1, -1), 1);
+    //    膨胀
+    dilate(bin, bin, element3, Point(-1, -1), 1);
+    //
+    //    erode(bin,bin,NULL ,Point(-1,-1),1);
+    //    imshow("bin",bin);
+    //    vector< Point > armors;
+    imshow("bin", bin);
+    vector< vector<Point> > contours;
+    vector<RotatedRect> lights;
+    findContours(bin, contours, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
+    if (contours.size() > 0)
+    {
+        for (int i = 0; i < contours.size(); i++)
+        {
+            //面积不能太大或太小
+            int area = contourArea(contours.at(i));
+            if (area > 100 || area < 20)
+                continue;
+            RotatedRect rec = minAreaRect(contours.at(i));
+            //不能太靠边
+            int border = 10;
+            double recx = rec.center.x;
+            double recy = rec.center.y;
+            int srcH = (int)src.size().height;
+            int srcW = (int)src.size().width;
+            if (recx < border || recx > srcW - border || recy < border || recy > srcH - border)
+                continue;
+            //长宽比合适
+            Size2f size = rec.size;
+            double a = size.height > size.width ? size.height : size.width;
+            double b = size.height < size.width ? size.height : size.width;
+            if (a / b > 5 || a / b < 1.3)
+            {
+                //cout<<a/b<<endl;
+                continue;
+            }
+            //周围明显呈蓝色（或红色）
+
+            Mat roi = src(Rect(recx - 7, recy - 7, 15, 15));
+            Scalar avg;
+            avg = mean(roi);
+            // r[2]-b[0]>10
+            if (!(avg.val[2] - avg.val[0] > 50))
+            {
+                //cvResetIamgeROI(src);
+                continue;
+            }
+            //cvResetIamgeROI(src);
+            if (DRAW)
+            {
+                Point2f vertices[4];
+                rec.points(vertices);
+                for (int i = 0; i < 4; ++i)
+                    line(src, vertices[i], vertices[(i + 1) % 4], Scalar(0, 255, 0), 2);
+            }
+            lights.push_back(rec);
+        }
+    }
+    //    cout<<lights.size()<<endl;
+    if (lights.size() > 1)
+    {
+
+        for (int i = 0; i < lights.size() - 1; i++)
+        {
+            for (int j = i + 1; j < lights.size(); j++)
+            {
+                Point2f pi = lights.at(i).center;
+                Point2f pj = lights.at(j).center;
+                double midx = (pi.x + pj.x) / 2;
+                double midy = (pi.y + pj.y) / 2;
+                Size2f sizei = lights.at(i).size;
+                Size2f sizej = lights.at(j).size;
+                double ai = sizei.height > sizei.width ? sizei.height : sizei.width;
+                //                double b=sizei.height<sizei.width?sizei.height:sizei.width;
+                double distance = sqrt((pi.x - pj.x) * (pi.x - pj.x) + (pi.y - pj.y) * (pi.y - pj.y));
+                //灯条距离合适
+                if (distance < 3 * ai || distance > 5.5 * ai)
+                    continue;
+                //灯条中点连线与灯条夹角合适
+                double angeli = lights.at(i).angle;
+                double angelj = lights.at(j).angle;
+                if (sizei.width < sizei.height)
+                    angeli += 90;
+                if (sizej.width < sizej.height)
+                    angelj += 90;
+                double doti = abs(cos(angeli * PI / 180) * (pi.x - pj.x) + sin(angeli * PI / 180) * (pi.y - pj.y)) / distance;
+                double dotj = abs(cos(angelj * PI / 180) * (pi.x - pj.x) + sin(angelj * PI / 180) * (pi.y - pj.y)) / distance;
+                if (doti > 0.4 || dotj > 0.4)
+                    continue;
+                //                Mat roi = gray(Rect(midx-50,midy-5,10,10));
+                //                Mat avg,sd;
+                //                //normalize(roi,roi);
+                //                roi-=(mean(roi)[0]-50);
+                //                meanStdDev(roi,avg,sd);
+                //                //sds(i)
+                //                if (sd.at<double>(0,0)<0)
+                //                    continue;
+                //                if (avg.at<double>(0,0)<0)
+                //                    continue;
+                //                cout<<avg.at<double>(0,0)<<endl;
+                armors.push_back(Point((int)midx, (int)midy));
+            }
+        }
+    }
+}
+void FindArmorB(Mat src, vector<Point> &armors)
 {
     if (src.channels() != 3)
         return;
@@ -79,8 +205,8 @@ void FindArmorV(Mat src, vector<Point> &armors)
             Mat roi = src(Rect(recx - 7, recy - 7, 15, 15));
             Scalar avg;
             avg = mean(roi);
-            // r[2]-b[0]>10
-            if (!((2*base_color-1)*(avg.val[2] - avg.val[0]) > 10))
+            // b[0]-r[2]>10
+            if (!(avg.val[0] - avg.val[2] > 50))
             {
                 //cvResetIamgeROI(src);
                 continue;
@@ -149,7 +275,15 @@ void FindBase(Mat image, bool &BaseFound, Point &BaseCenter)
     static Point armorcenter(0, 0), tmp1(0, 0), tmp2(0, 0), tmp(0, 0);
     static bool flag = false;
     vector<Point> armors;
-    FindArmorV(image, armors);
+    if (base_color==1)
+    {
+        FindArmorR(image, armors);
+    }
+    else if (base_color==0)
+    {
+        FindArmorB(image, armors);
+    }
+    
     double dis1, dis2;
     BaseFound = false;
     if (armors.size() > 1 && !flag)
