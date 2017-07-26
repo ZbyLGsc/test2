@@ -161,6 +161,7 @@ void droneLand();
 /**vision task control*/
 void changePillarTask(std::string state);
 void changeBaseTask(std::string state);
+void changeVisionTask(VISION_STATE state);
 enum LED_COLOR
 {
   LED_RED,
@@ -212,6 +213,10 @@ int main(int argc, char **argv)
       node.createTimer(ros::Duration(1 / 50.0), cameraTimerCallback);
 
   initilizeSerialPort();
+
+#if CURRENT_COMPUTER == MANIFOLD
+  g_drone= new DJIDrone(node);
+#endif
 
   /*main loop begin */
   ros::spin();

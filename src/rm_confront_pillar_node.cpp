@@ -9,12 +9,13 @@
 ros::Publisher vision_pillar_pub;
 image_transport::Publisher vision_image_pub;
 image_transport::Subscriber m100_image_sub;
+ros::Subscriber pillar_change_sub;
 /**color and task flag*/
 RMChallengeVision::COLOR_TYPE g_color= RMChallengeVision::RED;
 bool g_is_pillar_running= true;
 cv::Mat g_m100_image;
 void m100ImageCallback(const sensor_msgs::Image::ConstPtr msg);
-
+void pillarChangeCallback(const std_msgs::String::ConstPtr &msg);
 
 int main(int argc, char **argv)
 {
@@ -22,6 +23,8 @@ int main(int argc, char **argv)
   ros::NodeHandle node;
 
   vision_pillar_pub= node.advertise<std_msgs::String>("tpp/pillar", 1);
+  pillar_change_sub=
+      node.subscribe("/tpp/pillar_task", 1, pillarChangeCallback);
 
   image_transport::ImageTransport image_transport(node);
   m100_image_sub=
@@ -44,7 +47,7 @@ int main(int argc, char **argv)
       if(g_m100_image.empty())
         continue;
 
-      cv::imshow("m100/image",g_m100_image);
+      cv::imshow("m100/image", g_m100_image);
       /*show current color*/
       std::string color;
       if(g_color == RMChallengeVision::RED)
@@ -83,7 +86,6 @@ int main(int argc, char **argv)
       vision_pillar_pub.publish(pillar_msg);
     }
 
-    ros::spinOnce();
     cv::waitKey(1);
   }
   return 1;
@@ -103,4 +105,15 @@ void m100ImageCallback(const sensor_msgs::Image::ConstPtr msg)
   }
   g_m100_image= cv_ptr->image;
   ROS_INFO_STREAM("image arrive");
+}
+
+void pillarChangeCallback(const std_msgs::String::ConstPtr &msg)
+{
+  ROS_INFO_STREAM("receive pillar change info");
+  if(msg->data == "open")
+    g_is_pillar_running= true;
+  else if(msg->data == "close")
+    g_is_pillar_running= false;
+  else
+    ROS_INFO_STREAM("invalid state");
 }
