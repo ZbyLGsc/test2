@@ -1,25 +1,26 @@
 Determining if the pthread_create exist failed with the following output:
-Change Dir: /home/jake/test2/bomber/pod-build/CMakeFiles/CMakeTmp
+Change Dir: /home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp
 
-Run Build Command:/usr/bin/make "cmTryCompileExec656607288/fast"
-make[2]: 正在进入目录 `/home/jake/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
-/usr/bin/make -f CMakeFiles/cmTryCompileExec656607288.dir/build.make CMakeFiles/cmTryCompileExec656607288.dir/build
-make[3]: 正在进入目录 `/home/jake/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
-/usr/bin/cmake -E cmake_progress_report /home/jake/test2/bomber/pod-build/CMakeFiles/CMakeTmp/CMakeFiles 1
-Building C object CMakeFiles/cmTryCompileExec656607288.dir/CheckSymbolExists.c.o
-/usr/bin/cc    -o CMakeFiles/cmTryCompileExec656607288.dir/CheckSymbolExists.c.o   -c /home/jake/test2/bomber/pod-build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
-Linking C executable cmTryCompileExec656607288
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec656607288.dir/link.txt --verbose=1
-/usr/bin/cc       CMakeFiles/cmTryCompileExec656607288.dir/CheckSymbolExists.c.o  -o cmTryCompileExec656607288 -rdynamic 
-CMakeFiles/cmTryCompileExec656607288.dir/CheckSymbolExists.c.o：在函数‘main’中：
-CheckSymbolExists.c:(.text+0x16)：对‘pthread_create’未定义的引用
+Run Build Command:/usr/bin/make "cmTryCompileExec4186203254/fast"
+make[2]: Entering directory `/home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
+/usr/bin/make -f CMakeFiles/cmTryCompileExec4186203254.dir/build.make CMakeFiles/cmTryCompileExec4186203254.dir/build
+make[3]: Entering directory `/home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec4186203254.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTryCompileExec4186203254.dir/CheckSymbolExists.c.o   -c /home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTryCompileExec4186203254
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec4186203254.dir/link.txt --verbose=1
+/usr/bin/cc       CMakeFiles/cmTryCompileExec4186203254.dir/CheckSymbolExists.c.o  -o cmTryCompileExec4186203254 -rdynamic 
+CMakeFiles/cmTryCompileExec4186203254.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0xe): undefined reference to `pthread_create'
+CheckSymbolExists.c:(.text+0x12): undefined reference to `pthread_create'
+make[3]: Leaving directory `/home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
+make[2]: Leaving directory `/home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
 collect2: error: ld returned 1 exit status
-make[3]: *** [cmTryCompileExec656607288] 错误 1
-make[3]:正在离开目录 `/home/jake/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
-make[2]: *** [cmTryCompileExec656607288/fast] 错误 2
-make[2]:正在离开目录 `/home/jake/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
+make[3]: *** [cmTryCompileExec4186203254] Error 1
+make[2]: *** [cmTryCompileExec4186203254/fast] Error 2
 
-File /home/jake/test2/bomber/pod-build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+File /home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
 /* */
 #include <pthread.h>
 
@@ -35,23 +36,23 @@ int main(int argc, char** argv)
 }
 
 Determining if the function pthread_create exists in the pthreads failed with the following output:
-Change Dir: /home/jake/test2/bomber/pod-build/CMakeFiles/CMakeTmp
+Change Dir: /home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp
 
-Run Build Command:/usr/bin/make "cmTryCompileExec20720339/fast"
-make[2]: 正在进入目录 `/home/jake/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
-/usr/bin/make -f CMakeFiles/cmTryCompileExec20720339.dir/build.make CMakeFiles/cmTryCompileExec20720339.dir/build
-make[3]: 正在进入目录 `/home/jake/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
-/usr/bin/cmake -E cmake_progress_report /home/jake/test2/bomber/pod-build/CMakeFiles/CMakeTmp/CMakeFiles 1
-Building C object CMakeFiles/cmTryCompileExec20720339.dir/CheckFunctionExists.c.o
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTryCompileExec20720339.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-2.8/Modules/CheckFunctionExists.c
-Linking C executable cmTryCompileExec20720339
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec20720339.dir/link.txt --verbose=1
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTryCompileExec20720339.dir/CheckFunctionExists.c.o  -o cmTryCompileExec20720339 -rdynamic -lpthreads 
-/usr/bin/ld: 找不到 -lpthreads
+Run Build Command:/usr/bin/make "cmTryCompileExec868529384/fast"
+make[2]: Entering directory `/home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
+/usr/bin/make -f CMakeFiles/cmTryCompileExec868529384.dir/build.make CMakeFiles/cmTryCompileExec868529384.dir/build
+make[3]: Entering directory `/home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec868529384.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTryCompileExec868529384.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-2.8/Modules/CheckFunctionExists.c
+Linking C executable cmTryCompileExec868529384
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec868529384.dir/link.txt --verbose=1
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTryCompileExec868529384.dir/CheckFunctionExists.c.o  -o cmTryCompileExec868529384 -rdynamic -lpthreads 
+/usr/bin/ld: cannot find -lpthreads
+make[3]: Leaving directory `/home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
+make[2]: Leaving directory `/home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
 collect2: error: ld returned 1 exit status
-make[3]: *** [cmTryCompileExec20720339] 错误 1
-make[3]:正在离开目录 `/home/jake/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
-make[2]:正在离开目录 `/home/jake/test2/bomber/pod-build/CMakeFiles/CMakeTmp'
-make[2]: *** [cmTryCompileExec20720339/fast] 错误 2
+make[3]: *** [cmTryCompileExec868529384] Error 1
+make[2]: *** [cmTryCompileExec868529384/fast] Error 2
 
 

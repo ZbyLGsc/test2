@@ -34,7 +34,7 @@ using namespace std;
 // base armor detector
 #include "FindArmorV.h"
 
-//ros 
+//ros
 #include <ros/ros.h>
 #include "std_msgs/String.h"
 #include <cv_bridge/cv_bridge.h>
@@ -74,9 +74,9 @@ bool g_is_bomber_running= true;
 void bomberRunningCallback(const std_msgs::String::ConstPtr& msg)
 {
   ROS_INFO_STREAM("receive bomber running info");
-  if(msg->data == "pause")
+  if(msg->data == "close")
     g_is_bomber_running= false;
-  else if(msg->data == "resume")
+  else if(msg->data == "open")
     g_is_bomber_running= true;
   else
     ROS_INFO_STREAM("invalid state");
@@ -406,8 +406,8 @@ class Demo
 
                 // Point2f tmp;
                 // tmp.x = base(0)*100;
-                // tmp.y= base(1)*100; 
-                
+                // tmp.y= base(1)*100;
+
 
                 //     base_position[base_position_counter]=tmp;
                 //     base_position_counter++;
@@ -428,7 +428,7 @@ class Demo
                 //     // }
                 //     }
 
-                    
+
 
                     // vector<Point2f> base_tmp(base_position);
                     // base_tmp.swap(base_position);
@@ -436,9 +436,9 @@ class Demo
                     //cout<<"capacity:"<<base_position.capacity()<<endl;
                  	//cout<<"size:"<<base_position.size()<<endl;
             }
-        
+
         }
-        
+
         // show the current image including any detections
         if (m_draw)
         {
@@ -455,7 +455,7 @@ class Demo
             line(image,a1,a2,Scalar(0,255,0));
             line(image,b1,b2,Scalar(0,255,0));
             circle(image,center1,40,Scalar(0,255,0));
-            imshow("apriltags_demo", image); // OpenCV call
+            //imshow("apriltags_demo", image); // OpenCV call
         }
 
     std_msgs::String bomber_msg;
@@ -525,7 +525,10 @@ int main(int argc, char *argv[])
 
 
     bomber_pub = node.advertise<std_msgs::String>("tpp/bomber", 1);
-
+    image_transport::ImageTransport image_transport(node);
+    vision_image_sub=
+      image_transport.subscribe("/m100/image", 1, imageCallBack);
+   bomber_running_sub = node.subscribe("/tpp/base_task", 1, bomberRunningCallback);
     int get_base_color;
     // node.getParam("/bomber_node/rb_param",get_base_color);
     get_base_color=1;
@@ -548,7 +551,7 @@ int main(int argc, char *argv[])
     demo.setup();
 
     // setup image source, window for drawing, serial port...
-    demo.setupVideo();
+    //demo.setupVideo();
 
     // the actual processing loop where tags are detected and visualized
     demo.loop();

@@ -1,12 +1,12 @@
 #define ZBY_PC 1
 #define MANIFOLD 2
-#define CURRENT_COMPUTER ZBY_PC
-// #define CURRENT_COMPUTER MANIFOLD
+//#define CURRENT_COMPUTER ZBY_PC
+ #define CURRENT_COMPUTER MANIFOLD
 
 #define M100_CAMERA 1
 #define VIDEO_STREAM 2
-//#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
-#define CURRENT_IMAGE_SOURCE M100_CAMERA
+#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
+//#define CURRENT_IMAGE_SOURCE M100_CAMERA
 #define VISABILITY true
 
 /**RC channel define*/
@@ -196,13 +196,17 @@ int main(int argc, char **argv)
   g_image_pub= image_transport.advertise("m100/image", 1);
 
 #if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
-  g_cap.open("/home/ubuntu/rosbag/3334.avi");
+  g_cap.open("/home/ubuntu/rosbag/test_confront.avi");
   // g_cap.open("/home/zby/ros_bags/7.22/start1.avi");
   // g_cap.set(CV_CAP_PROP_POS_FRAMES, g_cap.get(CV_CAP_PROP_FRAME_COUNT) / 2);
-  g_cap.set(CV_CAP_PROP_POS_FRAMES, 100);
+  g_cap.set(CV_CAP_PROP_POS_FRAMES, 110);
 #else
   g_cap.open(0);
 #endif
+  if(!g_cap.isOpened())
+  {
+	return -1;
+  }
   /*initialize vision task control publisher*/
   g_pillar_task_pub= node.advertise<std_msgs::String>("/tpp/pillar_task", 1);
   g_base_task_pub= node.advertise<std_msgs::String>("/tpp/base_task", 1);
@@ -210,7 +214,7 @@ int main(int argc, char **argv)
   ros::Timer task_timer=
       node.createTimer(ros::Duration(1.0 / 50.0), taskTimerCallback);
   ros::Timer camera_timer=
-      node.createTimer(ros::Duration(1 / 50.0), cameraTimerCallback);
+      node.createTimer(ros::Duration(1 / 10.0), cameraTimerCallback);
 
   initilizeSerialPort();
 
@@ -490,6 +494,7 @@ void vision_pillar_callback(const std_msgs::String::ConstPtr &msg)
   float arc_pos[2];
   int tri[4];
   bool circle_found, arc_found;
+  //ROS_INFO_STREAM(msg->data);
   std::stringstream ss(msg->data.c_str());
   ss >> tri[0] >> tri[1] >> tri[2] >> tri[3] >> circle_found >> circle_pos[1] >>
       circle_pos[0] >> h >> arc_pos[1] >> arc_pos[0] >> arc_found;
@@ -577,8 +582,8 @@ void droneGoToPillar()
   {
     // ROS_INFO_STREAM("Miss pillar!!!");
   }
-  // ROS_INFO_STREAM("landing v at pillar are:" << vx << "," << vy
-  //                                            << "," << vz);
+   ROS_INFO_STREAM("landing v at pillar are:" << vx << "," << vy
+                                              << "," << vz);
   controlDroneVelocity(vx, vy, vz, yaw);
 }
 

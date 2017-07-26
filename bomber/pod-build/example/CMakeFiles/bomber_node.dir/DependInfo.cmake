@@ -4,7 +4,7 @@ SET(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 SET(CMAKE_DEPENDS_CHECK_CXX
-  "/home/jake/test2/bomber/example/bomber_still.cpp" "/home/jake/test2/bomber/pod-build/example/CMakeFiles/bomber_node.dir/bomber_still.cpp.o"
+  "/home/ubuntu/dji_fly/src/test2/bomber/example/bomber_still.cpp" "/home/ubuntu/dji_fly/src/test2/bomber/pod-build/example/CMakeFiles/bomber_node.dir/bomber_still.cpp.o"
   )
 SET(CMAKE_CXX_COMPILER_ID "GNU")
 
@@ -16,7 +16,7 @@ SET(CMAKE_TARGET_DEFINITIONS
 
 # Targets to which this target links.
 SET(CMAKE_TARGET_LINKED_INFO_FILES
-  "/home/jake/test2/bomber/pod-build/CMakeFiles/apriltags.dir/DependInfo.cmake"
+  "/home/ubuntu/dji_fly/src/test2/bomber/pod-build/CMakeFiles/apriltags.dir/DependInfo.cmake"
   )
 
 # The include file search paths:
@@ -26,7 +26,8 @@ SET(CMAKE_C_TARGET_INCLUDE_PATH
   "../AprilTags"
   "../."
   "/opt/local/include"
-  "/usr/include/opencv"
+  "/usr/local/include/opencv"
+  "/usr/local/include"
   "/opt/ros/kinetic/include"
   "/usr/include/eigen3"
   )
