@@ -16,8 +16,10 @@ using namespace cv;
 using namespace std;
 
 #include <cv_bridge/cv_bridge.h>
+#include <geometry_msgs/Vector3Stamped.h>
 #include <image_transport/image_transport.h>
 #include <ros/ros.h>
+#include <sensor_msgs/LaserScan.h>
 #include "AprilTags/QRCode.h"
 #include "std_msgs/String.h"
 #define M100_CAMERA 1
@@ -35,10 +37,11 @@ QRCode qr_code;
 std::stringstream ss;
 cv::Mat g_image;
 bool g_is_new_image= false;
-bool g_is_base_running= false;
+bool g_is_base_running= true;
+float g_height= 2.4;
 
 void baseChangeCallback(const std_msgs::String::ConstPtr& msg);
-
+void guidance_distance_callback(const sensor_msgs::LaserScan& g_oa);
 /**global video capture and image*/
 // cv::Mat g_pillar_image;
 // cv::Mat g_line_image;
@@ -80,6 +83,8 @@ int main(int argc, char** argv)
   vision_image_sub= image_transport.subscribe("m100/image", 1, imageCallBack);
 
   base_change_sub= node.subscribe("/tpp/base_change", 1, baseChangeCallback);
+  ros::Subscriber guidance_distance_sub= node.subscribe(
+      "/guidance/obstacle_distance", 1, guidance_distance_callback);
   /*main loop*/
   // cv::Mat m_copy = m_origin.clone();
   // cv::cvtColor(m_copy, m_copy, CV_BGR2HSV);
@@ -99,8 +104,9 @@ int main(int argc, char** argv)
     if(g_is_base_running)
     {
       bool base_found;
+      float base_direction_degree= 0;
       // ROS_INFO_STREAM("before");
-      if(qr_code.getBasePosition(g_image, 2.4))
+      if(qr_code.getBasePosition(g_image, g_height))
       {
         ROS_INFO_STREAM("base position :" << qr_code.getBaseX() << " "
                                           << qr_code.getBaseY());
@@ -114,10 +120,13 @@ int main(int argc, char** argv)
         base_found= false;
       }
       // ROS_INFO_STREAM("after");
+      qr_code.getBaseDirection(base_direction_degree);
+      ROS_INFO_STREAM("base direction:" << base_direction_degree);
+
       ss.str("");
       std_msgs::String base_msg;
-      ss << base_found << " " << qr_code.getBaseX() << " "
-         << qr_code.getBaseY();
+      ss << base_found << " " << qr_code.getBaseX() << " " << qr_code.getBaseY()
+         << " " << base_direction_degree;
       base_msg.data= ss.str();
       vision_base_pub.publish(base_msg);
 
@@ -133,10 +142,19 @@ int main(int argc, char** argv)
 void baseChangeCallback(const std_msgs::String::ConstPtr& msg)
 {
   ROS_INFO_STREAM("receive base change info");
-  if(msg->data=="pause")
+  if(msg->data == "pause")
     g_is_base_running= false;
-  else if(msg->data=="resume")
-    g_is_base_running=true;
-  else  
+  else if(msg->data == "resume")
+    g_is_base_running= true;
+  else
     ROS_INFO_STREAM("invalid state");
+}
+
+void guidance_distance_callback(const sensor_msgs::LaserScan& g_oa)
+{
+  ROS_INFO("frame_id: %s stamp: %d\n", g_oa.header.frame_id.c_str(),
+           g_oa.header.stamp.sec);
+  ROS_INFO("obstacle distance: [%f %f %f %f %f]\n", g_oa.ranges[0],
+           g_oa.ranges[1], g_oa.ranges[2], g_oa.ranges[3], g_oa.ranges[4]);
+  g_height= g_oa.ranges[0];
 }

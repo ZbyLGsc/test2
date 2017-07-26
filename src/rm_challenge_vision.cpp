@@ -631,7 +631,7 @@ void RMChallengeVision::getYellowRegion(Mat& src, Mat& dst, int LowH, int HighH,
   threshold(abs, abs, 27, 255, THRESH_BINARY);
   bitwise_and(abs, large, region2);
   absdiff(bgrSplit[2], bgrSplit[1], abs);
-  threshold(abs, region3, 25, 255, THRESH_BINARY_INV);
+  threshold(abs, region3, 35, 255, THRESH_BINARY_INV);
 
   bitwise_and(region1, region2, bgrColorRegion);
   bitwise_and(bgrColorRegion, region3, bgrColorRegion);
@@ -767,7 +767,7 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
 
   if(m_visable)
     split(src, bgrSplit);  //分离出BGR通道，为最终显示结果做准备
-  getYellowRegion(src, img, 30, 47, 150, 90);  //获取黄色区域
+  getYellowRegion(src, img, 30, 53, 99, 140);  //获取黄色区域
   Mat element1= getStructuringElement(
       MORPH_ELLIPSE, Size(3, 3));  //设置腐蚀的核大小,5x5的椭圆，即圆
   Mat element2=
