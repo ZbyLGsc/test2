@@ -30,7 +30,7 @@
 #define PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG 0.12
 #define PA_V_MIN_HIGH 0.15
 #define PA_V_MIN_LOW 0.04
-#define PA_V_MIN_FINAL 0.025
+#define PA_V_MIN_FINAL 0.04
 #define PA_LAND_Z_VELOCITY_FINAL 0.15
 #define PA_LAND_Z_VELOCITY 0.15
 #define PA_LAND_TRIANGLE_VELOCITY_HIGH 0.15
@@ -174,7 +174,7 @@ void setArcVariables(bool is_arc_found, float position_error[2]);
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "rm_uav_challenge");
+  ros::init(argc, argv, "rm_confront_bomb_node");
   ros::NodeHandle node;
 /*subscriber from dji node*/
 #if CURRENT_COMPUTER == MANIFOLD
@@ -309,6 +309,8 @@ void rc_channels_callback(const dji_sdk::RCChannels rc_channels)
   {
     g_is_sdk_control= false;
     changeVisionTask(VISION_ALL);
+    g_prepare_to_land_type=PREPARE_AT_HIGH;
+
     if(fabs(rc_channels.mode + 8000) < 0.000001)
     {
       if(fabs(rc_channels.gear + 10000) < 0.000001)

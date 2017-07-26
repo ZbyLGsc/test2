@@ -2,7 +2,7 @@
 #define ZBY_PC 1
 #define MANIFOLD 2
 #define CURRENT_COMPUTER ZBY_PC
-// #define CURRENT_COMPUTER MANIFOLD
+// #define CURRENT_COMPUTER M ANIFOLD
 
 /**parameters of uav*/
 /*
