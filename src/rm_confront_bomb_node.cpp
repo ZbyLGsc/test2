@@ -1,7 +1,13 @@
 #define ZBY_PC 1
 #define MANIFOLD 2
-//#define CURRENT_COMPUTER ZBY_PC
- #define CURRENT_COMPUTER MANIFOLD
+#define CURRENT_COMPUTER ZBY_PC
+// #define CURRENT_COMPUTER MANIFOLD
+
+#define M100_CAMERA 1
+#define VIDEO_STREAM 2
+//#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
+#define CURRENT_IMAGE_SOURCE M100_CAMERA
+#define VISABILITY true
 
 /**RC channel define*/
 #define RC_F_UP 0
@@ -38,6 +44,10 @@
 #define PA_KP_PILLAR_HIGH 0.3
 #define PA_KP_PILLAR_LOW 0.3
 
+/*opencv*/
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+/*ros*/
 #include <cv_bridge/cv_bridge.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Vector3Stamped.h>
@@ -77,7 +87,8 @@ void guidance_distance_callback(const sensor_msgs::LaserScan &g_oa);
 void vision_base_callback(const std_msgs::String::ConstPtr &msg);
 void vision_pillar_callback(const std_msgs::String::ConstPtr &msg);
 /**timer callback, control uav in a finite state machine*/
-void timer_callback(const ros::TimerEvent &evt);
+void taskTimerCallback(const ros::TimerEvent &evt);
+void cameraTimerCallback(const ros::TimerEvent &evt);
 
 /**channel variables*/
 int g_RC_channel= RC_P_UP;
@@ -112,6 +123,19 @@ boost::asio::io_service g_io_service;
 DJIDrone *g_drone;
 #endif
 bool g_is_sdk_control= false;
+/**vision control variables*/
+cv::VideoCapture g_cap;
+image_transport::Publisher g_image_pub;
+sensor_msgs::ImagePtr g_image_ptr;
+enum VISION_STATE
+{
+  VISION_ALL,
+  VISION_PILLAR,
+  VISION_BASE,
+};
+VISION_STATE g_vision_state= VISION_ALL;
+ros::Publisher g_pillar_task_pub;
+ros::Publisher g_base_task_pub;
 /**
 *global functions
 */
@@ -131,6 +155,12 @@ void droneHover();
 bool isCheckedTimeSuitable();
 void updateCheckedTime();
 bool readyToLand();
+void droneDropDown();
+void droneLand();
+
+/**vision task control*/
+void changePillarTask(std::string state);
+void changeBaseTask(std::string state);
 enum LED_COLOR
 {
   LED_RED,
@@ -154,23 +184,40 @@ int main(int argc, char **argv)
 #endif
   ros::Subscriber uav_state_sub=
       node.subscribe("/dji_sdk/flight_status", 1, uav_state_callback);
-
   ros::Subscriber guidance_distance_sub= node.subscribe(
       "/guidance/obstacle_distance", 1, guidance_distance_callback);
-
   ros::Subscriber vision_base_sub=
       node.subscribe("tpp/bomber", 1, vision_base_callback);
-
   ros::Subscriber vision_pillar_sub=
       node.subscribe("tpp/pillar", 1, vision_pillar_callback);
+  /*initialize camera and publish to pillar and base*/
+  image_transport::ImageTransport image_transport(node);
+  g_image_pub= image_transport.advertise("m100/image", 1);
 
-  ros::Timer timer= node.createTimer(ros::Duration(1.0 / 50.0), timer_callback);
+#if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
+  g_cap.open("/home/ubuntu/rosbag/3334.avi");
+  // g_cap.open("/home/zby/ros_bags/7.22/start1.avi");
+  // g_cap.set(CV_CAP_PROP_POS_FRAMES, g_cap.get(CV_CAP_PROP_FRAME_COUNT) / 2);
+  g_cap.set(CV_CAP_PROP_POS_FRAMES, 100);
+#else
+  g_cap.open(0);
+#endif
+  /*initialize vision task control publisher*/
+  g_pillar_task_pub= node.advertise<std_msgs::String>("/tpp/pillar_task", 1);
+  g_base_task_pub= node.advertise<std_msgs::String>("/tpp/base_task", 1);
+  /*initialize timers*/
+  ros::Timer task_timer=
+      node.createTimer(ros::Duration(1.0 / 50.0), taskTimerCallback);
+  ros::Timer camera_timer=
+      node.createTimer(ros::Duration(1 / 50.0), cameraTimerCallback);
 
   initilizeSerialPort();
-  g_drone = new DJIDrone(node);
 
+  /*main loop begin */
   ros::spin();
 
+  /*release resource*/
+  g_cap.release();
   delete g_serial_port;
 #if CURRENT_COMPUTER == MANIFOLD
   g_drone->release_sdk_permission_control();
@@ -179,7 +226,7 @@ int main(int argc, char **argv)
   return 0;
 }
 
-void timer_callback(const ros::TimerEvent &evt)
+void taskTimerCallback(const ros::TimerEvent &evt)
 {
   ROS_INFO_STREAM("loop:");
   /*do different task according to mode*/
@@ -205,6 +252,9 @@ void timer_callback(const ros::TimerEvent &evt)
       }
       else
       {
+        controlGraspper("open");
+        droneDropDown();
+        droneLand();
       }
       break;
     }
@@ -221,6 +271,21 @@ void timer_callback(const ros::TimerEvent &evt)
     {
       break;
     }
+  }
+}
+
+void cameraTimerCallback(const ros::TimerEvent &evt)
+{
+  cv::Mat frame;
+  g_cap >> frame;
+  if(frame.empty())
+    return;
+  else
+  {
+    /*publish to pillar and base node*/
+    g_image_ptr=
+        cv_bridge::CvImage(std_msgs::Header(), "bgr8", frame).toImageMsg();
+    g_image_pub.publish(g_image_ptr);
   }
 }
 
@@ -244,16 +309,21 @@ void rc_channels_callback(const dji_sdk::RCChannels rc_channels)
     {
       g_RC_channel= RC_F_UP;
       ROS_INFO_STREAM("RC channel is: F up");
+      if(g_vision_state != VISION_PILLAR)
+        changeVisionTask(VISION_PILLAR);
     }
     else if(fabs(rc_channels.gear + 4545) < 0.000001)
     {
       g_RC_channel= RC_F_DOWN;
       ROS_INFO_STREAM("RC channel is: F down");
+      if(g_vision_state != VISION_BASE)
+        changeVisionTask(VISION_BASE);
     }
   }
   else
   {
     g_is_sdk_control= false;
+    changeVisionTask(VISION_ALL);
     if(fabs(rc_channels.mode + 8000) < 0.000001)
     {
       if(fabs(rc_channels.gear + 10000) < 0.000001)
@@ -754,4 +824,68 @@ bool isCheckedTimeSuitable()
 void updateCheckedTime()
 {
   g_checked_time= ros::Time::now();
+}
+
+void changePillarTask(std::string state)
+{
+  std_msgs::String msg;
+  if(state == "open" || state == "close")
+  {
+    msg.data= state;
+    for(int i= 0; i < 5; i++)
+      g_pillar_task_pub.publish(msg);
+  }
+}
+
+void droneDropDown()
+{
+  for(int i= 0; i < 200; i++)
+    controlDroneVelocity(0.0, 0.0, -0.9, 0.0);
+}
+
+void droneLand()
+{
+#if CURRENT_COMPUTER == MANIFOLD
+  g_drone->landing();
+#endif
+}
+
+void changeBaseTask(std::string state)
+{
+  std_msgs::String msg;
+  if(state == "open" || state == "close")
+  {
+    msg.data= state;
+    for(int i= 0; i < 5; i++)
+      g_base_task_pub.publish(msg);
+  }
+}
+
+void changeVisionTask(VISION_STATE state)
+{
+  switch(state)
+  {
+    case VISION_ALL:
+    {
+      changePillarTask("open");
+      changeBaseTask("open");
+      g_vision_state= VISION_ALL;
+      break;
+    }
+    case VISION_PILLAR:
+    {
+      changePillarTask("open");
+      changeBaseTask("close");
+      g_vision_state= VISION_PILLAR;
+
+      break;
+    }
+    case VISION_BASE:
+    {
+      changePillarTask("close");
+      changeBaseTask("open");
+      g_vision_state= VISION_BASE;
+      break;
+    }
+  }
 }
