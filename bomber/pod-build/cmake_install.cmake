@@ -1,8 +1,8 @@
-# Install script for directory: /home/ubuntu/dji_fly/src/test2/bomber
+# Install script for directory: /home/jake/test2/bomber
 
 # Set the install prefix
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  SET(CMAKE_INSTALL_PREFIX "/home/ubuntu/dji_fly/src/test2/bomber/build")
+  SET(CMAKE_INSTALL_PREFIX "/home/jake/test2/bomber/build")
 ENDIF(NOT DEFINED CMAKE_INSTALL_PREFIX)
 STRING(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -44,117 +44,117 @@ ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unsp
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/home/ubuntu/dji_fly/src/test2/bomber/build/_setup_util.py")
+   "/home/jake/test2/bomber/build/_setup_util.py")
   IF (CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   ENDIF (CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
   IF (CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   ENDIF (CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
-FILE(INSTALL DESTINATION "/home/ubuntu/dji_fly/src/test2/bomber/build" TYPE PROGRAM FILES "/home/ubuntu/dji_fly/src/test2/bomber/pod-build/catkin_generated/installspace/_setup_util.py")
+FILE(INSTALL DESTINATION "/home/jake/test2/bomber/build" TYPE PROGRAM FILES "/home/jake/test2/bomber/pod-build/catkin_generated/installspace/_setup_util.py")
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/home/ubuntu/dji_fly/src/test2/bomber/build/env.sh")
+   "/home/jake/test2/bomber/build/env.sh")
   IF (CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   ENDIF (CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
   IF (CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   ENDIF (CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
-FILE(INSTALL DESTINATION "/home/ubuntu/dji_fly/src/test2/bomber/build" TYPE PROGRAM FILES "/home/ubuntu/dji_fly/src/test2/bomber/pod-build/catkin_generated/installspace/env.sh")
+FILE(INSTALL DESTINATION "/home/jake/test2/bomber/build" TYPE PROGRAM FILES "/home/jake/test2/bomber/pod-build/catkin_generated/installspace/env.sh")
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/home/ubuntu/dji_fly/src/test2/bomber/build/setup.bash")
+   "/home/jake/test2/bomber/build/setup.bash")
   IF (CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   ENDIF (CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
   IF (CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   ENDIF (CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
-FILE(INSTALL DESTINATION "/home/ubuntu/dji_fly/src/test2/bomber/build" TYPE FILE FILES "/home/ubuntu/dji_fly/src/test2/bomber/pod-build/catkin_generated/installspace/setup.bash")
+FILE(INSTALL DESTINATION "/home/jake/test2/bomber/build" TYPE FILE FILES "/home/jake/test2/bomber/pod-build/catkin_generated/installspace/setup.bash")
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/home/ubuntu/dji_fly/src/test2/bomber/build/setup.sh")
+   "/home/jake/test2/bomber/build/setup.sh")
   IF (CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   ENDIF (CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
   IF (CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   ENDIF (CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
-FILE(INSTALL DESTINATION "/home/ubuntu/dji_fly/src/test2/bomber/build" TYPE FILE FILES "/home/ubuntu/dji_fly/src/test2/bomber/pod-build/catkin_generated/installspace/setup.sh")
+FILE(INSTALL DESTINATION "/home/jake/test2/bomber/build" TYPE FILE FILES "/home/jake/test2/bomber/pod-build/catkin_generated/installspace/setup.sh")
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/home/ubuntu/dji_fly/src/test2/bomber/build/setup.zsh")
+   "/home/jake/test2/bomber/build/setup.zsh")
   IF (CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   ENDIF (CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
   IF (CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   ENDIF (CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
-FILE(INSTALL DESTINATION "/home/ubuntu/dji_fly/src/test2/bomber/build" TYPE FILE FILES "/home/ubuntu/dji_fly/src/test2/bomber/pod-build/catkin_generated/installspace/setup.zsh")
+FILE(INSTALL DESTINATION "/home/jake/test2/bomber/build" TYPE FILE FILES "/home/jake/test2/bomber/pod-build/catkin_generated/installspace/setup.zsh")
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/home/ubuntu/dji_fly/src/test2/bomber/build/.rosinstall")
+   "/home/jake/test2/bomber/build/.rosinstall")
   IF (CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   ENDIF (CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
   IF (CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   ENDIF (CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
-FILE(INSTALL DESTINATION "/home/ubuntu/dji_fly/src/test2/bomber/build" TYPE FILE FILES "/home/ubuntu/dji_fly/src/test2/bomber/pod-build/catkin_generated/installspace/.rosinstall")
+FILE(INSTALL DESTINATION "/home/jake/test2/bomber/build" TYPE FILE FILES "/home/jake/test2/bomber/pod-build/catkin_generated/installspace/.rosinstall")
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
-  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/ubuntu/dji_fly/src/test2/bomber/pod-build/lib/libapriltags.a")
+  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/jake/test2/bomber/pod-build/lib/libapriltags.a")
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
   FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/AprilTags" TYPE FILE FILES
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/UnionFindSimple.h"
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/Tag16h5_other.h"
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/Gridder.h"
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/GLineSegment2D.h"
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/TagDetector.h"
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/Tag36h11.h"
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/Tag25h9.h"
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/GrayModel.h"
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/Quad.h"
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/Tag36h9.h"
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/MathUtil.h"
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/Segment.h"
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/Edge.h"
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/XYWeight.h"
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/Tag16h5.h"
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/Gaussian.h"
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/FloatImage.h"
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/Tag25h7.h"
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/Tag36h11_other.h"
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/GLine2D.h"
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/TagFamily.h"
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/Homography33.h"
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/pch.h"
-    "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags/TagDetection.h"
+    "/home/jake/test2/bomber/AprilTags/GLineSegment2D.h"
+    "/home/jake/test2/bomber/AprilTags/Segment.h"
+    "/home/jake/test2/bomber/AprilTags/MathUtil.h"
+    "/home/jake/test2/bomber/AprilTags/Quad.h"
+    "/home/jake/test2/bomber/AprilTags/Gridder.h"
+    "/home/jake/test2/bomber/AprilTags/Tag16h5.h"
+    "/home/jake/test2/bomber/AprilTags/Tag16h5_other.h"
+    "/home/jake/test2/bomber/AprilTags/Tag36h9.h"
+    "/home/jake/test2/bomber/AprilTags/Tag36h11_other.h"
+    "/home/jake/test2/bomber/AprilTags/Tag36h11.h"
+    "/home/jake/test2/bomber/AprilTags/GrayModel.h"
+    "/home/jake/test2/bomber/AprilTags/TagFamily.h"
+    "/home/jake/test2/bomber/AprilTags/UnionFindSimple.h"
+    "/home/jake/test2/bomber/AprilTags/Homography33.h"
+    "/home/jake/test2/bomber/AprilTags/TagDetection.h"
+    "/home/jake/test2/bomber/AprilTags/TagDetector.h"
+    "/home/jake/test2/bomber/AprilTags/GLine2D.h"
+    "/home/jake/test2/bomber/AprilTags/Edge.h"
+    "/home/jake/test2/bomber/AprilTags/Gaussian.h"
+    "/home/jake/test2/bomber/AprilTags/Tag25h9.h"
+    "/home/jake/test2/bomber/AprilTags/FloatImage.h"
+    "/home/jake/test2/bomber/AprilTags/pch.h"
+    "/home/jake/test2/bomber/AprilTags/Tag25h7.h"
+    "/home/jake/test2/bomber/AprilTags/XYWeight.h"
     )
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
-  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/ubuntu/dji_fly/src/test2/bomber/pod-build/lib/pkgconfig/apriltags.pc")
+  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/jake/test2/bomber/pod-build/lib/pkgconfig/apriltags.pc")
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 
 IF(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  INCLUDE("/home/ubuntu/dji_fly/src/test2/bomber/pod-build/gtest/cmake_install.cmake")
-  INCLUDE("/home/ubuntu/dji_fly/src/test2/bomber/pod-build/example/cmake_install.cmake")
+  INCLUDE("/home/jake/test2/bomber/pod-build/gtest/cmake_install.cmake")
+  INCLUDE("/home/jake/test2/bomber/pod-build/example/cmake_install.cmake")
 
 ENDIF(NOT CMAKE_INSTALL_LOCAL_ONLY)
 
@@ -164,7 +164,7 @@ ELSE(CMAKE_INSTALL_COMPONENT)
   SET(CMAKE_INSTALL_MANIFEST "install_manifest.txt")
 ENDIF(CMAKE_INSTALL_COMPONENT)
 
-FILE(WRITE "/home/ubuntu/dji_fly/src/test2/bomber/pod-build/${CMAKE_INSTALL_MANIFEST}" "")
+FILE(WRITE "/home/jake/test2/bomber/pod-build/${CMAKE_INSTALL_MANIFEST}" "")
 FOREACH(file ${CMAKE_INSTALL_MANIFEST_FILES})
-  FILE(APPEND "/home/ubuntu/dji_fly/src/test2/bomber/pod-build/${CMAKE_INSTALL_MANIFEST}" "${file}\n")
+  FILE(APPEND "/home/jake/test2/bomber/pod-build/${CMAKE_INSTALL_MANIFEST}" "${file}\n")
 ENDFOREACH(file)

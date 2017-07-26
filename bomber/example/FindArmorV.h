@@ -16,6 +16,8 @@ using namespace cv;
 #include <vector>
 using namespace std;
 
+extern bool base_color;//red:1 blue:0
+
 void FindArmorV(Mat src, vector<Point> &armors)
 {
     if (src.channels() != 3)
@@ -77,8 +79,8 @@ void FindArmorV(Mat src, vector<Point> &armors)
             Mat roi = src(Rect(recx - 7, recy - 7, 15, 15));
             Scalar avg;
             avg = mean(roi);
-            // [2]-[0]>10
-            if (!(avg.val[0] - avg.val[2] > 10))
+            // r[2]-b[0]>10
+            if (!((2*base_color-1)*(avg.val[2] - avg.val[0]) > 10))
             {
                 //cvResetIamgeROI(src);
                 continue;
