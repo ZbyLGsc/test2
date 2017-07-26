@@ -20,8 +20,7 @@ SET(CMAKE_C_TARGET_INCLUDE_PATH
   "../AprilTags"
   "../."
   "/opt/local/include"
-  "/usr/local/include/opencv"
-  "/usr/local/include"
+  "/usr/include/opencv"
   "/opt/ros/kinetic/include"
   "/usr/include/eigen3"
   )

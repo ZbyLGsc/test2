@@ -1,4 +1,4 @@
-prefix=/home/ubuntu/dji_fly/src/test2/bomber/build
+prefix=/home/jake/test2/bomber/build
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include
