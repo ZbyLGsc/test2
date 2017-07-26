@@ -26,7 +26,7 @@ find_package(catkin REQUIRED COMPONENTS
 include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories("/opt/ros/indigo/include")
 target_link_libraries(apriltags ${OpenCV_LIBS}) #-pg) #-fopenmp)
-target_link_libraries(apriltags ${catkin_LIBRARIES})
+#target_link_libraries(apriltags ${catkin_LIBRARIES})
 pods_use_pkg_config_packages(apriltags eigen3)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

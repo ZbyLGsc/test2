@@ -2,7 +2,7 @@
 
 # Set the install prefix
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  SET(CMAKE_INSTALL_PREFIX "/home/ubuntu/dji_fly/src/test2/bomber/build")
+  SET(CMAKE_INSTALL_PREFIX "/home/ubuntu/dji_fly/build")
 ENDIF(NOT DEFINED CMAKE_INSTALL_PREFIX)
 STRING(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -37,15 +37,15 @@ IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspeci
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/bomber_node")
     FILE(RPATH_CHECK
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/bomber_node"
-         RPATH "/home/ubuntu/dji_fly/src/test2/bomber/build/lib")
+         RPATH "/home/ubuntu/dji_fly/build/lib")
   ENDIF()
   FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE EXECUTABLE FILES "/home/ubuntu/dji_fly/src/test2/bomber/pod-build/bin/bomber_node")
   IF(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/bomber_node" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/bomber_node")
     FILE(RPATH_CHANGE
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/bomber_node"
-         OLD_RPATH "/home/ubuntu/dji_fly/src/test2/bomber/pod-build/lib:/home/ubuntu/dji_fly/src/test2/bomber/build/lib:/usr/local/cuda/lib:/usr/local/lib:/opt/ros/indigo/lib:"
-         NEW_RPATH "/home/ubuntu/dji_fly/src/test2/bomber/build/lib")
+         OLD_RPATH "/home/ubuntu/dji_fly/src/test2/bomber/pod-build/lib:/home/ubuntu/dji_fly/build/lib:/usr/local/cuda/lib:/usr/local/lib:/opt/ros/indigo/lib:"
+         NEW_RPATH "/home/ubuntu/dji_fly/build/lib")
     IF(CMAKE_INSTALL_DO_STRIP)
       EXECUTE_PROCESS(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/bomber_node")
     ENDIF(CMAKE_INSTALL_DO_STRIP)

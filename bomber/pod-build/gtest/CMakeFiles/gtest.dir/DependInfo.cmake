@@ -20,7 +20,7 @@ SET(CMAKE_TARGET_LINKED_INFO_FILES
 # The include file search paths:
 SET(CMAKE_C_TARGET_INCLUDE_PATH
   "include"
-  "/home/ubuntu/dji_fly/src/test2/bomber/build/include"
+  "/home/ubuntu/dji_fly/build/include"
   "/home/ubuntu/dji_fly/src/test2/bomber/AprilTags"
   "/home/ubuntu/dji_fly/src/test2/bomber/."
   "/opt/local/include"

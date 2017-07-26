@@ -139,7 +139,7 @@ class Demo
              m_tagDetector(NULL),
              m_tagCodes(AprilTags::tagCodes16h5),
 
-             m_draw(true),
+             m_draw(false),
              m_timing(true),
 
              m_width(640),

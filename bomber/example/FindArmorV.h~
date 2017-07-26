@@ -45,7 +45,7 @@ void FindArmorR(Mat src, vector<Point> &armors)
     //    erode(bin,bin,NULL ,Point(-1,-1),1);
     //    imshow("bin",bin);
     //    vector< Point > armors;
-    //imshow("bin", bin);
+    imshow("bin", bin);
     vector< vector<Point> > contours;
     vector<RotatedRect> lights;
     findContours(bin, contours, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);

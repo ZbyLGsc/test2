@@ -20,7 +20,6 @@ ros::Subscriber line_change_sub;
 RMChallengeVision::COLOR_TYPE g_color= RMChallengeVision::RED;
 bool g_is_pillar_running= true;
 bool g_is_line_running= true;
-
 /**global video capture and image*/
 // cv::Mat g_pillar_image;
 // cv::Mat g_line_image;
@@ -56,7 +55,7 @@ int main(int argc, char **argv)
   cv::VideoCapture g_cap;
   cv::VideoWriter g_writer;
 #if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
-  g_cap.open("/home/ubuntu/rosbag/3334.avi");
+  g_cap.open("/home/ubuntu/rosbag/base11111.avi");
   // g_cap.open("/home/zby/ros_bags/7.22/start1.avi");
   // g_cap.set(CV_CAP_PROP_POS_FRAMES, g_cap.get(CV_CAP_PROP_FRAME_COUNT) / 2);
   g_cap.set(CV_CAP_PROP_POS_FRAMES, 100);
@@ -183,6 +182,7 @@ int main(int argc, char **argv)
       }
       // publish result to uav
       std_msgs::String pillar_msg;
+      ss.str("");
       ss << pillar_result.triangle[0] << " " << pillar_result.triangle[1] << " "
          << pillar_result.triangle[2] << " " << pillar_result.triangle[3] << " "
          << pillar_result.circle_found << " " << pos_err_x << " " << pos_err_y

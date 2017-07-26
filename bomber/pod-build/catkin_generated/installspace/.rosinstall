@@ -1,2 +1,2 @@
 - setup-file:
-    local-name: /home/ubuntu/dji_fly/src/test2/bomber/build/setup.sh
+    local-name: /home/ubuntu/dji_fly/build/setup.sh

@@ -152,8 +152,12 @@ void RMChallengeFSM::resetAllState()
   m_base_state= BASE_POSITION;
   m_graspper_control_time= 0;
   /*if want to test different task,change id here as well as .h*/
-  m_current_takeoff_point_id= PA_START;
+  m_current_takeoff_point_id= PA_START_Q;
   m_already_find_T= false;
+  for(int i=0;i<4;i++)
+    m_pillar_triangle[i]=0;
+  m_discover_pillar_circle=false;
+
   /**/
   droneUpdatePosition();
 
@@ -187,7 +191,7 @@ void RMChallengeFSM::run()
           ros::Duration(0.5).sleep();
         }
         else if(isTakeoffTimeout())
-        {       
+        {
           transferToTask(GO_UP);
         }
       }
@@ -217,10 +221,10 @@ void RMChallengeFSM::run()
       {
         droneGoToSetPoint();
       }
-      else if(discoverLandPoint())
-      {
-        transferToTask(GO_TO_LAND_POINT);
-      }
+//      else if(discoverLandPoint())
+//      {
+//        transferToTask(GO_TO_LAND_POINT);
+//      }
       else if(discoverYellowLine())
       {
         transferToTask(TRACK_LINE);
@@ -636,12 +640,14 @@ bool RMChallengeFSM::discoverTriangle()
                     m_pillar_triangle[2] + m_pillar_triangle[3];
   if(triangle_num != 0)
   {
-    // ROS_INFO_STREAM("discover triangle" << triangle_num);
+    ROS_INFO_STREAM("discover triangle" << triangle_num);
+    ROS_INFO_STREAM(m_pillar_triangle[0] << ","<<m_pillar_triangle[1] <<", "<<
+                    m_pillar_triangle[2]<<", " << m_pillar_triangle[3]);
     return true;
   }
   else
   {
-    // ROS_INFO_STREAM("no triangle");
+    ROS_INFO_STREAM("no triangle");
     return false;
   }
 }
@@ -1010,20 +1016,21 @@ void RMChallengeFSM::dronePrepareToLand()
     {
       navigateByCircle(vx, vy, vz);
       velocity_id= "by circle";
+      ROS_INFO("by circle ");
     }
     else if(discoverTriangle())
     {
       navigateByTriangle(vx, vy, vz);
       velocity_id= "by triangle";
-      // ROS_INFO_STREAM("navigate by triangle");
+       ROS_INFO_STREAM("navigate by triangle");
     }
     else
     {
-      // ROS_INFO_STREAM("Miss pillar!!!");
+       ROS_INFO_STREAM("Miss pillar!!!");
       velocity_id= "miss pillar";
     }
-    // ROS_INFO_STREAM("landing v at pillar are:" << vx << "," << vy
-    //                                            << "," << vz);
+     ROS_INFO_STREAM("landing v at pillar are:" << vx << "," << vy
+                                                << "," << vz);
   }
   controlDroneVelocity(vx, vy, vz, yaw);
 
@@ -1166,6 +1173,7 @@ void RMChallengeFSM::navigateByTriangle(float &x, float &y, float &z)
   {
     triangle_velocity= PA_LAND_TRIANGLE_VELOCITY_LOW;
   }
+  ROS_INFO_STREAM("prepare type:"<<m_prepare_to_land_type);
 
   if(triangle_sum == 1)
   {
@@ -1433,10 +1441,10 @@ void RMChallengeFSM::setTriangleVariables(int pillar_triangle[4])
   {
     m_pillar_triangle[i]= pillar_triangle[i];
   }
-  // ROS_INFO_STREAM("triangle is:" << pillar_triangle[0] << ","
-  //                                << pillar_triangle[1] << ","
-  //                                << pillar_triangle[2] << ","
-  //                                << pillar_triangle[3]);
+   ROS_INFO_STREAM("triangle is:" << pillar_triangle[0] << ","
+                                  << pillar_triangle[1] << ","
+                                  << pillar_triangle[2] << ","
+                                  << pillar_triangle[3]);
 }
 
 void RMChallengeFSM::setArcVariables(bool is_arc_found, float position_error[2])
