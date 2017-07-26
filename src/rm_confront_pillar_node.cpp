@@ -7,15 +7,11 @@
 
 /**global publisher*/
 ros::Publisher vision_pillar_pub;
-image_transport::Publisher vision_image_pub;
-image_transport::Subscriber m100_image_sub;
+image_transport::Publisher g_image_pub;
 ros::Subscriber pillar_change_sub;
 /**color and task flag*/
 RMChallengeVision::COLOR_TYPE g_color= RMChallengeVision::RED;
 bool g_is_pillar_running= true;
-bool g_is_new_image=false;
-cv::Mat g_m100_image;
-void m100ImageCallback(const sensor_msgs::Image::ConstPtr msg);
 void pillarChangeCallback(const std_msgs::String::ConstPtr &msg);
 
 int main(int argc, char **argv)
@@ -27,30 +23,65 @@ int main(int argc, char **argv)
   pillar_change_sub=
       node.subscribe("/tpp/pillar_task", 1, pillarChangeCallback);
 
+  /*initialize camera and publish to pillar and base*/
   image_transport::ImageTransport image_transport(node);
-  m100_image_sub=
-      image_transport.subscribe("/m100/image", 1, m100ImageCallback);
+  g_image_pub= image_transport.advertise("m100/image", 1);
+  Mat frame, image_gray;
+  sensor_msgs::ImagePtr image_ptr;
+
+  cv::VideoCapture g_cap;
+#if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
+  g_cap.open("/home/ubuntu/rosbag/test_confront.avi");
+  // g_cap.open("/home/zby/ros_bags/7.22/start1.avi");
+  // g_cap.set(CV_CAP_PROP_POS_FRAMES, g_cap.get(CV_CAP_PROP_FRAME_COUNT) / 2);
+  g_cap.set(CV_CAP_PROP_POS_FRAMES, 110);
+#else
+  g_cap.open(0);
+#endif
+  if(!g_cap.isOpened())
+  {
+    return -1;
+  }
 
   RMChallengeVision vision;
   vision.setVisability(VISABILITY);
 
+  std::stringstream ss;
+
+  /*main loop*/
   while(ros::ok())
   {
     ROS_INFO_STREAM("loop :"
                     << "\n");
     ros::spinOnce();
+#if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
+    /*get new frame*/
+    if(g_cap.get(CV_CAP_PROP_POS_FRAMES) >
+       g_cap.get(CV_CAP_PROP_FRAME_COUNT) - 1)
+    {
+      // g_cap.set(CV_CAP_PROP_POS_FRAMES, g_cap.get(CV_CAP_PROP_FRAME_COUNT) /
+      // 2);
+      g_cap.set(CV_CAP_PROP_POS_FRAMES, 100);
+    }
+#endif
+
+    g_cap >> frame;
+    if(frame.empty())
+      continue;
+
+    /* publish this frame to ROS topic*/
+    image_ptr=
+        cv_bridge::CvImage(std_msgs::Header(), "bgr8", frame).toImageMsg();
+    g_image_pub.publish(image_ptr);
     /*std_msg of string published to uav*/
-    std::stringstream ss;
 
     /*test detect pillar circle and triangles*/
     if(g_is_pillar_running)
     {
-      if(g_m100_image.empty()||!g_is_new_image)
-        continue;
 
       if(VISABILITY)
-        cv::imshow("m100/image", g_m100_image);
-	  cv::waitKey(1);
+        cv::imshow("m100/image", frame);
+      cv::waitKey(1);
       /*show current color*/
       std::string color;
       if(g_color == RMChallengeVision::RED)
@@ -62,7 +93,7 @@ int main(int argc, char **argv)
       RMChallengeVision::PILLAR_RESULT pillar_result;
       float pos_err_x= 0, pos_err_y= 0, height= 0;
       float arc_err_x= 1, arc_err_y= 1, arc_height= 2;
-      vision.detectPillar(g_m100_image, g_color, pillar_result);
+      vision.detectPillar(frame, g_color, pillar_result);
       if(pillar_result.circle_found)
       {
         // calculate height and pos_error
@@ -87,28 +118,9 @@ int main(int argc, char **argv)
          << pillar_result.arc_found;
       pillar_msg.data= ss.str();
       vision_pillar_pub.publish(pillar_msg);
-
-      g_is_new_image=false;
     }
   }
   return 1;
-}
-
-void m100ImageCallback(const sensor_msgs::Image::ConstPtr msg)
-{
-  cv_bridge::CvImagePtr cv_ptr;
-  try
-  {
-    cv_ptr= cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
-  }
-  catch(cv_bridge::Exception &e)
-  {
-    ROS_ERROR("cv_bridge exception: %s", e.what());
-    return;
-  }
-  g_m100_image= cv_ptr->image;
-  ROS_INFO_STREAM("image arrive");
-  g_is_new_image=true;
 }
 
 void pillarChangeCallback(const std_msgs::String::ConstPtr &msg)
