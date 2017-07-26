@@ -56,10 +56,10 @@ int main(int argc, char **argv)
   cv::VideoCapture g_cap;
   cv::VideoWriter g_writer;
 #if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
-   g_cap.open("/home/ubuntu/rosbag/3334.avi");
-  //g_cap.open("/home/zby/ros_bags/7.22/start1.avi");
-  //g_cap.set(CV_CAP_PROP_POS_FRAMES, g_cap.get(CV_CAP_PROP_FRAME_COUNT) / 2);
-  g_cap.set(CV_CAP_PROP_POS_FRAMES,100);
+  g_cap.open("/home/ubuntu/rosbag/3334.avi");
+  // g_cap.open("/home/zby/ros_bags/7.22/start1.avi");
+  // g_cap.set(CV_CAP_PROP_POS_FRAMES, g_cap.get(CV_CAP_PROP_FRAME_COUNT) / 2);
+  g_cap.set(CV_CAP_PROP_POS_FRAMES, 100);
 #else
   g_cap.open(0);
 #endif
@@ -78,6 +78,9 @@ int main(int argc, char **argv)
 
   Mat frame, image_gray;
   sensor_msgs::ImagePtr image_ptr;
+
+  /*std_msg of string published to uav*/
+  std::stringstream ss;
 
   /*get first pillar's color from user*/
   ROS_INFO_STREAM("Please give the first pillar's color(r/b):");
@@ -131,10 +134,11 @@ int main(int argc, char **argv)
 #if CURRENT_IMAGE_SOURCE == VIDEO_STREAM
     /*get new frame*/
     if(g_cap.get(CV_CAP_PROP_POS_FRAMES) >
-       g_cap.get(CV_CAP_PROP_FRAME_COUNT) -1)
+       g_cap.get(CV_CAP_PROP_FRAME_COUNT) - 1)
     {
-      //g_cap.set(CV_CAP_PROP_POS_FRAMES, g_cap.get(CV_CAP_PROP_FRAME_COUNT) / 2);
-	  g_cap.set(CV_CAP_PROP_POS_FRAMES,100);
+      // g_cap.set(CV_CAP_PROP_POS_FRAMES, g_cap.get(CV_CAP_PROP_FRAME_COUNT) /
+      // 2);
+      g_cap.set(CV_CAP_PROP_POS_FRAMES, 100);
     }
 #endif
 
@@ -147,19 +151,16 @@ int main(int argc, char **argv)
         cv_bridge::CvImage(std_msgs::Header(), "bgr8", frame).toImageMsg();
     vision_image_pub.publish(image_ptr);
 
-    /*std_msg of string published to uav*/
-    std::stringstream ss;
-
     /*test detect pillar circle and triangles*/
     if(g_is_pillar_running)
     {
       /*show current color*/
       std::string color;
-      if(g_color==RMChallengeVision::RED)
-        color="Red";
-      else if(g_color==RMChallengeVision::BLUE)
-        color="Blue";
-      ROS_INFO_STREAM("Color is: "<<color);
+      if(g_color == RMChallengeVision::RED)
+        color= "Red";
+      else if(g_color == RMChallengeVision::BLUE)
+        color= "Blue";
+      ROS_INFO_STREAM("Color is: " << color);
       //    ROS_INFO_STREAM("detect pillar");
       RMChallengeVision::PILLAR_RESULT pillar_result;
       float pos_err_x= 0, pos_err_y= 0, height= 0;
@@ -235,10 +236,10 @@ int main(int argc, char **argv)
 void colorChangeCallback(const std_msgs::String::ConstPtr &msg)
 {
   ROS_INFO_STREAM("receive color change info");
-  if(msg->data=="red")
+  if(msg->data == "red")
     g_color= RMChallengeVision::RED;
-  else if(msg->data=="blue")
-    g_color=RMChallengeVision::BLUE;
+  else if(msg->data == "blue")
+    g_color= RMChallengeVision::BLUE;
   // g_color= g_color == RMChallengeVision::RED ? RMChallengeVision::BLUE :
   //                                              RMChallengeVision::RED;
 }
