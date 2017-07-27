@@ -487,13 +487,23 @@ class Demo
         }
         while (ros::ok())
         {
+ 			cv::waitKey(1);
             ros::spinOnce();
-            if(g_image.empty()||!g_is_new_image||!g_is_bomber_running)
+			if(!g_is_bomber_running)
+				continue;
+			if(g_image.empty())
+				continue;
+			if(!g_is_new_image)
+				continue;
+            /*if(g_image.empty()||!g_is_new_image||!g_is_bomber_running)
+			{
+				ros::Duration(1.0).sleep();
                 continue;
+			}*/
 
             // capture frame
             // m_cap >> image;
-            image=g_image;
+            image=g_image.clone();
 
             processImage(image, image_gray);
 
@@ -511,7 +521,8 @@ class Demo
             g_is_new_image= false;
             // exit if any key is pressed
             // if (cv::waitKey(1) >= 0)            break;
-            cv::waitKey(1);
+            //cv::waitKey(1);
+			ROS_INFO("base running ");
         }
     }
 

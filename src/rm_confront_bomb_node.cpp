@@ -26,7 +26,7 @@
 #define PA_LAND_HEIGHT_THRESHOLD_FINAL 0.2
 #define PA_LAND_POSITION_THRESHOLD_HIGH 0.3
 #define PA_LAND_POSITION_THRESHOLD_LOW 0.15
-#define PA_LAND_POSITION_THRESHOLD_SUPER_LOW 0.06
+#define PA_LAND_POSITION_THRESHOLD_SUPER_LOW 0.065
 #define PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG 0.12
 #define PA_V_MIN_HIGH 0.15
 #define PA_V_MIN_LOW 0.04
@@ -131,6 +131,7 @@ enum VISION_STATE
 VISION_STATE g_vision_state= VISION_ALL;
 ros::Publisher g_pillar_task_pub;
 ros::Publisher g_base_task_pub;
+ros::Publisher g_velocity_pub;
 /**
 *global functions
 */
@@ -189,6 +190,9 @@ int main(int argc, char **argv)
       node.subscribe("tpp/bomber", 1, vision_base_callback);
   ros::Subscriber vision_pillar_sub=
       node.subscribe("tpp/pillar", 1, vision_pillar_callback);
+
+  g_velocity_pub=
+      node.advertise<geometry_msgs::Vector3Stamped>("/m100/velocity", 1);
 
   /*initialize vision task control publisher*/
   g_pillar_task_pub= node.advertise<std_msgs::String>("/tpp/pillar_task", 1);
@@ -423,6 +427,13 @@ void controlDroneVelocity(float x, float y, float z, float yaw)
   g_drone->attitude_control(0x4B, x, y, z, yaw);
 #endif
   ros::Duration(20 / 1000).sleep();
+  geometry_msgs::Vector3Stamped velocity;
+  velocity.header.frame_id= "m100 v";
+  velocity.header.stamp= ros::Time::now();
+  velocity.vector.x= x;
+  velocity.vector.y= y;
+  velocity.vector.z= z;
+  g_velocity_pub.publish(velocity);
 }
 
 void bombBase()
