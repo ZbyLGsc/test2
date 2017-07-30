@@ -1,6 +1,6 @@
 #include "AprilTags/QRCode.h"
 #include "rm_challenge_vision.h"
-#include <time.h>
+#include <fstream>
 #define M100_CAMERA 1
 #define VIDEO_STREAM 2
 //#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
@@ -109,10 +109,18 @@ int main(int argc, char **argv)
   // want_record_video = argv[1][1];
   if(want_record_video == 'y')
   {
-    time_t m_time=time(0);
-    char tmp[20]={0};
-    strftime(tmp, sizeof(tmp), "%Y-%m-%d-%X", localtime(&m_time));
-    std::string file_name(tmp);
+    //time_t m_time=time(0);
+    //char tmp[20]={0};
+    //strftime(tmp, sizeof(tmp), "%Y-%m-%d-%X", localtime(&m_time));
+    ifstream fin("/home/ubuntu/dji_fly/src/test2/hello.txt");
+    char video_cnt;
+    fin>>video_cnt;
+    fin.close();
+    std::string file_name(&video_cnt);
+    ofstream fout("/home/ubuntu/dji_fly/src/test2/hello.txt", ios::out);
+    video_cnt++;
+    fout<<video_cnt;
+    fout.close();
     //ROS_INFO_STREAM("Begin record video to file,please give a file name");
     //std::cin >> file_name;
     // file_name= "/home/zby/ros_bags/" + file_name + ".avi";
