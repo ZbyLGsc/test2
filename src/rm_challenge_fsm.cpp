@@ -50,71 +50,71 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
   m_takeoff_points[PA_START][0]= 0.0;
   m_takeoff_points[PA_START][1]= 0.0;
 
-  m_takeoff_points[PA_PILLAR_1][0]= 7.5;
-  m_takeoff_points[PA_PILLAR_1][1]= 0.7;
+  m_takeoff_points[PA_PILLAR_1][0]= 7.75;
+  m_takeoff_points[PA_PILLAR_1][1]= 0.51;
 
-  m_takeoff_points[PA_BASE_1][0]= 2.0;
-  m_takeoff_points[PA_BASE_1][1]= 5.2;
+  m_takeoff_points[PA_BASE_1][0]= 1.4;
+  m_takeoff_points[PA_BASE_1][1]= 12.1;
 
-  m_takeoff_points[PA_PILLAR_2][0]= 4.2;
-  m_takeoff_points[PA_PILLAR_2][1]= 3.0;
+  m_takeoff_points[PA_PILLAR_2][0]= 7.11;
+  m_takeoff_points[PA_PILLAR_2][1]= 11.9;
 
-  m_takeoff_points[PA_BASE_2][0]= 2.0;
-  m_takeoff_points[PA_BASE_2][1]= 5.2;
+  m_takeoff_points[PA_BASE_2][0]= 1.4;
+  m_takeoff_points[PA_BASE_2][1]= 12.1;
 
-  m_takeoff_points[PA_PILLAR_3][0]= 7.2;  //
-  m_takeoff_points[PA_PILLAR_3][1]= 4.0;
+  m_takeoff_points[PA_PILLAR_3][0]= 18.73;  //
+  m_takeoff_points[PA_PILLAR_3][1]= 12.065;
 
-  m_takeoff_points[PA_BASE_3][0]= 2.0;  //
-  m_takeoff_points[PA_BASE_3][1]= 5.2;
+  m_takeoff_points[PA_BASE_3][0]= 1.4;  //
+  m_takeoff_points[PA_BASE_3][1]= 12.1;
 
-  m_takeoff_points[PA_PILLAR_4][0]= 7.5;  //
-  m_takeoff_points[PA_PILLAR_4][1]= 0.7;
+  m_takeoff_points[PA_PILLAR_4][0]= 19.02;  //
+  m_takeoff_points[PA_PILLAR_4][1]= 1.055;
 
-  m_takeoff_points[PA_BASE_4][0]= 2.0;  //
-  m_takeoff_points[PA_BASE_4][1]= 5.2;
+  m_takeoff_points[PA_BASE_4][0]= 1.4;  //
+  m_takeoff_points[PA_BASE_4][1]= 12.1;
   // qulification
   m_takeoff_points[PA_START_Q][0]= 0.0;  //
   m_takeoff_points[PA_START_Q][1]= 0.0;
 
-  m_takeoff_points[PA_BASE_Q][0]= 2.0;  //
-  m_takeoff_points[PA_BASE_Q][1]= 5.2;
+  m_takeoff_points[PA_BASE_Q][0]= 1.4;  //
+  m_takeoff_points[PA_BASE_Q][1]= 12.1;
 
-  m_takeoff_points[PA_PILLAR_Q][0]= 7.2;  //
-  m_takeoff_points[PA_PILLAR_Q][1]= 4.0;
+  m_takeoff_points[PA_PILLAR_Q][0]= 18.72;  //
+  m_takeoff_points[PA_PILLAR_Q][1]= 12.065;
 
   /*set point RELATIVE position*/
-  m_setpoints[PA_START][0]= 8.5;
-  m_setpoints[PA_START][1]= 0.0;
+  m_setpoints[PA_START][0]= 9.5;
+  m_setpoints[PA_START][1]= 3.0;
 
   m_setpoints[PA_PILLAR_1][0]= -2.0;
-  m_setpoints[PA_PILLAR_1][1]= -1.2;
+  m_setpoints[PA_PILLAR_1][1]= 4.2;
 
   m_setpoints[PA_BASE_1][0]= 4.2;
   m_setpoints[PA_BASE_1][1]= 0.0;
 
-  m_setpoints[PA_PILLAR_2][0]= -1.8;
-  m_setpoints[PA_PILLAR_2][1]= 1.8;
+  m_setpoints[PA_PILLAR_2][0]= -4.8;
+  m_setpoints[PA_PILLAR_2][1]= 0.8;
 
   m_setpoints[PA_BASE_2][0]= 4.2;  //
   m_setpoints[PA_BASE_2][1]= 0.0;
 
-  m_setpoints[PA_PILLAR_3][0]= -2.8;  //
-  m_setpoints[PA_PILLAR_3][1]= 1.0;
+  m_setpoints[PA_PILLAR_3][0]= -3.8;  //
+  m_setpoints[PA_PILLAR_3][1]= 0.8;
 
   m_setpoints[PA_BASE_3][0]= 0.6;  //
   m_setpoints[PA_BASE_3][1]= -3.0;
 
-  m_setpoints[PA_PILLAR_4][0]= -2.0;  //
-  m_setpoints[PA_PILLAR_4][1]= -1.2;
+  m_setpoints[PA_PILLAR_4][0]= -4.0;  //
+  m_setpoints[PA_PILLAR_4][1]= -0.8;
 
   m_setpoints[PA_BASE_4][0]= 0.0;  //
   m_setpoints[PA_BASE_4][1]= 0.0;
   // qulification
-  m_setpoints[PA_START_Q][0]= 4.0;  //
-  m_setpoints[PA_START_Q][1]= 0.0;
+  m_setpoints[PA_START_Q][0]= 3.0;  //
+  m_setpoints[PA_START_Q][1]= 12.0;
 
-  m_setpoints[PA_BASE_Q][0]= 3.0;  //
+  m_setpoints[PA_BASE_Q][0]= 4.0;  //
   m_setpoints[PA_BASE_Q][1]= 0.0;
 
   m_setpoints[PA_PILLAR_Q][0]= 0.0;  //

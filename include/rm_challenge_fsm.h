@@ -94,8 +94,8 @@ start2,base5,pillar5,(qulification),3
 #define PA_BASE_MIN_V 0.1
 
 #define PA_T_DISPLACE 1.6
-#define PA_TARMAC_HEIGHT 0
-#define PA_PILLAR_HEIGHT 0.75
+#define PA_TARMAC_HEIGHT 1.6
+#define PA_PILLAR_HEIGHT 1.5
 
 #define PA_FORWARD_THRESHOLD 1.5
 
