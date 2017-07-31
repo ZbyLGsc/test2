@@ -13,7 +13,7 @@ start2,base5,pillar5,(qulification),3
 #define PA_DEGREE_TO_RADIAN (3.1415926 / 180.0)
 #define PA_ARENA_ANGLE_RED 20
 #define PA_ARENA_ANGLE_BLUE (-160)
-#define PA_COORDINATE_TRANSFORM_DEGREE (-90)
+#define PA_COORDINATE_TRANSFORM_DEGREE PA_ARENA_ANGLE_RED
 #define PA_COORDINATE_TRANSFORM_ANGLE                                          \
   PA_COORDINATE_TRANSFORM_DEGREE *PA_DEGREE_TO_RADIAN
 #define PA_TAKEOFF_TIME 7
@@ -311,7 +311,6 @@ private:
                                    LINE_TYPE lint_type);  // tested
   void calculateYawRate(float &yaw);                      // tested,confirm yaw
                                                           // direction
-  void transformCoordinate(float phi, float &x, float &y);
   void unitifyVector(float &x, float &y);  // tested
   void judgeLineDirection();
   void calculateRealPositionError(float error[2]);
@@ -356,4 +355,5 @@ public:
                         float line_normal[2]);
 
   void setFirstPillarColor(PILLAR_COLOR color);
+  void transformCoordinate(float phi, float &x, float &y);
 };

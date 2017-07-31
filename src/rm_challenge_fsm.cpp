@@ -2161,7 +2161,7 @@ void RMChallengeFSM::setFirstPillarColor(PILLAR_COLOR color)
   m_first_pillar_color= color;
 }
 
-void publishPosition()
+void RMChallengeFSM::publishPosition()
 {
   /*publish position*/
   geometry_msgs::Vector3Stamped pos;
