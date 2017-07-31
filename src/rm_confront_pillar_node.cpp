@@ -3,7 +3,7 @@
 #define VIDEO_STREAM 2
 //#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
 #define CURRENT_IMAGE_SOURCE M100_CAMERA
-#define VISABILITY false
+#define VISABILITY true
 
 /**global publisher*/
 ros::Publisher vision_pillar_pub;
@@ -50,7 +50,8 @@ int main(int argc, char **argv)
 
   string str_get_we_color;
   node.getParam("/rm_confront_pillar_node/rb_param",str_get_we_color);
-  char get_we_color=*str_get_we_color.c_str();
+  //char get_we_color=*str_get_we_color.c_str();
+  char get_we_color='b';
   if(get_we_color=='r')
   {
 	g_color= RMChallengeVision::RED;
@@ -61,6 +62,7 @@ int main(int argc, char **argv)
     g_color= RMChallengeVision::BLUE;
 	ROS_INFO_STREAM("set we color as BLUE");
   }
+
 
   cv::VideoWriter g_writer;
   char want_record_video='y';
