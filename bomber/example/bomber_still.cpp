@@ -554,7 +554,7 @@ class Demo
 				ROS_INFO_STREAM("bomber we color is RED");
 			if(want_record_video=='y')
 			{
-				g_writer.write(image);
+				g_writer.write(g_image);
 			}
         }
 		g_writer.release();
@@ -577,7 +577,7 @@ int main(int argc, char *argv[])
     string str_get_we_color;
     node.getParam("/bomber_node/rb_param",str_get_we_color);
     char get_we_color=*(str_get_we_color.c_str());
-	//char get_we_color = 'r';
+	//char get_we_color = 'b';
 	cout<<"we color is:"<<str_get_we_color;
 
     if (get_we_color=='r')
@@ -591,6 +591,7 @@ int main(int argc, char *argv[])
         we_color=WE_BLUE;//blue
 		cout<<"set we color as BLUE in bomber";
 		ROS_INFO_STREAM("set we color as BLUE in bomber");
+
     }
     else
     {

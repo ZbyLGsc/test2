@@ -1,13 +1,8 @@
 #define ZBY_PC 1
 #define MANIFOLD 2
-#define CURRENT_COMPUTER ZBY_PC
-//  #define CURRENT_COMPUTER MANIFOLD
+//#define CURRENT_COMPUTER ZBY_PC
+#define CURRENT_COMPUTER MANIFOLD
 
-#define M100_CAMERA 1
-#define VIDEO_STREAM 2
-#define CURRENT_IMAGE_SOURCE VIDEO_STREAM
-//#define CURRENT_IMAGE_SOURCE M100_CAMERA
-#define VISABILITY true
 
 /**RC channel define*/
 #define RC_F_UP 0
@@ -31,11 +26,11 @@
 #define PA_LAND_HEIGHT_THRESHOLD_FINAL 0.2
 #define PA_LAND_POSITION_THRESHOLD_HIGH 0.3
 #define PA_LAND_POSITION_THRESHOLD_LOW 0.15
-#define PA_LAND_POSITION_THRESHOLD_SUPER_LOW 0.06
+#define PA_LAND_POSITION_THRESHOLD_SUPER_LOW 0.065
 #define PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG 0.12
 #define PA_V_MIN_HIGH 0.15
 #define PA_V_MIN_LOW 0.04
-#define PA_V_MIN_FINAL 0.025
+#define PA_V_MIN_FINAL 0.04
 #define PA_LAND_Z_VELOCITY_FINAL 0.15
 #define PA_LAND_Z_VELOCITY 0.15
 #define PA_LAND_TRIANGLE_VELOCITY_HIGH 0.15
@@ -136,6 +131,7 @@ enum VISION_STATE
 VISION_STATE g_vision_state= VISION_ALL;
 ros::Publisher g_pillar_task_pub;
 ros::Publisher g_base_task_pub;
+ros::Publisher g_velocity_pub;
 /**
 *global functions
 */
@@ -179,7 +175,7 @@ void setArcVariables(bool is_arc_found, float position_error[2]);
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "rm_uav_challenge");
+  ros::init(argc, argv, "rm_confront_bomb_node");
   ros::NodeHandle node;
 /*subscriber from dji node*/
 #if CURRENT_COMPUTER == MANIFOLD
@@ -195,6 +191,9 @@ int main(int argc, char **argv)
   ros::Subscriber vision_pillar_sub=
       node.subscribe("tpp/pillar", 1, vision_pillar_callback);
 
+  g_velocity_pub=
+      node.advertise<geometry_msgs::Vector3Stamped>("/m100/velocity", 1);
+
   /*initialize vision task control publisher*/
   g_pillar_task_pub= node.advertise<std_msgs::String>("/tpp/pillar_task", 1);
   g_base_task_pub= node.advertise<std_msgs::String>("/tpp/base_task", 1);
@@ -204,7 +203,7 @@ int main(int argc, char **argv)
 
   ros::Timer led_timer=
       node.createTimer(ros::Duration(1.0 / 5.0), ledTimerCallback);
-      
+
   initilizeSerialPort();
 
 #if CURRENT_COMPUTER == MANIFOLD
@@ -314,6 +313,8 @@ void rc_channels_callback(const dji_sdk::RCChannels rc_channels)
   {
     g_is_sdk_control= false;
     changeVisionTask(VISION_ALL);
+    g_prepare_to_land_type=PREPARE_AT_HIGH;
+
     if(fabs(rc_channels.mode + 8000) < 0.000001)
     {
       if(fabs(rc_channels.gear + 10000) < 0.000001)
@@ -426,6 +427,13 @@ void controlDroneVelocity(float x, float y, float z, float yaw)
   g_drone->attitude_control(0x4B, x, y, z, yaw);
 #endif
   ros::Duration(20 / 1000).sleep();
+  geometry_msgs::Vector3Stamped velocity;
+  velocity.header.frame_id= "m100 v";
+  velocity.header.stamp= ros::Time::now();
+  velocity.vector.x= x;
+  velocity.vector.y= y;
+  velocity.vector.z= z;
+  g_velocity_pub.publish(velocity);
 }
 
 void bombBase()
@@ -482,7 +490,7 @@ void vision_pillar_callback(const std_msgs::String::ConstPtr &msg)
   float arc_pos[2];
   int tri[4];
   bool circle_found, arc_found;
-  // ROS_INFO_STREAM(msg->data);
+  ROS_INFO_STREAM(msg->data);
   std::stringstream ss(msg->data.c_str());
   ss >> tri[0] >> tri[1] >> tri[2] >> tri[3] >> circle_found >> circle_pos[1] >>
       circle_pos[0] >> h >> arc_pos[1] >> arc_pos[0] >> arc_found;
@@ -556,19 +564,21 @@ void droneGoToPillar()
   if(g_prepare_to_land_type == PREPARE_AT_SUPER_LOW)
   {
     navigateByArc(vx, vy, vz);
+    ROS_INFO_STREAM("navigate by arc");
   }
   else if(g_discover_pillar_circle)
   {
     navigateByCircle(vx, vy, vz);
+    ROS_INFO_STREAM("navigate by circle");
   }
   else if(discoverTriangle())
   {
     navigateByTriangle(vx, vy, vz);
-    // ROS_INFO_STREAM("navigate by triangle");
+    ROS_INFO_STREAM("navigate by triangle");
   }
   else
   {
-    // ROS_INFO_STREAM("Miss pillar!!!");
+    ROS_INFO_STREAM("Miss pillar!!!");
   }
   ROS_INFO_STREAM("landing v at pillar are:" << vx << "," << vy << "," << vz);
   controlDroneVelocity(vx, vy, vz, yaw);

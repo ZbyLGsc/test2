@@ -576,8 +576,8 @@ int main(int argc, char *argv[])
    bomber_running_sub = node.subscribe("/tpp/base_task", 1, bomberRunningCallback);
     string str_get_we_color;
     node.getParam("/bomber_node/rb_param",str_get_we_color);
-    //char get_we_color=*(str_get_we_color.c_str());
-	char get_we_color = 'r';
+    char get_we_color=*(str_get_we_color.c_str());
+	//char get_we_color = 'b';
 	cout<<"we color is:"<<str_get_we_color;
 
     if (get_we_color=='r')
@@ -591,6 +591,7 @@ int main(int argc, char *argv[])
         we_color=WE_BLUE;//blue
 		cout<<"set we color as BLUE in bomber";
 		ROS_INFO_STREAM("set we color as BLUE in bomber");
+
     }
     else
     {
