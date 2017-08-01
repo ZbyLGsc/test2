@@ -525,12 +525,14 @@ int RMChallengeVision::detectPillar(Mat src, COLOR_TYPE color,
 {
   // first detect red pillar
   Mat color_region;
+  ROS_INFO("1");
   extractColor(src, color, color_region);
+  ROS_INFO("2");
   detectPillarCircle(src, color_region, pillar_result.circle_found,
                      pillar_result.circle_center, pillar_result.radius);
-
+  ROS_INFO("3");
   detectTriangle(src, color_region, pillar_result.triangle);
-
+  ROS_INFO("4");
   detectPillarArc(src, color_region, pillar_result.arc_found,
                   pillar_result.arc_center, pillar_result.arc_radius);
 
