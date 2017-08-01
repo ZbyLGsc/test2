@@ -166,7 +166,7 @@ void FindArmorB(Mat src, vector<Point> &armors)
     Mat sorted;
     gray.reshape(1, 1).copyTo(sorted);
     cv::sort(sorted, sorted, CV_SORT_EVERY_ROW + CV_SORT_DESCENDING);
-    int binThresh = sorted.ptr<uchar>(0)[2500]; //
+    int binThresh = sorted.ptr<uchar>(0)[10000]; //
     // cout << binThresh << endl;
     threshold(gray, bin, binThresh, 255, THRESH_BINARY);
 
@@ -189,7 +189,7 @@ void FindArmorB(Mat src, vector<Point> &armors)
         {
             //面积不能太大或太小
             int area = contourArea(contours.at(i));
-            if (area > 100 || area < 20)
+            if (area > 100 || area < 10)
                 continue;
             RotatedRect rec = minAreaRect(contours.at(i));
             //不能太靠边

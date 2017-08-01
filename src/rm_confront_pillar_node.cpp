@@ -58,7 +58,7 @@ int main(int argc, char **argv)
 	ROS_INFO_STREAM("set we color as RED");
   }
   if(get_we_color=='b')
-  {	
+  {
     g_color= RMChallengeVision::BLUE;
 	ROS_INFO_STREAM("set we color as BLUE");
   }
@@ -73,7 +73,7 @@ int main(int argc, char **argv)
 			fin>>video_cnt;
 			stringstream video_ss;
 			video_ss<<video_cnt;
-			
+
 			fin.close();
 			std::string file_name=video_ss.str();
 			ofstream fout("/home/ubuntu/dji_fly/src/test2/hello.txt");
@@ -131,6 +131,7 @@ int main(int argc, char **argv)
       float pos_err_x= 0, pos_err_y= 0, height= 0;
       float arc_err_x= 1, arc_err_y= 1, arc_height= 2;
       vision.detectPillar(frame, g_color, pillar_result);
+      ROS_INFO_STREAM("after detect pillar");
       if(pillar_result.circle_found)
       {
         // calculate height and pos_error
@@ -157,7 +158,9 @@ int main(int argc, char **argv)
       vision_pillar_pub.publish(pillar_msg);
 	  if(want_record_video=='y')
 			{
-				g_writer.write(frame);
+                ROS_INFO_STREAM("BEFORE WRITE");
+				//g_writer.write(frame);
+				ROS_INFO_STREAM("after WRITE");
 			}
     }
   }

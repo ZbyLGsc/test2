@@ -199,6 +199,12 @@ add_executable(rm_confront_pillar_node
 	${PROJECT_SOURCE_DIR}/src/rm_confront_pillar_node.cpp
 	)
 target_link_libraries(rm_confront_pillar_node ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+
+add_executable(rm_record_video
+	${PROJECT_SOURCE_DIR}/src/rm_record_video.cpp
+	)
+target_link_libraries(rm_record_video ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(test2_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

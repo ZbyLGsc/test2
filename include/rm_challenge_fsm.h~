@@ -11,9 +11,9 @@ start2,base5,pillar5,(qulification),3
 */
 #define TAKEOFF_POINT_NUMBER 12
 #define PA_DEGREE_TO_RADIAN (3.1415926 / 180.0)
-#define PA_ARENA_ANGLE_RED 20
+#define PA_ARENA_ANGLE_RED 9
 #define PA_ARENA_ANGLE_BLUE (-160)
-#define PA_COORDINATE_TRANSFORM_DEGREE (150)
+#define PA_COORDINATE_TRANSFORM_DEGREE PA_ARENA_ANGLE_RED
 #define PA_COORDINATE_TRANSFORM_ANGLE                                          \
   PA_COORDINATE_TRANSFORM_DEGREE *PA_DEGREE_TO_RADIAN
 #define PA_TAKEOFF_TIME 7
@@ -26,7 +26,7 @@ start2,base5,pillar5,(qulification),3
 #define PA_GO_UP_VELOCITY 0.3
 
 #define PA_BRIDGE_HEIGHT 0.8  // set to lower than real
-#define PA_FLYING_HEIGHT 2.7
+#define PA_FLYING_HEIGHT 2.4
 #define PA_FLYING_HEIGHT_LOW (PA_FLYING_HEIGHT - PA_BRIDGE_HEIGHT)
 #define PA_FLYING_HEIGHT_THRESHOLD 0.2
 #define PA_FLYING_Z_VELOCITY 0.15
@@ -94,8 +94,8 @@ start2,base5,pillar5,(qulification),3
 #define PA_BASE_MIN_V 0.1
 
 #define PA_T_DISPLACE 1.6
-#define PA_TARMAC_HEIGHT 0
-#define PA_PILLAR_HEIGHT 0.75
+#define PA_TARMAC_HEIGHT 1.6
+#define PA_PILLAR_HEIGHT 1.5
 
 #define PA_FORWARD_THRESHOLD 1.5
 

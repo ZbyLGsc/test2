@@ -152,7 +152,7 @@ void RMChallengeFSM::resetAllState()
   m_base_state= BASE_POSITION;
   m_graspper_control_time= 0;
   /*if want to test different task,change id here as well as .h*/
-  m_current_takeoff_point_id= PA_START;
+  m_current_takeoff_point_id= PA_START_Q;
   m_already_find_T= false;
   for(int i= 0; i < 4; i++)
     m_pillar_triangle[i]= 0;
