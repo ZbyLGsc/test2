@@ -899,6 +899,7 @@ void changeVisionTask(VISION_STATE state)
 
 void updateLEDColor()
 {
+
   if(g_discover_pillar_circle)
     changeLEDColor(LED_GREEN);
   else if(discoverTriangle())
