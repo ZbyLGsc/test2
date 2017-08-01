@@ -1,12 +1,14 @@
 /*************************************************
 Function:           FindArmorV & FindBase
-Description:        ´¹Ö±ÊÓÒ°ÕÒ³ö×°¼×°å£¨·É»úÓÃ£©
-Input:              src£ºÔ´Í¼Ïñ
-Output:             armors£º×°¼×°åÎ»ÖÃ
+Description:        å‚ç›´è§†é‡æ‰¾å‡ºè£…ç”²æ¿ï¼ˆé£æœºç”¨ï¼‰
+Input:              srcï¼šæºå›¾åƒ
+Output:             armorsï¼šè£…ç”²æ¿ä½ç½®
 Others:
 *************************************************/
 #define DRAW 1
 #define PI 3.1415926535898
+#define WE_RED 0
+#define WE_BLUE 1
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -16,17 +18,17 @@ using namespace cv;
 #include <vector>
 using namespace std;
 
-extern bool base_color;//red:1 blue:0
+extern bool we_color; //red:0 blue:1
 
 void FindArmorR(Mat src, vector<Point> &armors)
 {
     if (src.channels() != 3)
         return;
 
-    //»Ò¶ÈÍ¼
+    //ç°åº¦å›¾
     Mat gray;
     cvtColor(src, gray, COLOR_RGB2GRAY);
-    //¶şÖµ»¯
+    //äºŒå€¼åŒ–
     Mat bin;
     Mat sorted;
     gray.reshape(1, 1).copyTo(sorted);
@@ -37,28 +39,28 @@ void FindArmorR(Mat src, vector<Point> &armors)
 
     Mat element2 = getStructuringElement(MORPH_CROSS, Size(2, 2));
     Mat element3 = getStructuringElement(MORPH_CROSS, Size(3, 3));
-    //    ¸¯Ê´
+    //    è…èš€
     erode(bin, bin, element2, Point(-1, -1), 1);
-    //    ÅòÕÍ
+    //    è†¨èƒ€
     dilate(bin, bin, element3, Point(-1, -1), 1);
     //
     //    erode(bin,bin,NULL ,Point(-1,-1),1);
     //    imshow("bin",bin);
     //    vector< Point > armors;
-    imshow("bin", bin);
-    vector< vector<Point> > contours;
+    //imshow("bin", bin);
+    vector<vector<Point> > contours;
     vector<RotatedRect> lights;
     findContours(bin, contours, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
     if (contours.size() > 0)
     {
         for (int i = 0; i < contours.size(); i++)
         {
-            //Ãæ»ı²»ÄÜÌ«´ó»òÌ«Ğ¡
+            //é¢ç§¯ä¸èƒ½å¤ªå¤§æˆ–å¤ªå°
             int area = contourArea(contours.at(i));
-            if (area > 100 || area < 20)
+            if (area > 100 || area < 25)
                 continue;
             RotatedRect rec = minAreaRect(contours.at(i));
-            //²»ÄÜÌ«¿¿±ß
+            //ä¸èƒ½å¤ªé è¾¹
             int border = 10;
             double recx = rec.center.x;
             double recy = rec.center.y;
@@ -66,16 +68,18 @@ void FindArmorR(Mat src, vector<Point> &armors)
             int srcW = (int)src.size().width;
             if (recx < border || recx > srcW - border || recy < border || recy > srcH - border)
                 continue;
-            //³¤¿í±ÈºÏÊÊ
+            //é•¿å®½æ¯”åˆé€‚
             Size2f size = rec.size;
             double a = size.height > size.width ? size.height : size.width;
             double b = size.height < size.width ? size.height : size.width;
+            if (a<10)
+                continue;
             if (a / b > 5 || a / b < 1.3)
             {
                 //cout<<a/b<<endl;
                 continue;
             }
-            //ÖÜÎ§Ã÷ÏÔ³ÊÀ¶É«£¨»òºìÉ«£©
+            //å‘¨å›´æ˜æ˜¾å‘ˆè“è‰²ï¼ˆæˆ–çº¢è‰²ï¼‰
 
             Mat roi = src(Rect(recx - 7, recy - 7, 15, 15));
             Scalar avg;
@@ -112,12 +116,14 @@ void FindArmorR(Mat src, vector<Point> &armors)
                 Size2f sizei = lights.at(i).size;
                 Size2f sizej = lights.at(j).size;
                 double ai = sizei.height > sizei.width ? sizei.height : sizei.width;
-                //                double b=sizei.height<sizei.width?sizei.height:sizei.width;
+                double aj = sizej.height > sizej.width ? sizej.height : sizej.width;
                 double distance = sqrt((pi.x - pj.x) * (pi.x - pj.x) + (pi.y - pj.y) * (pi.y - pj.y));
-                //µÆÌõ¾àÀëºÏÊÊ
-                if (distance < 3 * ai || distance > 5.5 * ai)
+                //ç¯æ¡è·ç¦»åˆé€‚
+                if (distance < 3 * ai || distance > 5 * ai || distance < 3 * aj|| distance > 5 * aj)
                     continue;
-                //µÆÌõÖĞµãÁ¬ÏßÓëµÆÌõ¼Ğ½ÇºÏÊÊ
+
+                
+                //ç¯æ¡ä¸­ç‚¹è¿çº¿ä¸ç¯æ¡å¤¹è§’åˆé€‚
                 double angeli = lights.at(i).angle;
                 double angelj = lights.at(j).angle;
                 if (sizei.width < sizei.height)
@@ -126,8 +132,11 @@ void FindArmorR(Mat src, vector<Point> &armors)
                     angelj += 90;
                 double doti = abs(cos(angeli * PI / 180) * (pi.x - pj.x) + sin(angeli * PI / 180) * (pi.y - pj.y)) / distance;
                 double dotj = abs(cos(angelj * PI / 180) * (pi.x - pj.x) + sin(angelj * PI / 180) * (pi.y - pj.y)) / distance;
-                if (doti > 0.4 || dotj > 0.4)
+                if (doti > 0.3 || dotj > 0.3)
                     continue;
+
+                // line(src, Point2f(pi.x, pi.y),Point2f(pj.x,pj.y), Scalar(0, 0, 255), 1);
+                // imshow("distance", src);
                 //                Mat roi = gray(Rect(midx-50,midy-5,10,10));
                 //                Mat avg,sd;
                 //                //normalize(roi,roi);
@@ -149,10 +158,10 @@ void FindArmorB(Mat src, vector<Point> &armors)
     if (src.channels() != 3)
         return;
 
-    //»Ò¶ÈÍ¼
+    //ç°åº¦å›¾
     Mat gray;
     cvtColor(src, gray, COLOR_RGB2GRAY);
-    //¶şÖµ»¯
+    //äºŒå€¼åŒ–
     Mat bin;
     Mat sorted;
     gray.reshape(1, 1).copyTo(sorted);
@@ -162,28 +171,28 @@ void FindArmorB(Mat src, vector<Point> &armors)
     threshold(gray, bin, binThresh, 255, THRESH_BINARY);
 
     Mat element = getStructuringElement(MORPH_CROSS, Size(2, 2));
-    //    //    ¸¯Ê´
+    //    //    è…èš€
     erode(bin, bin, element, Point(-1, -1), 1);
-    //    ÅòÕÍ
+    //    è†¨èƒ€
     dilate(bin, bin, element, Point(-1, -1), 1);
     //
     //    erode(bin,bin,NULL ,Point(-1,-1),1);
     //    imshow("bin",bin);
     //    vector< Point > armors;
     // imshow("bin", bin);
-    vector< vector<Point> > contours;
+    vector<vector<Point> > contours;
     vector<RotatedRect> lights;
     findContours(bin, contours, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
     if (contours.size() > 0)
     {
         for (int i = 0; i < contours.size(); i++)
         {
-            //Ãæ»ı²»ÄÜÌ«´ó»òÌ«Ğ¡
+            //é¢ç§¯ä¸èƒ½å¤ªå¤§æˆ–å¤ªå°
             int area = contourArea(contours.at(i));
             if (area > 100 || area < 20)
                 continue;
             RotatedRect rec = minAreaRect(contours.at(i));
-            //²»ÄÜÌ«¿¿±ß
+            //ä¸èƒ½å¤ªé è¾¹
             int border = 10;
             double recx = rec.center.x;
             double recy = rec.center.y;
@@ -191,7 +200,7 @@ void FindArmorB(Mat src, vector<Point> &armors)
             int srcW = (int)src.size().width;
             if (recx < border || recx > srcW - border || recy < border || recy > srcH - border)
                 continue;
-            //³¤¿í±ÈºÏÊÊ
+            //é•¿å®½æ¯”åˆé€‚
             Size2f size = rec.size;
             double a = size.height > size.width ? size.height : size.width;
             double b = size.height < size.width ? size.height : size.width;
@@ -200,7 +209,7 @@ void FindArmorB(Mat src, vector<Point> &armors)
                 //cout<<a/b<<endl;
                 continue;
             }
-            //ÖÜÎ§Ã÷ÏÔ³ÊÀ¶É«£¨»òºìÉ«£©
+            //å‘¨å›´æ˜æ˜¾å‘ˆè“è‰²ï¼ˆæˆ–çº¢è‰²ï¼‰
 
             Mat roi = src(Rect(recx - 7, recy - 7, 15, 15));
             Scalar avg;
@@ -239,10 +248,10 @@ void FindArmorB(Mat src, vector<Point> &armors)
                 double ai = sizei.height > sizei.width ? sizei.height : sizei.width;
                 //                double b=sizei.height<sizei.width?sizei.height:sizei.width;
                 double distance = sqrt((pi.x - pj.x) * (pi.x - pj.x) + (pi.y - pj.y) * (pi.y - pj.y));
-                //µÆÌõ¾àÀëºÏÊÊ
+                //ç¯æ¡è·ç¦»åˆé€‚
                 if (distance < 3 * ai || distance > 4.5 * ai)
                     continue;
-                //µÆÌõÖĞµãÁ¬ÏßÓëµÆÌõ¼Ğ½ÇºÏÊÊ
+                //ç¯æ¡ä¸­ç‚¹è¿çº¿ä¸ç¯æ¡å¤¹è§’åˆé€‚
                 double angeli = lights.at(i).angle;
                 double angelj = lights.at(j).angle;
                 if (sizei.width < sizei.height)
@@ -267,6 +276,7 @@ void FindArmorB(Mat src, vector<Point> &armors)
                 armors.push_back(Point((int)midx, (int)midy));
             }
         }
+        cv::waitKey(1);
     }
 }
 
@@ -275,15 +285,15 @@ void FindBase(Mat image, bool &BaseFound, Point &BaseCenter)
     static Point armorcenter(0, 0), tmp1(0, 0), tmp2(0, 0), tmp(0, 0);
     static bool flag = false;
     vector<Point> armors;
-    if (base_color==1)
+    if (we_color == WE_RED)
     {
         FindArmorR(image, armors);
     }
-    else if (base_color==0)
+    else if (we_color == WE_BLUE)
     {
         FindArmorB(image, armors);
     }
-    
+
     double dis1, dis2;
     BaseFound = false;
     if (armors.size() > 1 && !flag)
@@ -319,14 +329,18 @@ void FindBase(Mat image, bool &BaseFound, Point &BaseCenter)
             break;
         default:
             flag = false;
+            for (int i=0;i<armors.size();i++)
+            {
+                circle(image, armors.at(i), 4, CV_RGB(0, 0, 255), -1);
+            }
             break;
         }
     }
     if (BaseFound)
     {
-        circle(image, armorcenter, 4, CV_RGB(255, 0, 0), -1);
+        circle(image, armorcenter, 6, CV_RGB(255, 0, 0), -1);
         //drawContours(image, lights, -1, Scalar(0,255,0), CV_FILLED);
-        // imshow("Video", image);
+        //imshow("Video", image);
         BaseCenter = armorcenter;
     }
 }

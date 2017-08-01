@@ -159,7 +159,7 @@ void guidance_position_callback(const geometry_msgs::Vector3Stamped &g_pos)
   /*test guidance*/
   float pos_x = g_pos.vector.x;
   float pos_y = g_pos.vector.y;
-  g_fsm.transformCoordinate(PA_COORDINATE_TRANSFORM_ANGLE,pos_x,pos_y);
+  g_fsm.transformCoordinate(140/57.3,pos_x,pos_y);
   ROS_INFO_STREAM("position is :"<<pos_x<<","<<pos_y);
 }
 

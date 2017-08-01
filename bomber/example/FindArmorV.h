@@ -7,6 +7,8 @@ Others:
 *************************************************/
 #define DRAW 1
 #define PI 3.1415926535898
+#define WE_RED 0
+#define WE_BLUE 1
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -16,7 +18,7 @@ using namespace cv;
 #include <vector>
 using namespace std;
 
-extern bool base_color; //red:1 blue:0
+extern bool we_color; //red:0 blue:1
 
 void FindArmorR(Mat src, vector<Point> &armors)
 {
@@ -283,13 +285,13 @@ void FindBase(Mat image, bool &BaseFound, Point &BaseCenter)
     static Point armorcenter(0, 0), tmp1(0, 0), tmp2(0, 0), tmp(0, 0);
     static bool flag = false;
     vector<Point> armors;
-    if (base_color == 1)
-    {
-        FindArmorR(image, armors);
-    }
-    else if (base_color == 0)
+    if (we_color == WE_RED)
     {
         FindArmorB(image, armors);
+    }
+    else if (we_color == WE_BLUE)
+    {
+        FindArmorR(image, armors);
     }
 
     double dis1, dis2;

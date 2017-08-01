@@ -50,71 +50,71 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
   m_takeoff_points[PA_START][0]= 0.0;
   m_takeoff_points[PA_START][1]= 0.0;
 
-  m_takeoff_points[PA_PILLAR_1][0]= 7.5;
-  m_takeoff_points[PA_PILLAR_1][1]= 0.7;
+  m_takeoff_points[PA_PILLAR_1][0]= 7.75;
+  m_takeoff_points[PA_PILLAR_1][1]= 0.51;
 
-  m_takeoff_points[PA_BASE_1][0]= 2.0;
-  m_takeoff_points[PA_BASE_1][1]= 5.2;
+  m_takeoff_points[PA_BASE_1][0]= 1.4;
+  m_takeoff_points[PA_BASE_1][1]= 12.1;
 
-  m_takeoff_points[PA_PILLAR_2][0]= 4.2;
-  m_takeoff_points[PA_PILLAR_2][1]= 3.0;
+  m_takeoff_points[PA_PILLAR_2][0]= 7.11;
+  m_takeoff_points[PA_PILLAR_2][1]= 11.9;
 
-  m_takeoff_points[PA_BASE_2][0]= 2.0;
-  m_takeoff_points[PA_BASE_2][1]= 5.2;
+  m_takeoff_points[PA_BASE_2][0]= 1.4;
+  m_takeoff_points[PA_BASE_2][1]= 12.1;
 
-  m_takeoff_points[PA_PILLAR_3][0]= 7.2;  //
-  m_takeoff_points[PA_PILLAR_3][1]= 4.0;
+  m_takeoff_points[PA_PILLAR_3][0]= 18.73;  //
+  m_takeoff_points[PA_PILLAR_3][1]= 12.065;
 
-  m_takeoff_points[PA_BASE_3][0]= 2.0;  //
-  m_takeoff_points[PA_BASE_3][1]= 5.2;
+  m_takeoff_points[PA_BASE_3][0]= 1.4;  //
+  m_takeoff_points[PA_BASE_3][1]= 12.1;
 
-  m_takeoff_points[PA_PILLAR_4][0]= 7.5;  //
-  m_takeoff_points[PA_PILLAR_4][1]= 0.7;
+  m_takeoff_points[PA_PILLAR_4][0]= 19.02;  //
+  m_takeoff_points[PA_PILLAR_4][1]= 1.055;
 
-  m_takeoff_points[PA_BASE_4][0]= 2.0;  //
-  m_takeoff_points[PA_BASE_4][1]= 5.2;
+  m_takeoff_points[PA_BASE_4][0]= 1.4;  //
+  m_takeoff_points[PA_BASE_4][1]= 12.1;
   // qulification
   m_takeoff_points[PA_START_Q][0]= 0.0;  //
   m_takeoff_points[PA_START_Q][1]= 0.0;
 
-  m_takeoff_points[PA_BASE_Q][0]= 2.0;  //
-  m_takeoff_points[PA_BASE_Q][1]= 5.2;
+  m_takeoff_points[PA_BASE_Q][0]= 1.4;  //
+  m_takeoff_points[PA_BASE_Q][1]= 12.1;
 
-  m_takeoff_points[PA_PILLAR_Q][0]= 7.2;  //
-  m_takeoff_points[PA_PILLAR_Q][1]= 4.0;
+  m_takeoff_points[PA_PILLAR_Q][0]= 18.72;  //
+  m_takeoff_points[PA_PILLAR_Q][1]= 12.065;
 
   /*set point RELATIVE position*/
-  m_setpoints[PA_START][0]= 8.5;
-  m_setpoints[PA_START][1]= 0.0;
+  m_setpoints[PA_START][0]= 9.5;
+  m_setpoints[PA_START][1]= 3.0;
 
   m_setpoints[PA_PILLAR_1][0]= -2.0;
-  m_setpoints[PA_PILLAR_1][1]= -1.2;
+  m_setpoints[PA_PILLAR_1][1]= 4.2;
 
   m_setpoints[PA_BASE_1][0]= 4.2;
   m_setpoints[PA_BASE_1][1]= 0.0;
 
-  m_setpoints[PA_PILLAR_2][0]= -1.8;
-  m_setpoints[PA_PILLAR_2][1]= 1.8;
+  m_setpoints[PA_PILLAR_2][0]= -4.8;
+  m_setpoints[PA_PILLAR_2][1]= 0.8;
 
   m_setpoints[PA_BASE_2][0]= 4.2;  //
   m_setpoints[PA_BASE_2][1]= 0.0;
 
-  m_setpoints[PA_PILLAR_3][0]= -2.8;  //
-  m_setpoints[PA_PILLAR_3][1]= 1.0;
+  m_setpoints[PA_PILLAR_3][0]= -3.8;  //
+  m_setpoints[PA_PILLAR_3][1]= 0.8;
 
   m_setpoints[PA_BASE_3][0]= 0.6;  //
   m_setpoints[PA_BASE_3][1]= -3.0;
 
-  m_setpoints[PA_PILLAR_4][0]= -2.0;  //
-  m_setpoints[PA_PILLAR_4][1]= -1.2;
+  m_setpoints[PA_PILLAR_4][0]= -4.0;  //
+  m_setpoints[PA_PILLAR_4][1]= -0.8;
 
   m_setpoints[PA_BASE_4][0]= 0.0;  //
   m_setpoints[PA_BASE_4][1]= 0.0;
   // qulification
-  m_setpoints[PA_START_Q][0]= 4.0;  //
-  m_setpoints[PA_START_Q][1]= 0.0;
+  m_setpoints[PA_START_Q][0]= 3.0;  //
+  m_setpoints[PA_START_Q][1]= 12.0;
 
-  m_setpoints[PA_BASE_Q][0]= 3.0;  //
+  m_setpoints[PA_BASE_Q][0]= 4.0;  //
   m_setpoints[PA_BASE_Q][1]= 0.0;
 
   m_setpoints[PA_PILLAR_Q][0]= 0.0;  //
@@ -143,7 +143,6 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
   resetAllState();
 }
 
-
 void RMChallengeFSM::resetAllState()
 {
   ros::Duration(1.0).sleep();
@@ -155,9 +154,9 @@ void RMChallengeFSM::resetAllState()
   /*if want to test different task,change id here as well as .h*/
   m_current_takeoff_point_id= PA_START;
   m_already_find_T= false;
-  for(int i=0;i<4;i++)
-    m_pillar_triangle[i]=0;
-  m_discover_pillar_circle=false;
+  for(int i= 0; i < 4; i++)
+    m_pillar_triangle[i]= 0;
+  m_discover_pillar_circle= false;
 
   /**/
   droneUpdatePosition();
@@ -171,6 +170,7 @@ void RMChallengeFSM::resetAllState()
 void RMChallengeFSM::run()
 {
   printStateInfo();
+  publishPosition();
   switch(m_state)
   {
     case TAKE_OFF:
@@ -217,15 +217,15 @@ void RMChallengeFSM::run()
     case GO_TO_SETPOINT:
     {
       updateVisionTask();
-	  updatePillarColor();
+      updatePillarColor();
       if(!farFromTakeoffPoint())
       {
         droneGoToSetPoint();
       }
-//      else if(discoverLandPoint())
-//      {
-//        transferToTask(GO_TO_LAND_POINT);
-//      }
+      //      else if(discoverLandPoint())
+      //      {
+      //        transferToTask(GO_TO_LAND_POINT);
+      //      }
       else if(discoverYellowLine())
       {
         transferToTask(TRACK_LINE);
@@ -417,7 +417,7 @@ void RMChallengeFSM::run()
         droneReleaseBall();
         updateTakeoffPointId();
         droneUpdatePosition();
-		ros::Duration(2.5).sleep();
+        ros::Duration(2.5).sleep();
         transferToTask(GO_UP);
       }
       else
@@ -642,8 +642,9 @@ bool RMChallengeFSM::discoverTriangle()
   if(triangle_num != 0)
   {
     ROS_INFO_STREAM("discover triangle" << triangle_num);
-    ROS_INFO_STREAM(m_pillar_triangle[0] << ","<<m_pillar_triangle[1] <<", "<<
-                    m_pillar_triangle[2]<<", " << m_pillar_triangle[3]);
+    ROS_INFO_STREAM(m_pillar_triangle[0] << "," << m_pillar_triangle[1] << ", "
+                                         << m_pillar_triangle[2] << ", "
+                                         << m_pillar_triangle[3]);
     return true;
   }
   else
@@ -912,9 +913,9 @@ void RMChallengeFSM::droneTrackLine()
 
 void RMChallengeFSM::droneHover()
 {
-  for(int i=0;i<25;i++)
+  for(int i= 0; i < 25; i++)
     controlDroneVelocity(0, 0, 0, 0);
- // ros::Duration(0.5).sleep();
+  // ros::Duration(0.5).sleep();
 }
 
 void RMChallengeFSM::droneDropDown()
@@ -1023,15 +1024,14 @@ void RMChallengeFSM::dronePrepareToLand()
     {
       navigateByTriangle(vx, vy, vz);
       velocity_id= "by triangle";
-       ROS_INFO_STREAM("navigate by triangle");
+      ROS_INFO_STREAM("navigate by triangle");
     }
     else
     {
-       ROS_INFO_STREAM("Miss pillar!!!");
+      ROS_INFO_STREAM("Miss pillar!!!");
       velocity_id= "miss pillar";
     }
-     ROS_INFO_STREAM("landing v at pillar are:" << vx << "," << vy
-                                                << "," << vz);
+    ROS_INFO_STREAM("landing v at pillar are:" << vx << "," << vy << "," << vz);
   }
   controlDroneVelocity(vx, vy, vz, yaw);
 
@@ -1174,7 +1174,7 @@ void RMChallengeFSM::navigateByTriangle(float &x, float &y, float &z)
   {
     triangle_velocity= PA_LAND_TRIANGLE_VELOCITY_LOW;
   }
-  ROS_INFO_STREAM("prepare type:"<<m_prepare_to_land_type);
+  ROS_INFO_STREAM("prepare type:" << m_prepare_to_land_type);
 
   if(triangle_sum == 1)
   {
@@ -1442,10 +1442,9 @@ void RMChallengeFSM::setTriangleVariables(int pillar_triangle[4])
   {
     m_pillar_triangle[i]= pillar_triangle[i];
   }
-   ROS_INFO_STREAM("triangle is:" << pillar_triangle[0] << ","
-                                  << pillar_triangle[1] << ","
-                                  << pillar_triangle[2] << ","
-                                  << pillar_triangle[3]);
+  ROS_INFO_STREAM("triangle is:"
+                  << pillar_triangle[0] << "," << pillar_triangle[1] << ","
+                  << pillar_triangle[2] << "," << pillar_triangle[3]);
 }
 
 void RMChallengeFSM::setArcVariables(bool is_arc_found, float position_error[2])
@@ -2160,4 +2159,16 @@ void RMChallengeFSM::navigateByQRCode(float &vx, float &vy, float &vz,
 void RMChallengeFSM::setFirstPillarColor(PILLAR_COLOR color)
 {
   m_first_pillar_color= color;
+}
+
+void RMChallengeFSM::publishPosition()
+{
+  /*publish position*/
+  geometry_msgs::Vector3Stamped pos;
+  pos.header.frame_id= "position";
+  pos.header.stamp= ros::Time::now();
+  pos.vector.x= m_real_position[0];
+  pos.vector.y= m_real_position[1];
+  pos.vector.z= 0.0;
+  m_position_pub.publish(pos);
 }

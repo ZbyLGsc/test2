@@ -19,6 +19,7 @@ using namespace std;
 #include <fstream>
 #include <sstream>
 #include <cstring>
+//#include <string>
 #include <vector>
 #include <list>
 #include <sys/time.h>
@@ -101,7 +102,7 @@ void imageCallBack(const sensor_msgs::ImageConstPtr& msg)
 
 
 
-bool base_color;
+bool we_color;
 
 class Demo
 {
@@ -481,10 +482,34 @@ class Demo
         int frame = 0;
         double last_t = tic();
 
+		cv::VideoWriter g_writer;
+
         for(int a=0;a<base_position_length;a++)
         {
             base_position.push_back(Point2f(0,0));
         }
+
+		char want_record_video='y';
+		if(want_record_video=='y')
+		{
+			ifstream fin("/home/ubuntu/dji_fly/src/test2/hello2.txt");
+			int video_cnt;
+			fin>>video_cnt;
+			stringstream video_ss;
+			video_ss<<video_cnt;
+			
+			fin.close();
+			std::string file_name=video_ss.str();
+			ofstream fout("/home/ubuntu/dji_fly/src/test2/hello2.txt");
+			video_cnt++;
+			fout<<video_cnt;
+			fout.close();
+
+			file_name = "/home/ubuntu/rosbag/base"+file_name+".avi";
+			g_writer.open(file_name, CV_FOURCC('P','I','M','1'),30,cv::Size(640,480));
+		}
+
+
         while (ros::ok())
         {
  			cv::waitKey(1);
@@ -523,7 +548,16 @@ class Demo
             // if (cv::waitKey(1) >= 0)            break;
             //cv::waitKey(1);
 			ROS_INFO("base running ");
+			if(we_color==WE_BLUE)//blue
+				ROS_INFO_STREAM("bomber we color is BLUE");
+			if(we_color==WE_RED)//blue
+				ROS_INFO_STREAM("bomber we color is RED");
+			if(want_record_video=='y')
+			{
+				g_writer.write(g_image);
+			}
         }
+		g_writer.release();
     }
 
 }; // Demo
@@ -540,23 +574,33 @@ int main(int argc, char *argv[])
     vision_image_sub=
       image_transport.subscribe("/m100/image", 1, imageCallBack);
    bomber_running_sub = node.subscribe("/tpp/base_task", 1, bomberRunningCallback);
-    int get_base_color;
-    // node.getParam("/bomber_node/rb_param",get_base_color);
-    get_base_color=1;
-    if (get_base_color==1)
+    string str_get_we_color;
+    node.getParam("/bomber_node/rb_param",str_get_we_color);
+    char get_we_color=*(str_get_we_color.c_str());
+	//char get_we_color = 'b';
+	cout<<"we color is:"<<str_get_we_color;
+
+    if (get_we_color=='r')
     {
-        base_color=1;//red
+        we_color=WE_RED;//red
+		cout<<"set we color as RED in bomber";
+		//ROS_INFO_STREAM("set we color as RED in bomber");
     }
-    else if (get_base_color==0)
+    else if (get_we_color=='b')
     {
-        base_color=0;//blue
+        we_color=WE_BLUE;//blue
+		cout<<"set we color as BLUE in bomber";
+		ROS_INFO_STREAM("set we color as BLUE in bomber");
+
     }
     else
     {
-    ROS_INFO_STREAM("not a valid color!");
-    return -2;
+    	ROS_INFO_STREAM("not a valid color!");
+		cout<<"not a valid color";
+    	return -2;
     }
 
+	ROS_INFO_STREAM("set color ok!");
     Demo demo;
 
     demo.setup();
