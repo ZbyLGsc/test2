@@ -20,6 +20,7 @@ ros::Subscriber line_change_sub;
 RMChallengeVision::COLOR_TYPE g_color= RMChallengeVision::RED;
 bool g_is_pillar_running= true;
 bool g_is_line_running= true;
+
 /**global video capture and image*/
 // cv::Mat g_pillar_image;
 // cv::Mat g_line_image;
@@ -195,6 +196,8 @@ int main(int argc, char **argv)
       // ros::spinOnce();
       // continue;
     }
+ 
+
 
     /*test detect yellow line*/
     if(g_is_line_running)
@@ -219,6 +222,8 @@ int main(int argc, char **argv)
       line_msg.data= ss.str();
       vision_line_pub.publish(line_msg);
     }
+
+
 
     /*record image to file*/
     if(want_record_video == 'y')

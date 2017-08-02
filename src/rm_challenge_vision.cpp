@@ -46,11 +46,12 @@ void RMChallengeVision::extractColor(Mat src, COLOR_TYPE color,
   static int bgrThresh2; /*threshold of r-b g-r b-g...depending on the
                             color*/
 
+
   if(color == RED)
   {
     iLowH= 0;
     iHighH= 210;
-    iLowS= 0;
+    iLowS= 35;
     iHighS= 255;
     iLowV= 0;
     iHighV= 255;
@@ -125,15 +126,24 @@ void RMChallengeVision::extractColor(Mat src, COLOR_TYPE color,
   Mat large, /*r larger than b or g*/
       abs,   /*|r-b or g|>threshold */
       region1, region2;
+#pragma omp parallel sections
+{
+ #pragma omp section
+ {
   cv::compare(bgr1, bgr2, large, CMP_GT);
   cv::absdiff(bgr1, bgr2, abs);
   cv::threshold(abs, abs, bgrThresh1, 255, THRESH_BINARY);
   cv::bitwise_and(large, abs, region1);
+ }
   /*extract region that r>g and |r-g|>threshold */
+ #pragma omp section
+ {
   cv::compare(bgr1, bgr3, large, CMP_GT);
   cv::absdiff(bgr1, bgr3, abs);
   cv::threshold(abs, abs, bgrThresh2, 255, THRESH_BINARY);
   cv::bitwise_and(large, abs, region2);
+ }
+}
   /*all region merge together*/
   cv::bitwise_and(region1, region2, colorRegion);
   cv::bitwise_and(colorRegion, hsv, colorRegion);
@@ -433,13 +443,15 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
       right= last_center.x + last_radius > src.cols / 2 ?
                  (int)last_center.x + last_radius - src.cols / 2 :
                  0;
-  copyMakeBorder(src, src, top, bottom, left, right, BORDER_CONSTANT);
-  copyMakeBorder(color_region, color_region, top, bottom, left, right,
-                 BORDER_CONSTANT);
+  
+  //copyMakeBorder(color_region, color_region, top, bottom, left, right,
+  //               BORDER_CONSTANT);
   //  cout<<top<<' ';
   /// 原图像转换为灰度图像
   Mat src_gray;
   cvtColor(temp, src_gray, CV_BGR2GRAY);
+
+copyMakeBorder(src, src, top, bottom, left, right, BORDER_CONSTANT);
   /// 模糊
   blur(src_gray, src_gray, Size(3, 3));
   /// 霍夫找圆
@@ -525,7 +537,12 @@ int RMChallengeVision::detectPillar(Mat src, COLOR_TYPE color,
                                     PILLAR_RESULT& pillar_result)
 {
   // first detect red pillar
-  Mat color_region;
+Mat color_region;
+#pragma omp parallel sections
+{
+ #pragma omp section
+ {
+
   ROS_INFO("1");
   extractColor(src, color, color_region);
   ROS_INFO("2");
@@ -533,10 +550,14 @@ int RMChallengeVision::detectPillar(Mat src, COLOR_TYPE color,
                      pillar_result.circle_center, pillar_result.radius);
   ROS_INFO("3");
   detectTriangle(src, color_region, pillar_result.triangle);
+ }
+ #pragma omp section
+ {
   ROS_INFO("4");
   detectPillarArc(src, color_region, pillar_result.arc_found,
                   pillar_result.arc_center, pillar_result.arc_radius);
-
+ }
+}
   ROS_INFO_STREAM("circle center is:" << pillar_result.circle_center);
   return 1;
 
@@ -770,7 +791,8 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
 
   if(m_visable)
     split(src, bgrSplit);  //分离出BGR通道，为最终显示结果做准备
-  getYellowRegion(src, img, 30, 53, 99, 140);  //获取黄色区域
+  //getYellowRegion(src, img, 30, 53, 99, 140);  //获取黄色区域
+  getYellowRegion(src, img, 30, 58, 72, 99);  //获取黄色区域
   Mat element1= getStructuringElement(
       MORPH_ELLIPSE, Size(3, 3));  //设置腐蚀的核大小,5x5的椭圆，即圆
   Mat element2=

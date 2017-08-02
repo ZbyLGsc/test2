@@ -119,8 +119,10 @@ int main(int argc, char **argv)
     {
 
       if(VISABILITY)
+	  {
         cv::imshow("m100/image", frame);
-      cv::waitKey(1);
+        cv::waitKey(1);
+	  }
       /*show current color*/
       std::string color;
       if(g_color == RMChallengeVision::RED)

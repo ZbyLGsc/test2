@@ -196,6 +196,8 @@ int main(int argc, char **argv)
       // ros::spinOnce();
       // continue;
     }
+ 
+
 
     /*test detect yellow line*/
     if(g_is_line_running)
@@ -220,6 +222,8 @@ int main(int argc, char **argv)
       line_msg.data= ss.str();
       vision_line_pub.publish(line_msg);
     }
+
+																																																																											
 
     /*record image to file*/
     if(want_record_video == 'y')

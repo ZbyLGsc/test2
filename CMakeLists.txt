@@ -4,6 +4,12 @@ project(test2)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+find_package(OpenMP REQUIRED)
+if(OPENMP_FOUND)
+  message(STATUS "OPENMP FOUND")
+  set(OpenMP_FLAGS ${OpenMP_CXX_FLAGS})
+  set(OpenMP_LIBS gomp)
+endif()
 find_package(catkin REQUIRED COMPONENTS
   dji_sdk
   roscpp
@@ -110,6 +116,8 @@ catkin_package(
 #  LIBRARIES test2
 #  CATKIN_DEPENDS dji_sdk roscpp
 #  DEPENDS system_lib
+DEPENDS 
+  OpenMP
 )
 
 ###########
@@ -182,7 +190,9 @@ add_executable(rm_challenge_camera_node
 	${PROJECT_SOURCE_DIR}/src/apriltags/UnionFindSimple.cc
 	${PROJECT_SOURCE_DIR}/src/QRCode.cpp
 	)
-target_link_libraries(rm_challenge_camera_node ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+target_compile_options(rm_challenge_camera_node PRIVATE ${OpenMP_FLAGS})
+add_dependencies(rm_challenge_camera_node ${catkin_EXPORTED_TARGETS})
+target_link_libraries(rm_challenge_camera_node ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} ${OpenMP_LIBS})
 
 add_executable(rm_test_vision
 	${PROJECT_SOURCE_DIR}/src/rm_challenge_vision.cpp
@@ -198,12 +208,44 @@ add_executable(rm_confront_pillar_node
 	${PROJECT_SOURCE_DIR}/src/rm_challenge_vision.cpp
 	${PROJECT_SOURCE_DIR}/src/rm_confront_pillar_node.cpp
 	)
-target_link_libraries(rm_confront_pillar_node ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+target_compile_options(rm_confront_pillar_node PRIVATE ${OpenMP_FLAGS})
+add_dependencies(rm_confront_pillar_node ${catkin_EXPORTED_TARGETS})
+target_link_libraries(rm_confront_pillar_node ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} ${OpenMP_LIBS})
 
 add_executable(rm_record_video
 	${PROJECT_SOURCE_DIR}/src/rm_record_video.cpp
 	)
 target_link_libraries(rm_record_video ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+
+#test challenge
+#1
+add_executable(fsm_runaway_blind
+	${PROJECT_SOURCE_DIR}/src/rm_challenge_uav_node.cpp
+	${PROJECT_SOURCE_DIR}/src/test_challenge/fsm_runaway_blind.cpp
+	)
+target_link_libraries(fsm_runaway_blind ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+
+#2
+add_executable(fsm_wait_setpoint
+	${PROJECT_SOURCE_DIR}/src/rm_challenge_uav_node.cpp
+	${PROJECT_SOURCE_DIR}/src/test_challenge/fsm_wait_setpoint.cpp
+	)
+target_link_libraries(fsm_wait_setpoint ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+
+#3
+add_executable(fsm_pillar1_runaway_blind
+	${PROJECT_SOURCE_DIR}/src/rm_challenge_uav_node.cpp
+	${PROJECT_SOURCE_DIR}/src/test_challenge/fsm_pillar1_runaway_blind.cpp
+	)
+target_link_libraries(fsm_pillar1_runaway_blind ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+
+#4
+add_executable(fsm_pillar2_wait_setpoint
+	${PROJECT_SOURCE_DIR}/src/rm_challenge_uav_node.cpp
+	${PROJECT_SOURCE_DIR}/src/test_challenge/fsm_pillar2_wait_setpoint.cpp
+	)
+target_link_libraries(fsm_pillar2_wait_setpoint ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above

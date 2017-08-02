@@ -22,10 +22,10 @@
 #define PA_TIME_MAX 5.0
 #define PA_LAND_HEIGHT 1.05
 #define PA_LAND_HEIGHT_FINAL 0.6
-#define PA_LAND_HEIGHT_THRESHOLD 0.2
+#define PA_LAND_HEIGHT_THRESHOLD 2.0
 #define PA_LAND_HEIGHT_THRESHOLD_FINAL 0.2
-#define PA_LAND_POSITION_THRESHOLD_HIGH 0.3
-#define PA_LAND_POSITION_THRESHOLD_LOW 0.15
+#define PA_LAND_POSITION_THRESHOLD_HIGH 0.4
+#define PA_LAND_POSITION_THRESHOLD_LOW 0.3
 #define PA_LAND_POSITION_THRESHOLD_SUPER_LOW 0.065
 #define PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG 0.12
 #define PA_V_MIN_HIGH 0.15
@@ -902,6 +902,8 @@ void updateLEDColor()
 {
 
   if(g_discover_pillar_circle)
+    changeLEDColor(LED_GREEN);
+  else if(g_prepare_to_land_type==PREPARE_AT_SUPER_LOW)
     changeLEDColor(LED_GREEN);
   else if(discoverTriangle())
     changeLEDColor(LED_BLUE);
