@@ -20,7 +20,6 @@ ros::Subscriber line_change_sub;
 RMChallengeVision::COLOR_TYPE g_color= RMChallengeVision::RED;
 bool g_is_pillar_running= true;
 bool g_is_line_running= true;
-
 /**global video capture and image*/
 // cv::Mat g_pillar_image;
 // cv::Mat g_line_image;
@@ -183,6 +182,7 @@ int main(int argc, char **argv)
       }
       // publish result to uav
       std_msgs::String pillar_msg;
+      ss.str("");
       ss << pillar_result.triangle[0] << " " << pillar_result.triangle[1] << " "
          << pillar_result.triangle[2] << " " << pillar_result.triangle[3] << " "
          << pillar_result.circle_found << " " << pos_err_x << " " << pos_err_y

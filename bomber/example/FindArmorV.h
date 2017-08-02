@@ -85,7 +85,7 @@ void FindArmorR(Mat src, vector<Point> &armors)
             Scalar avg;
             avg = mean(roi);
             // r[2]-b[0]>10
-            if (!(avg.val[2] - avg.val[0] > 50))
+            if (!(avg.val[2] - avg.val[0] > 20))
             {
                 //cvResetIamgeROI(src);
                 continue;
@@ -215,7 +215,7 @@ void FindArmorB(Mat src, vector<Point> &armors)
             Scalar avg;
             avg = mean(roi);
             // b[0]-r[2]>10
-            if (!(avg.val[0] - avg.val[2] > 50))
+            if (!(avg.val[0] - avg.val[2] > 20))
             {
                 //cvResetIamgeROI(src);
                 continue;

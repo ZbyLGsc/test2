@@ -60,6 +60,7 @@ int main(int argc, char **argv)
       node.subscribe("tpp/yellow_line", 1, vision_line_callback);
   ros::Timer timer= node.createTimer(ros::Duration(1.0 / 50.0), timer_callback);
 
+
   /*initialize fsm*/
   g_fsm.setPositionFromGuidance(5.2, -2);  // TEST
   g_fsm.initialize(node);

@@ -885,6 +885,7 @@ void changeVisionTask(VISION_STATE state)
       changeBaseTask("close");
       g_vision_state= VISION_PILLAR;
 
+
       break;
     }
     case VISION_BASE:

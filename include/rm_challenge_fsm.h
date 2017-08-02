@@ -32,6 +32,7 @@ start2,base5,pillar5,(qulification),3
 #define PA_FLYING_Z_VELOCITY 0.15
 
 
+
 #define PA_LAND_COUNT 1
 #define PA_TIME_MIN 1.5
 #define PA_TIME_MAX 5.0

@@ -51,7 +51,9 @@ int main(int argc, char **argv)
   //string str_get_we_color;
   //node.getParam("/rm_confront_pillar_node/rb_param",str_get_we_color);
   //char get_we_color=*str_get_we_color.c_str();
-  char get_we_color='b';
+  char get_we_color='r';
+
+
   if(get_we_color=='r')
   {
 	g_color= RMChallengeVision::RED;

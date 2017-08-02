@@ -31,6 +31,7 @@ int main(int argc, char **argv)
       cv::imshow("m100_image", g_m100_image);
       writer.write(g_m100_image);
 
+
       // float distance_x, distance_y, line_vector_x, line_vector_y;
       // vision.detectLineWithT(g_m100_image, distance_x, distance_y,
       //                        line_vector_x, line_vector_y);

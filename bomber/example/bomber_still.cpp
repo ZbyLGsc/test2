@@ -55,7 +55,7 @@ double tic()
 #define corA 0.1524
 #define corB 1.8476
 
-Eigen::Vector3d basetags[8] = {{corA, corA, 0}, {1, corA, 0}, {corB, corA, 0}, {corA, 1, 0}, {corB, 1, 0}, {corA, corB, 0}, {1, corB, 0}, {corB, corB, 0}};
+//Eigen::Vector3d basetags[8] = {{corA, corA, 0}, {1, corA, 0}, {corB, corA, 0}, {corA, 1, 0}, {corB, 1, 0}, {corA, corB, 0}, {1, corB, 0}, {corB, corB, 0}};
 
 // vector<Point2f> base_position;
 // int base_position_length = 10;//length for vetcor base_position
@@ -131,8 +131,8 @@ class Demo
     cv::VideoCapture m_cap;
 
     vector<Point2f> base_position;
-    int base_position_length = 10;//length for vetcor base_position
-    int base_position_counter = 0;
+    int base_position_length ;//length for vetcor base_position
+    int base_position_counter ;
 
   public:
     // default constructor
@@ -151,7 +151,9 @@ class Demo
              m_px(322.632),
              m_py(231.39),
 
-             m_deviceId(0)
+             m_deviceId(0),
+             base_position_length(10),
+             base_position_counter(0)
     {
     }
 
@@ -186,36 +188,36 @@ class Demo
              << m_cap.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
     }
 
-    void print_detection(AprilTags::TagDetection &detection) const
-    {
-        cout << "  Id: " << detection.id
-             << " (Hamming: " << detection.hammingDistance << ")";
-
-        // recovering the relative pose of a tag:
-
-        // NOTE: for this to be accurate, it is necessary to use the
-        // actual camera parameters here as well as the actual tag size
-        // (m_fx, m_fy, m_px, m_py, m_tagSize)
-
-        Eigen::Vector3d translation;
-        Eigen::Matrix3d rotation, Eye;
-        detection.getRelativeTranslationRotation(m_tagSize, m_fx, m_fy, m_px, m_py,
-                                                 translation, rotation);
-
-        Eye << 1, 0, 0,
-            0, 1, 0,
-            0, 0, 1;
-        rotation = Eye * rotation.transpose();
-        translation = -rotation * translation + basetags[detection.id];
-
-        cout << "  distance=" << translation.norm()
-             << endl
-             << "  x=" << translation(0)
-             << ", y=" << translation(1)
-             << ", z=" << translation(2)
-
-             << endl;
-    }
+//    void print_detection(AprilTags::TagDetection &detection) const
+//    {
+//        cout << "  Id: " << detection.id
+//             << " (Hamming: " << detection.hammingDistance << ")";
+//
+//        // recovering the relative pose of a tag:
+//
+//        // NOTE: for this to be accurate, it is necessary to use the
+//        // actual camera parameters here as well as the actual tag size
+//        // (m_fx, m_fy, m_px, m_py, m_tagSize)
+//
+//        Eigen::Vector3d translation;
+//        Eigen::Matrix3d rotation, Eye;
+//        detection.getRelativeTranslationRotation(m_tagSize, m_fx, m_fy, m_px, m_py,
+//                                                 translation, rotation);
+//
+//        Eye << 1, 0, 0,
+//            0, 1, 0,
+//            0, 0, 1;
+//        rotation = Eye * rotation.transpose();
+//        translation = -rotation * translation + basetags[detection.id];
+//
+//        cout << "  distance=" << translation.norm()
+//             << endl
+//             << "  x=" << translation(0)
+//             << ", y=" << translation(1)
+//             << ", z=" << translation(2)
+//
+//             << endl;
+//    }
 
     void processImage(cv::Mat &image, cv::Mat &image_gray)
     {
@@ -497,7 +499,7 @@ class Demo
 			fin>>video_cnt;
 			stringstream video_ss;
 			video_ss<<video_cnt;
-			
+
 			fin.close();
 			std::string file_name=video_ss.str();
 			ofstream fout("/home/ubuntu/dji_fly/src/test2/hello2.txt");

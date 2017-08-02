@@ -54,8 +54,9 @@ void RMChallengeVision::extractColor(Mat src, COLOR_TYPE color,
     iHighS= 255;
     iLowV= 0;
     iHighV= 255;
-    bgrThresh1= 40;
-    bgrThresh2= 30;
+    bgrThresh1= 20;
+    bgrThresh2= 10;
+
   }
   else if(color == BLUE)
   {
