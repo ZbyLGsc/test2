@@ -48,10 +48,10 @@ int main(int argc, char **argv)
 
   std::stringstream ss;
 
-  string str_get_we_color;
-  node.getParam("/rm_confront_pillar_node/rb_param",str_get_we_color);
-  char get_we_color=*str_get_we_color.c_str();
-  //char get_we_color='b';
+  //string str_get_we_color;
+  //node.getParam("/rm_confront_pillar_node/rb_param",str_get_we_color);
+  //char get_we_color=*str_get_we_color.c_str();
+  char get_we_color='b';
   if(get_we_color=='r')
   {
 	g_color= RMChallengeVision::RED;
@@ -64,7 +64,7 @@ int main(int argc, char **argv)
   }
 
 
-  cv::VideoWriter g_writer;
+  /*cv::VideoWriter g_writer;
   char want_record_video='y';
 		if(want_record_video=='y')
 		{
@@ -83,7 +83,7 @@ int main(int argc, char **argv)
 
 			file_name = "/home/ubuntu/rosbag/pillar"+file_name+".avi";
 			g_writer.open(file_name, CV_FOURCC('P','I','M','1'),30,cv::Size(640,480));
-		}
+		}*/
   /*main loop*/
   while(ros::ok())
   {
@@ -156,15 +156,16 @@ int main(int argc, char **argv)
          << pillar_result.arc_found;
       pillar_msg.data= ss.str();
       vision_pillar_pub.publish(pillar_msg);
-	  if(want_record_video=='y')
+
+	  /*if(want_record_video=='y')
 			{
                 ROS_INFO_STREAM("BEFORE WRITE");
 				//g_writer.write(frame);
 				ROS_INFO_STREAM("after WRITE");
-			}
+			}*/
     }
   }
-  g_writer.release();
+  //g_writer.release();
   return 1;
 }
 

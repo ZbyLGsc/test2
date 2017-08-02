@@ -193,7 +193,11 @@ void RMChallengeFSM::run()
         }
         else if(isTakeoffTimeout())
         {
-          transferToTask(GO_UP);
+          if(m_current_takeoff_point_id==PA_START||
+                m_current_takeoff_point_id==PA_START_Q)
+             transferToTask(GO_TO_SETPOINT);
+          else
+            transferToTask(GO_UP);
         }
       }
       break;
