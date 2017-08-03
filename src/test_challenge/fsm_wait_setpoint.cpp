@@ -85,7 +85,7 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
 
   /*set point RELATIVE position*/
   m_setpoints[PA_START][0]= 9.5;
-  m_setpoints[PA_START][1]= 3.0;
+  m_setpoints[PA_START][1]= 4.0;
 
   m_setpoints[PA_PILLAR_1][0]= -2.0;
   m_setpoints[PA_PILLAR_1][1]= 4.2;

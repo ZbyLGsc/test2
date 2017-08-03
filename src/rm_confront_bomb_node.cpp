@@ -27,7 +27,7 @@
 #define PA_LAND_POSITION_THRESHOLD_HIGH 0.4
 #define PA_LAND_POSITION_THRESHOLD_LOW 0.3
 #define PA_LAND_POSITION_THRESHOLD_SUPER_LOW 0.065
-#define PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG 0.12
+#define PA_LAND_POSITION_THRESHOLD_SUPER_LOW_BIG 0.15
 #define PA_V_MIN_HIGH 0.15
 #define PA_V_MIN_LOW 0.04
 #define PA_V_MIN_FINAL 0.04
@@ -84,8 +84,10 @@ void vision_pillar_callback(const std_msgs::String::ConstPtr &msg);
 /**timer callback, control uav in a finite state machine*/
 void taskTimerCallback(const ros::TimerEvent &evt);
 void ledTimerCallback(const ros::TimerEvent &evt);
+void gimbalTimerCallback(const ros::TimerEvent &evt);
 
 /**channel variables*/
+int g_fight_status=1;
 int g_RC_channel= RC_P_UP;
 int g_current_channel= -1;
 /**base control variables*/
@@ -155,7 +157,7 @@ void droneDropDown();
 void droneLand();
 
 void updateLEDColor();
-
+void updateGimbalPosition();
 /**vision task control*/
 void changePillarTask(std::string state);
 void changeBaseTask(std::string state);
@@ -204,8 +206,10 @@ int main(int argc, char **argv)
   ros::Timer led_timer=
       node.createTimer(ros::Duration(1.0 / 5.0), ledTimerCallback);
 
-  initilizeSerialPort();
+  ros::Timer gimbal_timer=
+      node.createTimer(ros::Duration(0.01),gimbalTimerCallback);
 
+  initilizeSerialPort();
 #if CURRENT_COMPUTER == MANIFOLD
   g_drone= new DJIDrone(node);
 #endif
@@ -348,6 +352,8 @@ void rc_channels_callback(const dji_sdk::RCChannels rc_channels)
 void uav_state_callback(const std_msgs::UInt8::ConstPtr &msg)
 {
   int flight_status= msg->data;
+  g_fight_status= msg->data;
+  ROS_INFO_STREAM("flight status:"<<g_fight_status);
 }
 
 /**this should be used in P mode when informing change of channels*/
@@ -912,3 +918,36 @@ void updateLEDColor()
   else
     changeLEDColor(LED_RED);
 }
+
+void gimbalTimerCallback(const ros::TimerEvent &evt)
+{
+  updateGimbalPosition();
+  ROS_INFO("gimbal position");
+}
+
+void updateGimbalPosition()
+{
+  ROS_INFO_STREAM("position status \n \n"<<g_fight_status);
+  if(g_fight_status==1)
+  {
+    //on the ground
+    //g_drone->gimbal_angle_control(0,0,900,10);
+    #if CURRENT_COMPUTER == MANIFOLD
+    g_drone->gimbal_angle_control(0,0,900,10);
+    #endif
+    ROS_INFO_STREAM("on land");
+  }
+  else if(g_fight_status==3)
+  {
+    //in the sky
+    #if CURRENT_COMPUTER == MANIFOLD
+    g_drone->gimbal_angle_control(0,-300,900,10);
+    #endif
+    ROS_INFO_STREAM("in the sky");
+  }
+  else
+  {
+    ROS_INFO_STREAM("unkonwn status"<<g_fight_status);
+  }
+}
+//drone->gimbal_angle_control(roll,pitch,yaw,duration);

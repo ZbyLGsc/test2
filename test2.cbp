@@ -37,7 +37,13 @@
 		<Unit filename="src/rm_challenge_fsm.cpp" />
 		<Unit filename="src/rm_challenge_uav_node.cpp" />
 		<Unit filename="src/rm_challenge_vision.cpp" />
+		<Unit filename="src/rm_confront_bomb_node.cpp" />
+		<Unit filename="src/rm_confront_pillar_node.cpp" />
 		<Unit filename="src/rm_test_vision.cpp" />
+		<Unit filename="src/test_challenge/fsm_pillar1_runaway_blind.cpp" />
+		<Unit filename="src/test_challenge/fsm_pillar2_wait_setpoint.cpp" />
+		<Unit filename="src/test_challenge/fsm_runaway_blind.cpp" />
+		<Unit filename="src/test_challenge/fsm_wait_setpoint.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

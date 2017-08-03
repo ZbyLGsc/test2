@@ -85,28 +85,28 @@ void RMChallengeFSM::initialize(ros::NodeHandle &node_handle)
 
   /*set point RELATIVE position*/
   m_setpoints[PA_START][0]= 9.5;
-  m_setpoints[PA_START][1]= 3.0;
+  m_setpoints[PA_START][1]= 4.0;
 
-  m_setpoints[PA_PILLAR_1][0]= -2.0;
+  m_setpoints[PA_PILLAR_1][0]= -4.0;
   m_setpoints[PA_PILLAR_1][1]= 4.2;
 
   m_setpoints[PA_BASE_1][0]= 4.2;
   m_setpoints[PA_BASE_1][1]= 0.0;
 
   m_setpoints[PA_PILLAR_2][0]= -4.8;
-  m_setpoints[PA_PILLAR_2][1]= 0.8;
+  m_setpoints[PA_PILLAR_2][1]= 0.0;
 
   m_setpoints[PA_BASE_2][0]= 4.2;  //
   m_setpoints[PA_BASE_2][1]= 0.0;
 
   m_setpoints[PA_PILLAR_3][0]= -3.8;  //
-  m_setpoints[PA_PILLAR_3][1]= 0.8;
+  m_setpoints[PA_PILLAR_3][1]= 0.0;
 
-  m_setpoints[PA_BASE_3][0]= 0.6;  //
-  m_setpoints[PA_BASE_3][1]= -3.0;
+  m_setpoints[PA_BASE_3][0]= 2.0;  //
+  m_setpoints[PA_BASE_3][1]= -8.0;
 
   m_setpoints[PA_PILLAR_4][0]= -4.0;  //
-  m_setpoints[PA_PILLAR_4][1]= -0.8;
+  m_setpoints[PA_PILLAR_4][1]= 0.0;
 
   m_setpoints[PA_BASE_4][0]= 0.0;  //
   m_setpoints[PA_BASE_4][1]= 0.0;
@@ -152,7 +152,7 @@ void RMChallengeFSM::resetAllState()
   m_base_state= BASE_POSITION;
   m_graspper_control_time= 0;
   /*if want to test different task,change id here as well as .h*/
-  m_current_takeoff_point_id= PA_START_Q;
+  m_current_takeoff_point_id= PA_START;
 
   m_already_find_T= false;
   for(int i= 0; i < 4; i++)
@@ -194,11 +194,11 @@ void RMChallengeFSM::run()
         }
         else if(isTakeoffTimeout())
         {
-          if(m_current_takeoff_point_id==PA_START||
-                m_current_takeoff_point_id==PA_START_Q)
+//          if(m_current_takeoff_point_id==PA_START||
+//                m_current_takeoff_point_id==PA_START_Q)
              transferToTask(GO_TO_SETPOINT);
-          else
-            transferToTask(GO_UP);
+//          else
+//            transferToTask(GO_UP);
         }
       }
       break;
@@ -223,15 +223,15 @@ void RMChallengeFSM::run()
     {
       updateVisionTask();
       updatePillarColor();
-      if(!farFromTakeoffPoint())
-      {
+//      if(!farFromTakeoffPoint())
+//      {
         droneGoToSetPoint();
-      }
+//      }
       //      else if(discoverLandPoint())
       //      {
       //        transferToTask(GO_TO_LAND_POINT);
       //      }
-      else if(discoverYellowLine())
+      if(discoverYellowLine())
       {
         transferToTask(TRACK_LINE);
       }
@@ -452,7 +452,7 @@ void RMChallengeFSM::run()
       if(!forwardFarEnough())
       {
         // droneTrackLine();
-        controlDroneVelocity(PA_KT, 0.0, 0.0, 0.0);
+        controlDroneVelocity(PA_KT, -0.04, 0.0, 0.0);
         ROS_INFO("forward!");
       }
       else
@@ -558,7 +558,7 @@ bool RMChallengeFSM::isTakeoffTimeout()
   ROS_INFO_STREAM("time now is:" << ros::Time::now().toSec());
   ROS_INFO_STREAM("takeoff time is:" << m_takeoff_time.toSec());
   ROS_INFO_STREAM("Taking off time is:" << t);
-  if(PA_TAKEOFF_TIME < t)
+  if(3.5 < t)
   {
     ROS_INFO_STREAM("Time is enough");
     return true;

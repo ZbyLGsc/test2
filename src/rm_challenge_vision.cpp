@@ -126,24 +126,19 @@ void RMChallengeVision::extractColor(Mat src, COLOR_TYPE color,
   Mat large, /*r larger than b or g*/
       abs,   /*|r-b or g|>threshold */
       region1, region2;
-#pragma omp parallel sections
-{
- #pragma omp section
- {
+
   cv::compare(bgr1, bgr2, large, CMP_GT);
   cv::absdiff(bgr1, bgr2, abs);
   cv::threshold(abs, abs, bgrThresh1, 255, THRESH_BINARY);
   cv::bitwise_and(large, abs, region1);
- }
+
   /*extract region that r>g and |r-g|>threshold */
- #pragma omp section
- {
+
   cv::compare(bgr1, bgr3, large, CMP_GT);
   cv::absdiff(bgr1, bgr3, abs);
   cv::threshold(abs, abs, bgrThresh2, 255, THRESH_BINARY);
   cv::bitwise_and(large, abs, region2);
- }
-}
+
   /*all region merge together*/
   cv::bitwise_and(region1, region2, colorRegion);
   cv::bitwise_and(colorRegion, hsv, colorRegion);
@@ -347,7 +342,7 @@ void RMChallengeVision::detectPillarCircle(Mat src, Mat color_region,
         // if the out is white, meaning origin is red
         // and the in is black, meaning origin is other colors
         // then throw the circle
-        vector<Point> out_circle_pt;
+        /*vector<Point> out_circle_pt;
         vector<Point> in_circle_pt;
         int out_circle_pt_cnt= 0;
         int in_circle_pt_cnt= 0;
@@ -374,9 +369,9 @@ void RMChallengeVision::detectPillarCircle(Mat src, Mat color_region,
         {
           cout << "throw a circle" << endl;
           continue;
-        }
+        }*/
 
-        cv::drawContours(draw, contours, i, Scalar(0, 255, 255), 2);
+        //cv::drawContours(draw, contours, i, Scalar(0, 255, 255), 2);
         circle_center= center;
         circle_center.x= center.x - 320;
         circle_center.y= 240 - center.y;
@@ -443,7 +438,7 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
       right= last_center.x + last_radius > src.cols / 2 ?
                  (int)last_center.x + last_radius - src.cols / 2 :
                  0;
-  
+  copyMakeBorder(temp, temp, top, bottom, left, right, BORDER_CONSTANT);
   //copyMakeBorder(color_region, color_region, top, bottom, left, right,
   //               BORDER_CONSTANT);
   //  cout<<top<<' ';
@@ -451,7 +446,7 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
   Mat src_gray;
   cvtColor(temp, src_gray, CV_BGR2GRAY);
 
-copyMakeBorder(src, src, top, bottom, left, right, BORDER_CONSTANT);
+
   /// 模糊
   blur(src_gray, src_gray, Size(3, 3));
   /// 霍夫找圆

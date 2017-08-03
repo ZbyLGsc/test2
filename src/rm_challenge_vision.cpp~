@@ -126,24 +126,19 @@ void RMChallengeVision::extractColor(Mat src, COLOR_TYPE color,
   Mat large, /*r larger than b or g*/
       abs,   /*|r-b or g|>threshold */
       region1, region2;
-#pragma omp parallel sections
-{
- #pragma omp section
- {
+
   cv::compare(bgr1, bgr2, large, CMP_GT);
   cv::absdiff(bgr1, bgr2, abs);
   cv::threshold(abs, abs, bgrThresh1, 255, THRESH_BINARY);
   cv::bitwise_and(large, abs, region1);
- }
+ 
   /*extract region that r>g and |r-g|>threshold */
- #pragma omp section
- {
+ 
   cv::compare(bgr1, bgr3, large, CMP_GT);
   cv::absdiff(bgr1, bgr3, abs);
   cv::threshold(abs, abs, bgrThresh2, 255, THRESH_BINARY);
   cv::bitwise_and(large, abs, region2);
- }
-}
+ 
   /*all region merge together*/
   cv::bitwise_and(region1, region2, colorRegion);
   cv::bitwise_and(colorRegion, hsv, colorRegion);
@@ -451,7 +446,7 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
   Mat src_gray;
   cvtColor(temp, src_gray, CV_BGR2GRAY);
 
-copyMakeBorder(src, src, top, bottom, left, right, BORDER_CONSTANT);
+copyMakeBorder(src_gray, src_gray, top, bottom, left, right, BORDER_CONSTANT);
   /// 模糊
   blur(src_gray, src_gray, Size(3, 3));
   /// 霍夫找圆
@@ -792,7 +787,7 @@ bool RMChallengeVision::detectLineWithT(Mat& src, float& distance_x,
   if(m_visable)
     split(src, bgrSplit);  //分离出BGR通道，为最终显示结果做准备
   //getYellowRegion(src, img, 30, 53, 99, 140);  //获取黄色区域
-  getYellowRegion(src, img, 30, 53, 72, 99);  //获取黄色区域
+  getYellowRegion(src, img, 30, 58, 72, 99);  //获取黄色区域
   Mat element1= getStructuringElement(
       MORPH_ELLIPSE, Size(3, 3));  //设置腐蚀的核大小,5x5的椭圆，即圆
   Mat element2=
