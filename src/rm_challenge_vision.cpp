@@ -30,9 +30,10 @@ void RMChallengeVision::extractColor(Mat src, COLOR_TYPE color,
   Mat hsv;
   vector<Mat> hsvSplit;
   cvtColor(temp, hsv, CV_BGR2HSV);
-  split(hsv, hsvSplit);
-  equalizeHist(hsvSplit[2], hsvSplit[2]);
-  merge(hsvSplit, hsv);
+
+  //split(hsv, hsvSplit);
+  //equalizeHist(hsvSplit[2], hsvSplit[2]);
+  //merge(hsvSplit, hsv);
 
   static int iLowH; /*threshold of  hue*/
   static int iHighH;
@@ -438,7 +439,7 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
       right= last_center.x + last_radius > src.cols / 2 ?
                  (int)last_center.x + last_radius - src.cols / 2 :
                  0;
-  copyMakeBorder(temp, temp, top, bottom, left, right, BORDER_CONSTANT);
+  //copyMakeBorder(temp, temp, top, bottom, left, right, BORDER_CONSTANT);
   //copyMakeBorder(color_region, color_region, top, bottom, left, right,
   //               BORDER_CONSTANT);
   //  cout<<top<<' ';
@@ -448,10 +449,11 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
 
 
   /// 模糊
-  blur(src_gray, src_gray, Size(3, 3));
+  equalizeHist(src_gray, src_gray);
+  GaussianBlur(src_gray, src_gray, Size(9, 9), 0);
   /// 霍夫找圆
   vector<Vec3f> circles;
-  double dp= 2, min_dist= 200, canny_thresh= 200, accumulator= last_radius / 2;
+  double dp= 2, min_dist= 200, canny_thresh= 200, accumulator= 50;
   int min_radius= (int)last_radius - 50 > MIN_RADIUS ? (int)last_radius - 50 :
                                                        MIN_RADIUS,
       max_radius= (int)last_radius + 100 < MAX_RADIUS ? (int)last_radius + 100 :
@@ -514,7 +516,8 @@ void RMChallengeVision::detectPillarArc(Mat src, Mat color_region,
       Point cen(320, 240);
       line(temp, pl, pr, Scalar(0, 255, 0), 1);
       line(temp, pu, pd, Scalar(0, 255, 0), 1);
-      if(hough_center.x != 0 && hough_center.y != 0)
+      if(hough_center.x >= 0 && hough_center.y >= 0
+		 && hough_center.x <= 640 && hough_center.y <= 320)
       {
         line(temp, hough_center, cen, Scalar(0, 0, 255), 2);
         //绘制圆心
