@@ -219,32 +219,32 @@ target_link_libraries(rm_record_video ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 
 #test challenge
 #1
-add_executable(fsm_runaway_blind
+add_executable(pillar2
 	${PROJECT_SOURCE_DIR}/src/rm_challenge_uav_node.cpp
-	${PROJECT_SOURCE_DIR}/src/test_challenge/fsm_runaway_blind.cpp
+	${PROJECT_SOURCE_DIR}/src/test_challenge/pillar2.cpp
 	)
-target_link_libraries(fsm_runaway_blind ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(pillar2 ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 
 #2
-add_executable(fsm_wait_setpoint
+add_executable(pillar3
 	${PROJECT_SOURCE_DIR}/src/rm_challenge_uav_node.cpp
-	${PROJECT_SOURCE_DIR}/src/test_challenge/fsm_wait_setpoint.cpp
+	${PROJECT_SOURCE_DIR}/src/test_challenge/pillar3.cpp
 	)
-target_link_libraries(fsm_wait_setpoint ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(pillar3 ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 
 #3
-add_executable(fsm_pillar1_runaway_blind
-	${PROJECT_SOURCE_DIR}/src/rm_challenge_uav_node.cpp
-	${PROJECT_SOURCE_DIR}/src/test_challenge/fsm_pillar1_runaway_blind.cpp
-	)
-target_link_libraries(fsm_pillar1_runaway_blind ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+#add_executable(fsm_pillar1_runaway_blind
+#	${PROJECT_SOURCE_DIR}/src/rm_challenge_uav_node.cpp
+#	${PROJECT_SOURCE_DIR}/src/test_challenge/fsm_pillar1_runaway_blind.cpp
+#	)
+#target_link_libraries(fsm_pillar1_runaway_blind ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 
 #4
-add_executable(fsm_wait_setpoint
-	${PROJECT_SOURCE_DIR}/src/rm_challenge_uav_node.cpp
-	${PROJECT_SOURCE_DIR}/src/test_challenge/fsm_wait_setpoint.cpp
-	)
-target_link_libraries(fsm_wait_setpoint ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+#add_executable(fsm_pillar2_wait_setpoint
+#	${PROJECT_SOURCE_DIR}/src/rm_challenge_uav_node.cpp
+#	${PROJECT_SOURCE_DIR}/src/test_challenge/fsm_pillar2_wait_setpoint.cpp
+#	)
+#target_link_libraries(fsm_pillar2_wait_setpoint ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 
 
 ## Add cmake target dependencies of the executable

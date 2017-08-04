@@ -11,7 +11,7 @@ start2,base5,pillar5,(qulification),3
 */
 #define TAKEOFF_POINT_NUMBER 12
 #define PA_DEGREE_TO_RADIAN (3.1415926 / 180.0)
-#define PA_ARENA_ANGLE_RED 9
+#define PA_ARENA_ANGLE_RED 15
 #define PA_ARENA_ANGLE_BLUE (-160)
 #define PA_COORDINATE_TRANSFORM_DEGREE PA_ARENA_ANGLE_RED
 #define PA_COORDINATE_TRANSFORM_ANGLE                                          \

@@ -124,22 +124,29 @@ void RMChallengeVision::extractColor(Mat src, COLOR_TYPE color,
     bgr3= bgrSplit.at(2);
   }
   /*extract region that r>b and |r-b|>threshold */
-  Mat large, /*r larger than b or g*/
-      abs,   /*|r-b or g|>threshold */
+  Mat large1, large2, /*r larger than b or g*/
+      abs1, abs2,  /*|r-b or g|>threshold */
       region1, region2;
+#pragma omp parallel sections
+{
+ #pragma omp section
+ {
+  cv::compare(bgr1, bgr2, large1, CMP_GT);
+  cv::absdiff(bgr1, bgr2, abs1);
+  cv::threshold(abs1, abs1, bgrThresh1, 255, THRESH_BINARY);
+  cv::bitwise_and(large1, abs1, region1);
+ }
 
-  cv::compare(bgr1, bgr2, large, CMP_GT);
-  cv::absdiff(bgr1, bgr2, abs);
-  cv::threshold(abs, abs, bgrThresh1, 255, THRESH_BINARY);
-  cv::bitwise_and(large, abs, region1);
-
+ #pragma omp section
+ {
   /*extract region that r>g and |r-g|>threshold */
 
-  cv::compare(bgr1, bgr3, large, CMP_GT);
-  cv::absdiff(bgr1, bgr3, abs);
-  cv::threshold(abs, abs, bgrThresh2, 255, THRESH_BINARY);
-  cv::bitwise_and(large, abs, region2);
-
+  cv::compare(bgr1, bgr3, large2, CMP_GT);
+  cv::absdiff(bgr1, bgr3, abs2);
+  cv::threshold(abs2, abs2, bgrThresh2, 255, THRESH_BINARY);
+  cv::bitwise_and(large2, abs2, region2);
+ }
+}
   /*all region merge together*/
   cv::bitwise_and(region1, region2, colorRegion);
   cv::bitwise_and(colorRegion, hsv, colorRegion);
